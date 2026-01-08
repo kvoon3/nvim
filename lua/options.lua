@@ -16,6 +16,9 @@ vim.opt.mouse="a"
 -- Safety
 vim.opt.confirm = true -- ask for confirmation when quitting with unsaved changes
 
+-- Buffer management: auto-delete unchanged buffers when hidden
+vim.opt.bufhidden = 'wipe' -- automatically delete buffer when abandoned if unmodified
+
 vim.o.background = 'dark'
 vim.cmd[[
   hi Normal guibg=NONE ctermbg=NONE
