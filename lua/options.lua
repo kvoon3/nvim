@@ -26,3 +26,8 @@ vim.cmd[[
   hi NormalFloat guibg=NONE ctermbg=NONE
 ]]
 
+-- Statusline: display current file name and info
+vim.opt.laststatus = 2 -- always show statusline
+vim.opt.statusline = "%f %m%r%h%w %= [%l,%c] [%p%%] [%L lines]"
+-- Format: filename modified-flag readonly help-flag preview-flag | line,column | percentage | total-lines
+
