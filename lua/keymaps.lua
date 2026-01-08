@@ -37,6 +37,9 @@ vim.keymap.set("v", "K", ":move '<-2<CR>gv-gv", opts)
 vim.keymap.set('n', '<leader><BS>', ':Ex<CR>')
 vim.keymap.set('n', "<c-'>", ':q')
 
+-- nvim-tree
+vim.keymap.set('n', '<C-,>', ':NvimTreeToggle<CR>', { silent = true, desc = 'Toggle file explorer' })
+
 vim.keymap.set("n", '<c-s>', ':w<CR>')
 
 local builtin = require('telescope.builtin')
