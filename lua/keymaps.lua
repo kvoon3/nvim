@@ -64,3 +64,11 @@ vim.keymap.set({'x', 'n'}, 'e', '<cmd>lua require("jieba_nvim").wordmotion_e()<C
 vim.keymap.set({'x', 'n'}, 'ge', '<cmd>lua require("jieba_nvim").wordmotion_ge()<CR>', {noremap = false, silent = true})
 vim.keymap.set({'x', 'n'}, 'gE', '<cmd>lua require("jieba_nvim").wordmotion_gE()<CR>', {noremap = false, silent = true})
 
+-----------------
+-- Terminal mode --
+-----------------
+
+-- Exit terminal mode with Escape
+vim.keymap.set('t', '<Esc>', '<C-\\><C-n>', opts)
+
+
