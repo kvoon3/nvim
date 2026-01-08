@@ -1,0 +1,29 @@
+# Neovim data directories
+.netrwhist
+*.swp
+*.swo
+*~
+
+# CoC
+.vim/
+.ccls-cache/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.log
+*.tmp
+
+# Personal notes (optional)
+NOTES.md
+TODO.md
+
+# Backup files
+*.backup
+*~
+
+# IDE
+.vscode/
+.idea/

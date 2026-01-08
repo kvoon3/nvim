@@ -13,3 +13,10 @@ vim.opt.expandtab = true -- tabs are spaces, mainly because of python
 
 vim.opt.mouse="a"
 
+vim.o.background = 'dark'
+vim.cmd[[
+  hi Normal guibg=NONE ctermbg=NONE
+  hi NormalNC guibg=NONE ctermbg=NONE
+  hi NormalFloat guibg=NONE ctermbg=NONE
+]]
+
