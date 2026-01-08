@@ -50,6 +50,15 @@ vim.keymap.set('n', '<leader>fh', builtin.help_tags, { desc = 'Telescope help ta
 
 vim.keymap.set('n', '<leader>p', '"+p')
 vim.keymap.set('n', '<leader>a', 'ggVG')
+vim.keymap.set('n', '<leader>lg', ':terminal lazygit<CR>', opts)
+
+-----------------
+-- Comments --
+-----------------
+
+-- Toggle comment with Ctrl+/
+vim.keymap.set('n', '<C-/>', 'gcc', { remap = true, desc = 'Toggle comment' })
+vim.keymap.set('v', '<C-/>', 'gc', { remap = true, desc = 'Toggle comment' })
 
 ----------
 -- jieba
