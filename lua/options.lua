@@ -13,6 +13,9 @@ vim.opt.expandtab = true -- tabs are spaces, mainly because of python
 
 vim.opt.mouse="a"
 
+-- Safety
+vim.opt.confirm = true -- ask for confirmation when quitting with unsaved changes
+
 vim.o.background = 'dark'
 vim.cmd[[
   hi Normal guibg=NONE ctermbg=NONE
