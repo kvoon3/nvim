@@ -35,22 +35,25 @@ vim.keymap.set("v", "J", ":move '>+1<CR>gv-gv", opts)
 vim.keymap.set("v", "K", ":move '<-2<CR>gv-gv", opts)
 
 vim.keymap.set('n', '<leader><BS>', ':Ex<CR>')
+
+-- Snacks file explorer
+vim.keymap.set('n', '<C-,>', function() Snacks.explorer() end, { desc = 'Toggle file explorer' })
+
+-- Create new file
+vim.keymap.set('n', '%', ':call mkdir(expand("%:p:h"), "p")<CR>:e %<CR>', { desc = 'Create new file and its parent directories' })
+
 vim.keymap.set('n', "<c-'>", ':q')
 
--- nvim-tree
-vim.keymap.set('n', '<C-,>', ':NvimTreeToggle<CR>', { silent = true, desc = 'Toggle file explorer' })
-
 vim.keymap.set("n", '<c-s>', ':w<CR>')
-
 local builtin = require('telescope.builtin')
 vim.keymap.set('n', '<c-p>', builtin.find_files, { desc = 'Telescope find files' })
 vim.keymap.set('n', '<leader>ff', builtin.live_grep, { desc = 'Telescope live grep' })
 vim.keymap.set('n', '<leader>fb', builtin.buffers, { desc = 'Telescope buffers' })
 vim.keymap.set('n', '<leader>fh', builtin.help_tags, { desc = 'Telescope help tags' })
+vim.keymap.set('n', '<leader>lg', function() Snacks.lazygit() end, { desc = 'Open lazygit' })
 
 vim.keymap.set('n', '<leader>p', '"+p')
 vim.keymap.set('n', '<leader>a', 'ggVG')
-vim.keymap.set('n', '<leader>lg', ':terminal lazygit<CR>', opts)
 
 -----------------
 -- Comments --
@@ -79,5 +82,9 @@ vim.keymap.set({'x', 'n'}, 'gE', '<cmd>lua require("jieba_nvim").wordmotion_gE()
 
 -- Exit terminal mode with Escape
 --- vim.keymap.set('t', '<Esc>', '<C-\\><C-n>', opts)
+
+-- Snacks terminal - VSCode style quick terminal
+vim.keymap.set('n', '<C-t>', function() Snacks.terminal() end, { desc = 'Toggle terminal' })
+vim.keymap.set('t', '<C-t>', '<Cmd>close<CR>', { desc = 'Close terminal' })
 
 
