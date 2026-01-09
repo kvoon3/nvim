@@ -4,7 +4,7 @@ return {
   lazy = false,
   opts = {
     bigfile = { enabled = true },
-    quickfile = { enabled = true },
+    quickfile = { enabled = false },
     indent = { enabled = false },
     scroll = { enabled = false },
     statuscolumn = { enabled = true },
@@ -16,7 +16,8 @@ return {
     words = { enabled = true },
     scope = { enabled = true },
     explorer = {
-      replace_netrw = true,
+      enabled = true,
+      replace_netrw = false,
       trash = true,
     },
     dashboard = {
@@ -34,7 +35,14 @@ return {
     picker = {
       sources = {
         explorer = {
+          enabled = true,
           show_hidden = true,
+        }
+      },
+      layout = {
+        preset = "sidebar",
+        layout = {
+          position = "right",
         }
       }
     },

@@ -1,7 +1,7 @@
 return {
   'tribela/transparent.nvim',
   config = {
-    enable = true,
+    enable = false,
     extra_groups = {
       'NormalFloat',
       'NvimTreeNormal'

@@ -36,8 +36,8 @@ vim.keymap.set("v", "K", ":move '<-2<CR>gv-gv", opts)
 
 vim.keymap.set('n', '<leader><BS>', ':Ex<CR>')
 
--- Snacks file explorer
-vim.keymap.set('n', '<C-,>', function() Snacks.explorer() end, { desc = 'Toggle file explorer' })
+vim.keymap.set('n', '<C-,>', function() Snacks.picker.explorer() end, { desc = 'Toggle file explorer' })
+vim.keymap.set('n', '<leader>fb', function() require('telescope').extensions.file_browser.file_browser({ path = vim.fn.expand('%:p:h'), select_buffer = true }) end, { desc = 'File browser in current directory' })
 
 -- Create new file
 vim.keymap.set('n', '%', ':call mkdir(expand("%:p:h"), "p")<CR>:e %<CR>', { desc = 'Create new file and its parent directories' })
