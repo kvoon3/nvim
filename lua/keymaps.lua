@@ -34,9 +34,9 @@ vim.keymap.set('v', '>', '>gv', opts)
 vim.keymap.set("v", "J", ":move '>+1<CR>gv-gv", opts)
 vim.keymap.set("v", "K", ":move '<-2<CR>gv-gv", opts)
 
-vim.keymap.set('n', '<leader><BS>', ':Ex<CR>')
-
+-- File explorer - using Snacks as primary
 vim.keymap.set('n', '<C-,>', function() Snacks.picker.explorer() end, { desc = 'Toggle file explorer' })
+vim.keymap.set('n', '<leader>e', function() Snacks.picker.explorer() end, { desc = 'File explorer' })
 vim.keymap.set('n', '<leader>fb', function() require('telescope').extensions.file_browser.file_browser({ path = vim.fn.expand('%:p:h'), select_buffer = true }) end, { desc = 'File browser in current directory' })
 
 -- Create new file
@@ -53,7 +53,7 @@ vim.keymap.set('n', '<leader>fh', builtin.help_tags, { desc = 'Telescope help ta
 vim.keymap.set('n', '<leader>lg', function() Snacks.lazygit() end, { desc = 'Open lazygit' })
 
 vim.keymap.set('n', '<leader>p', '"+p')
-vim.keymap.set('n', '<leader>a', 'ggVG')
+vim.keymap.set('n', '<leader>A', 'ggVG', { desc = 'Select all' })
 
 -----------------
 -- Comments --
