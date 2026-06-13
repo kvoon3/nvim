@@ -52,4 +52,27 @@ return {
       },
     },
   },
+  config = function(_, opts)
+    require("snacks").setup(opts)
+
+    -- Auto-hide file explorer when focus moves into the editor
+    local picker_fts = {
+      snacks_picker_list = true,
+      snacks_picker_input = true,
+      snacks_picker_preview = true,
+    }
+
+    vim.api.nvim_create_autocmd("WinEnter", {
+      group = vim.api.nvim_create_augroup("SnacksExplorerAutoHide", { clear = true }),
+      callback = function()
+        if picker_fts[vim.bo.filetype] then
+          return
+        end
+
+        for _, picker in ipairs(Snacks.picker.get({ source = "explorer" })) do
+          picker:close()
+        end
+      end,
+    })
+  end,
 }
