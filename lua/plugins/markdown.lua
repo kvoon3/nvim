@@ -11,4 +11,21 @@ return {
         backgrounds = {},
       },
     },
+    commander = {
+      {
+        desc = "Toggle markdown rendering",
+        cmd = "<CMD>RenderMarkdown toggle<CR>",
+        cat = "Markdown",
+      },
+      {
+        desc = "Enable markdown rendering",
+        cmd = "<CMD>RenderMarkdown enable<CR>",
+        cat = "Markdown",
+      },
+      {
+        desc = "Disable markdown rendering",
+        cmd = "<CMD>RenderMarkdown disable<CR>",
+        cat = "Markdown",
+      },
+    },
 }

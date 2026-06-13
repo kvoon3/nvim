@@ -52,6 +52,15 @@ vim.keymap.set('n', '<leader>fb', builtin.buffers, { desc = 'Telescope buffers' 
 vim.keymap.set('n', '<leader>fh', builtin.help_tags, { desc = 'Telescope help tags' })
 vim.keymap.set('n', '<leader>lg', function() Snacks.lazygit() end, { desc = 'Open lazygit' })
 
+-----------------
+-- Command palette --
+-----------------
+
+-- VSCode-style Command Center (Ctrl+Shift+P)
+vim.keymap.set('n', '<C-S-p>', function() require('commander').show() end, { desc = 'Command palette' })
+-- Fallback in case terminal doesn't send Ctrl+Shift+P
+vim.keymap.set('n', '<leader>cc', function() require('commander').show() end, { desc = 'Command palette' })
+
 vim.keymap.set('n', '<leader>p', '"+p')
 vim.keymap.set('n', '<leader>A', 'ggVG', { desc = 'Select all' })
 
