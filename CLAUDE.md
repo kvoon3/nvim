@@ -26,7 +26,6 @@ This file provides comprehensive guidance for working with the Neovim configurat
 # Inside neovim:
 :checkhealth                 # Check overall neovim health
 :checkhealth coc            # Check CoC language server status
-:checkhealth treesitter     # Check treesitter parser status
 :checkhealth telescope      # Check telescope functionality
 
 # Lua configuration validation
@@ -45,8 +44,7 @@ This file provides comprehensive guidance for working with the Neovim configurat
 # Verify plugin locations
 echo $HOME/.local/share/nvim/lazy | ls
 
-# Check treesitter parser installation
-nvim --headless -c "TSInstallInfo" -c "quit!"
+
 
 # Validate CoC extensions
 coc-extensions: coc-explorer, coc-json, coc-tsserver, coc-python, etc.
@@ -97,7 +95,7 @@ init.lua (entry point)
 lua/
 ├── config/
 │   └── lazy.lua           # Lazy.nvim setup and plugin management
-├── plugins/               # Individual plugin configurations (15 files)
+├── plugins/               # Individual plugin configurations (14 files)
 │   ├── auto-dark-mode.lua # Automatic dark/light mode switching
 │   ├── auto-pairs.lua    # Auto-closing brackets/quotes
 │   ├── coc.lua          # Conquer of Completion integration
@@ -110,7 +108,6 @@ lua/
 │   ├── moonfly.lua      # Primary colorscheme configuration
 │   ├── surround.lua     # Text object surround operations
 │   ├── telescope.lua    # Fuzzy finding framework
-│   ├── treesitter.lua   # Syntax highlighting and parsing
 │   ├── ts-comment.lua   # TypeScript/JavaScript commenting
 │   └── wakatime.lua     # Code time tracking
 ├── coc-config.lua         # CoC keybindings and functionality
@@ -127,7 +124,6 @@ lua/
 
 **Developer Tools**
 - **telescope.lua**: File finding (`<C-p>`), grep (`<leader>ff`), buffers, help
-- **treesitter.lua**: Advanced syntax highlighting and parsing
 - **coc.lua**: VSCode-grade language server support (LSP, diagnostics, refactoring)
 - **flash.lua**: Lightning-fast search and jump (similar to easymotion)
 - **markers.lua**: Navigation bookmarks and location management
@@ -201,8 +197,7 @@ coc-extension: CocList extensions
 
 **Log and Cache Locations:**
 - Lazy plugin cache: `~/.local/share/nvim/lazy/`
-- CoC data: `~/.config/coc/` 
-- Treesitter parsers: `~/.local/share/nvim/tree-sitter/`
+- CoC data: `~/.config/coc/`
 - Debug logs: Check `:messages`
 
 ### Performance Optimization
@@ -222,9 +217,6 @@ coc-extension: CocList extensions
 # Clean unused plugins
 :Lazy clean
 
-# Update treesitter parsers
-:TSUpdate
-
 # Check neovim version compatibility
 :version
 ```
@@ -235,13 +227,12 @@ coc-extension: CocList extensions
 
 **Python/Node Requirements:**
 - CoC requires Node.js for language servers
-- Some treesitter parsers may require specific compilers
 - Jieba plugin requires Chinese text support
 
 **Custom Settings:**
 - Uses spaces instead of tabs (tabstop=2, shiftwidth=2, expandtab)
 - Moonfly colorscheme as default (dark variant)
 - Spacebar `<Space>` as leader key
-- Extensive Chinese text support via jieba.nvim
+- Extensive Chinese text support via jieba.vim
 
 This configuration represents a personal, opinionated setup optimized for developer productivity with strong support for multilingual development (especially Chinese text) and modern language server integration.
