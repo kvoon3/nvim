@@ -96,4 +96,19 @@ vim.keymap.set({'x', 'n'}, 'gE', '<cmd>lua require("jieba_nvim").wordmotion_gE()
 vim.keymap.set('n', '<C-t>', function() Snacks.terminal() end, { desc = 'Toggle terminal' })
 vim.keymap.set('t', '<C-t>', '<Cmd>close<CR>', { desc = 'Close terminal' })
 
+-----------------
+-- Open in GitHub --
+-----------------
 
+local open_in_github = require('open-in-github')
+vim.keymap.set('n', '<leader>go', open_in_github.open_in_github, { desc = 'Open in GitHub' })
+vim.keymap.set('v', '<leader>go', open_in_github.open_in_github, { desc = 'Open in GitHub' })
+
+require('commander').add({
+  {
+    desc = 'Open in GitHub',
+    cmd = open_in_github.open_in_github,
+    keys = { 'n', '<leader>go' },
+    cat = 'git',
+  },
+})
