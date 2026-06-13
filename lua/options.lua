@@ -28,6 +28,10 @@ vim.cmd[[
 
 vim.opt.wrap = false
 
+-- Search
+vim.opt.ignorecase = true -- case-insensitive search by default
+vim.opt.smartcase = true -- override ignorecase when pattern contains uppercase letters
+
 -- Statusline: display current file name and info
 vim.opt.laststatus = 2 -- always show statusline
 vim.opt.statusline = "%f %m%r%h%w %= [%l,%c] [%p%%] [%L lines]"
