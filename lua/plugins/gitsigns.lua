@@ -78,5 +78,37 @@ return {
       -- Text object
       map({'o', 'x'}, 'ih', ':<C-U>Gitsigns select_hunk<CR>', { desc = 'Select hunk' })
     end
+  },
+  commander = {
+    {
+      desc = "Open lazygit",
+      cmd = function() Snacks.lazygit() end,
+      cat = "Git",
+    },
+    {
+      desc = "Stage hunk",
+      cmd = function() require("gitsigns").stage_hunk() end,
+      cat = "Git",
+    },
+    {
+      desc = "Reset hunk",
+      cmd = function() require("gitsigns").reset_hunk() end,
+      cat = "Git",
+    },
+    {
+      desc = "Preview hunk",
+      cmd = function() require("gitsigns").preview_hunk() end,
+      cat = "Git",
+    },
+    {
+      desc = "Blame line",
+      cmd = function() require("gitsigns").blame_line({ full = true }) end,
+      cat = "Git",
+    },
+    {
+      desc = "Diff this",
+      cmd = function() require("gitsigns").diffthis() end,
+      cat = "Git",
+    },
   }
 }
