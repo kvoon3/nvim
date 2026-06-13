@@ -6,6 +6,9 @@ return {
     opts = {
       sign = {
         enabled = false,
-      }
+      },
+      heading = {
+        backgrounds = {},
+      },
     },
 }
