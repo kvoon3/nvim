@@ -37,6 +37,14 @@ return {
         explorer = {
           enabled = true,
           show_hidden = true,
+          win = {
+            list = {
+              keys = {
+                ["o"] = "confirm",
+                ["O"] = "explorer_open",
+              },
+            },
+          },
         }
       },
       layout = {
