@@ -51,6 +51,74 @@ return {
             lazygit:toggle()
         end
 
+        local function show_terminals()
+            local has_terminals = false
+            for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+                if vim.bo[buf].filetype == 'toggleterm' then
+                    has_terminals = true
+                    break
+                end
+            end
+
+            if not has_terminals then
+                vim.notify('No terminals', vim.log.levels.INFO)
+                return
+            end
+
+            local ok = pcall(function()
+                Snacks.picker({
+                    source = 'terminals',
+                    title = 'Terminals',
+                    finder = function(opts, ctx)
+                        local items = {}
+                        for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+                            if vim.bo[buf].filetype == 'toggleterm' then
+                                local id = vim.b[buf].toggle_number
+                                local text = id and ('Terminal ' .. id) or 'Terminal'
+                                table.insert(items, {
+                                    buf = buf,
+                                    id = id,
+                                    text = text,
+                                    name = text,
+                                    file = text,
+                                })
+                            end
+                        end
+                        return ctx.filter:filter(items)
+                    end,
+                    preview = function(ctx)
+                        local buf = ctx.item.buf
+                        if not buf or not vim.api.nvim_buf_is_valid(buf) then
+                            return false
+                        end
+                        ctx.preview:reset()
+                        ctx.preview:set_title(ctx.item.text)
+                        local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
+                        -- preview buffer 默认是 scratch 且不可修改，需临时解锁
+                        vim.bo[ctx.buf].modifiable = true
+                        vim.api.nvim_buf_set_lines(ctx.buf, 0, -1, false, lines)
+                        vim.bo[ctx.buf].modifiable = false
+                        vim.bo[ctx.buf].filetype = 'toggleterm'
+                        return true
+                    end,
+                    actions = {
+                        confirm = function(picker, item)
+                            picker:close()
+                            if item and item.id then
+                                vim.cmd(item.id .. 'ToggleTerm')
+                            end
+                        end,
+                    },
+                })
+            end)
+
+            if not ok then
+                vim.notify('Failed to open terminal picker', vim.log.levels.ERROR)
+            end
+        end
+
+        vim.keymap.set('n', '<leader>tt', show_terminals, { desc = 'List all terminals' })
+
         -- 注册 commander 命令
         local ok, commander = pcall(require, 'commander')
         if ok then
@@ -83,6 +151,12 @@ return {
                     desc = 'Open lazygit in terminal',
                     cmd = lazygit_toggle,
                     keys = { 'n', '<leader>tg' },
+                    cat = 'terminal',
+                },
+                {
+                    desc = 'List all terminals',
+                    cmd = show_terminals,
+                    keys = { 'n', '<leader>tt' },
                     cat = 'terminal',
                 },
             })

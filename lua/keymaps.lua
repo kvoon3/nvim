@@ -128,23 +128,41 @@ end
 -----------------
 
 local function toggle_right_panel()
+    -- 如果已经在 file explorer 中，关闭它
     if is_explorer_win() then
         close_explorer()
-    else
-        if is_terminal_win() then
-            close_terminal()
-        end
+        return
+    end
+
+    -- 先尝试标准窗口导航（例如多个 terminal 之间左右跳转）
+    local start_win = vim.api.nvim_get_current_win()
+    vim.cmd('wincmd l')
+    if vim.api.nvim_get_current_win() ~= start_win then
+        return
+    end
+
+    -- 无法向右导航，且当前不在 terminal 中，才打开 file explorer
+    if not is_terminal_win() then
         Snacks.picker.explorer()
     end
 end
 
 local function toggle_bottom_panel()
+    -- 如果已经在 terminal 中，关闭它
     if is_terminal_win() then
         close_terminal()
-    else
-        if is_explorer_win() then
-            close_explorer()
-        end
+        return
+    end
+
+    -- 先尝试标准窗口导航（例如多个 terminal 之间上下跳转）
+    local start_win = vim.api.nvim_get_current_win()
+    vim.cmd('wincmd j')
+    if vim.api.nvim_get_current_win() ~= start_win then
+        return
+    end
+
+    -- 无法向下导航，且当前不在 file explorer 中，才打开 terminal
+    if not is_explorer_win() then
         vim.cmd('ToggleTerm')
     end
 end
@@ -179,9 +197,37 @@ vim.keymap.set('t', '<C-j>', '<C-\\><C-n><C-w>j', opts)
 vim.keymap.set('t', '<C-k>', '<C-\\><C-n><C-w>k', opts)
 vim.keymap.set('t', '<C-l>', '<C-\\><C-n><C-w>l', opts)
 
+local toggleterm_auto_hide_group = vim.api.nvim_create_augroup('ToggleTermAutoHide', { clear = true })
+
+-- Save terminal view before leaving a terminal window, so smart-toggle can restore it later
+vim.api.nvim_create_autocmd('WinLeave', {
+    group = toggleterm_auto_hide_group,
+    callback = function()
+        if vim.bo.filetype ~= 'toggleterm' then
+            return
+        end
+        local ok_ui, ui = pcall(require, 'toggleterm.ui')
+        local ok_terms, terms = pcall(require, 'toggleterm.terminal')
+        if not ok_ui or not ok_terms then
+            return
+        end
+
+        local open_terms = {}
+        local focus_id = terms.get_focused_id()
+        for _, term in ipairs(terms.get_all()) do
+            if term:is_open() then
+                table.insert(open_terms, term.id)
+            end
+        end
+        if #open_terms > 0 then
+            ui.save_terminal_view(open_terms, focus_id)
+        end
+    end,
+})
+
 -- Auto-hide terminal when focus moves back to the main editor
 vim.api.nvim_create_autocmd('WinEnter', {
-    group = vim.api.nvim_create_augroup('ToggleTermAutoHide', { clear = true }),
+    group = toggleterm_auto_hide_group,
     callback = function()
         if vim.bo.filetype == 'toggleterm' then
             return
