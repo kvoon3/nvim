@@ -37,6 +37,15 @@ return {
         explorer = {
           enabled = true,
           show_hidden = true,
+          -- Preview the file under cursor in the main editor window,
+          -- so its content is visible without pressing Enter.
+          layout = {
+            preset = "sidebar",
+            preview = "main",
+            layout = {
+              position = "right",
+            },
+          },
           win = {
             list = {
               keys = {
