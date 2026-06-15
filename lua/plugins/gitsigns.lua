@@ -81,7 +81,7 @@ return {
   },
   commander = {
     {
-      desc = "Open lazygit",
+      desc = "Open lazygit (lg)",
       cmd = function() Snacks.lazygit() end,
       cat = "Git",
     },
