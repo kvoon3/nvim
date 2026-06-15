@@ -98,11 +98,22 @@ vim.keymap.set({ 'x', 'n' }, 'gE', jieba_motion(false, false), { silent = true }
 -----------------
 
 -- Exit terminal mode with Escape
---- vim.keymap.set('t', '<Esc>', '<C-\\><C-n>', opts)
+vim.keymap.set('t', '<Esc>', '<C-\\><C-n>', opts)
 
--- Snacks terminal - VSCode style quick terminal
-vim.keymap.set('n', '<C-t>', function() Snacks.terminal() end, { desc = 'Toggle terminal' })
-vim.keymap.set('t', '<C-t>', '<Cmd>close<CR>', { desc = 'Close terminal' })
+-- Toggle terminal (toggleterm)
+vim.keymap.set('n', '<C-t>', '<Cmd>ToggleTerm<CR>', { desc = 'Toggle terminal' })
+vim.keymap.set('t', '<C-t>', '<C-\\><C-n><Cmd>ToggleTerm<CR>', { desc = 'Toggle terminal' })
+
+-- Open numbered terminals
+vim.keymap.set('n', '<leader>1', '<Cmd>1ToggleTerm<CR>', { desc = 'Toggle terminal 1' })
+vim.keymap.set('n', '<leader>2', '<Cmd>2ToggleTerm<CR>', { desc = 'Toggle terminal 2' })
+vim.keymap.set('n', '<leader>3', '<Cmd>3ToggleTerm<CR>', { desc = 'Toggle terminal 3' })
+
+-- Terminal window navigation
+vim.keymap.set('t', '<C-h>', '<C-\\><C-n><C-w>h', opts)
+vim.keymap.set('t', '<C-j>', '<C-\\><C-n><C-w>j', opts)
+vim.keymap.set('t', '<C-k>', '<C-\\><C-n><C-w>k', opts)
+vim.keymap.set('t', '<C-l>', '<C-\\><C-n><C-w>l', opts)
 
 -----------------
 -- Open in GitHub --
