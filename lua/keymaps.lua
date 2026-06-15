@@ -51,6 +51,9 @@ vim.keymap.set('n', '<leader>fb', builtin.buffers, { desc = 'Telescope buffers' 
 vim.keymap.set('n', '<leader>fh', builtin.help_tags, { desc = 'Telescope help tags' })
 vim.keymap.set('n', '<leader>lg', function() Snacks.lazygit() end, { desc = 'Open lazygit' })
 
+vim.api.nvim_create_user_command('Lazygit', function() Snacks.lazygit() end, { desc = 'Open lazygit' })
+vim.cmd([[cnoreabbrev <expr> lg getcmdtype() ==# ':' && getcmdline() ==# 'lg' ? 'Lazygit' : 'lg']])
+
 -----------------
 -- Command palette --
 -----------------
