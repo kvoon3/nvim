@@ -9,11 +9,11 @@ local opts = {
 -----------------
 
 -- Hint: see `:h vim.map.set()`
--- Better window navigation
-vim.keymap.set('n', '<C-h>', '<C-w>h', opts)
-vim.keymap.set('n', '<C-j>', '<C-w>j', opts)
-vim.keymap.set('n', '<C-k>', '<C-w>k', opts)
-vim.keymap.set('n', '<C-l>', '<C-w>l', opts)
+-- Better window navigation (use :wincmd to avoid recursive mappings)
+vim.keymap.set('n', '<C-h>', '<Cmd>wincmd h<CR>', opts)
+vim.keymap.set('n', '<C-j>', '<Cmd>wincmd j<CR>', opts)
+vim.keymap.set('n', '<C-k>', '<Cmd>wincmd k<CR>', opts)
+vim.keymap.set('n', '<C-l>', '<Cmd>wincmd l<CR>', opts)
 
 -- Resize with arrows
 -- delta: 2 lines
@@ -94,6 +94,70 @@ vim.keymap.set({ 'x', 'n' }, 'ge', jieba_motion(false, false), { silent = true }
 vim.keymap.set({ 'x', 'n' }, 'gE', jieba_motion(false, false), { silent = true })
 
 -----------------
+-- Panel helpers --
+-----------------
+
+local function is_explorer_win(winid)
+    local buf = vim.api.nvim_win_get_buf(winid or 0)
+    local ft = vim.bo[buf].filetype
+    return ft == 'snacks_picker_list'
+        or ft == 'snacks_picker_input'
+        or ft == 'snacks_picker_preview'
+end
+
+local function is_terminal_win(winid)
+    local buf = vim.api.nvim_win_get_buf(winid or 0)
+    return vim.bo[buf].filetype == 'toggleterm'
+end
+
+local function close_explorer()
+    local ok = pcall(function()
+        for _, picker in ipairs(Snacks.picker.get({ source = 'explorer' })) do
+            picker:close()
+        end
+    end)
+    return ok
+end
+
+local function close_terminal()
+    vim.cmd('ToggleTerm')
+end
+
+-----------------
+-- Panel toggles --
+-----------------
+
+local function toggle_right_panel()
+    if is_explorer_win() then
+        close_explorer()
+    else
+        if is_terminal_win() then
+            close_terminal()
+        end
+        Snacks.picker.explorer()
+    end
+end
+
+local function toggle_bottom_panel()
+    if is_terminal_win() then
+        close_terminal()
+    else
+        if is_explorer_win() then
+            close_explorer()
+        end
+        vim.cmd('ToggleTerm')
+    end
+end
+
+-- <C-w>l / <C-w><C-l>: toggle right panel (file explorer)
+vim.keymap.set('n', '<c-w>l', toggle_right_panel, { desc = 'Toggle right panel (file explorer)' })
+vim.keymap.set('n', '<c-w><c-l>', toggle_right_panel, { desc = 'Toggle right panel (file explorer)' })
+
+-- <C-w>j / <C-w><C-j>: toggle bottom panel (terminal)
+vim.keymap.set('n', '<c-w>j', toggle_bottom_panel, { desc = 'Toggle bottom panel (terminal)' })
+vim.keymap.set('n', '<c-w><c-j>', toggle_bottom_panel, { desc = 'Toggle bottom panel (terminal)' })
+
+-----------------
 -- Terminal mode --
 -----------------
 
@@ -114,6 +178,27 @@ vim.keymap.set('t', '<C-h>', '<C-\\><C-n><C-w>h', opts)
 vim.keymap.set('t', '<C-j>', '<C-\\><C-n><C-w>j', opts)
 vim.keymap.set('t', '<C-k>', '<C-\\><C-n><C-w>k', opts)
 vim.keymap.set('t', '<C-l>', '<C-\\><C-n><C-w>l', opts)
+
+-- Auto-hide terminal when focus moves back to the main editor
+vim.api.nvim_create_autocmd('WinEnter', {
+    group = vim.api.nvim_create_augroup('ToggleTermAutoHide', { clear = true }),
+    callback = function()
+        if vim.bo.filetype == 'toggleterm' then
+            return
+        end
+        local ok, terms = pcall(function()
+            return require('toggleterm.terminal').get_all()
+        end)
+        if not ok then
+            return
+        end
+        for _, term in ipairs(terms) do
+            if term:is_open() then
+                term:close()
+            end
+        end
+    end,
+})
 
 -----------------
 -- Open in GitHub --
