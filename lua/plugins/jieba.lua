@@ -1,5 +1,4 @@
 return {
-  'neo451/jieba.nvim',
+  'neo451/jieba-lua',
   lazy = false,
-  dependencies = { 'neo451/jieba-lua' },
 }

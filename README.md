@@ -2,6 +2,10 @@
 
 Kevin Kwong's Neovim config.
 
+## Setup
+
+Start Neovim. [lazy.nvim](https://github.com/folke/lazy.nvim) will install plugins automatically.
+
 ## Dependencies
 
 ### im-select (optional)
