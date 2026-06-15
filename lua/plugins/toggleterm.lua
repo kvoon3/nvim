@@ -52,72 +52,128 @@ return {
         end
 
         local function show_terminals()
-            local has_terminals = false
-            for _, buf in ipairs(vim.api.nvim_list_bufs()) do
-                if vim.bo[buf].filetype == 'toggleterm' then
-                    has_terminals = true
-                    break
-                end
+            local terms_module = require('toggleterm.terminal')
+            local terminals = {}
+            for _, term in ipairs(terms_module.get_all()) do
+                table.insert(terminals, term)
             end
 
-            if not has_terminals then
+            if #terminals == 0 then
                 vim.notify('No terminals', vim.log.levels.INFO)
                 return
             end
 
-            local ok = pcall(function()
-                Snacks.picker({
-                    source = 'terminals',
-                    title = 'Terminals',
-                    finder = function(opts, ctx)
-                        local items = {}
-                        for _, buf in ipairs(vim.api.nvim_list_bufs()) do
-                            if vim.bo[buf].filetype == 'toggleterm' then
-                                local id = vim.b[buf].toggle_number
-                                local text = id and ('Terminal ' .. id) or 'Terminal'
-                                table.insert(items, {
-                                    buf = buf,
-                                    id = id,
-                                    text = text,
-                                    name = text,
-                                    file = text,
-                                })
-                            end
-                        end
-                        return ctx.filter:filter(items)
-                    end,
-                    preview = function(ctx)
-                        local buf = ctx.item.buf
-                        if not buf or not vim.api.nvim_buf_is_valid(buf) then
-                            return false
-                        end
-                        ctx.preview:reset()
-                        ctx.preview:set_title(ctx.item.text)
-                        local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
-                        -- preview buffer 默认是 scratch 且不可修改，需临时解锁
-                        vim.bo[ctx.buf].modifiable = true
-                        vim.api.nvim_buf_set_lines(ctx.buf, 0, -1, false, lines)
-                        vim.bo[ctx.buf].modifiable = false
-                        vim.bo[ctx.buf].filetype = 'toggleterm'
-                        return true
-                    end,
-                    actions = {
-                        confirm = function(picker, item)
-                            picker:close()
-                            if item and item.id then
-                                vim.cmd(item.id .. 'ToggleTerm')
-                            end
-                        end,
-                    },
-                })
+            local ok, telescope = pcall(function()
+                return {
+                    pickers = require('telescope.pickers'),
+                    finders = require('telescope.finders'),
+                    conf = require('telescope.config').values,
+                    previewers = require('telescope.previewers'),
+                    actions = require('telescope.actions'),
+                    action_state = require('telescope.actions.state'),
+                }
             end)
 
             if not ok then
-                vim.notify('Failed to open terminal picker', vim.log.levels.ERROR)
+                -- fallback 到简单选择
+                local items = vim.tbl_map(function(term)
+                    return {
+                        id = term.id,
+                        text = 'Terminal ' .. term.id,
+                        term = term,
+                    }
+                end, terminals)
+
+                local origin_win = vim.api.nvim_get_current_win()
+                vim.ui.select(items, {
+                    prompt = 'Select terminal:',
+                    format_item = function(item) return item.text end,
+                }, function(item)
+                    if not item then return end
+                    if vim.api.nvim_win_is_valid(origin_win) then
+                        vim.api.nvim_set_current_win(origin_win)
+                    end
+                    local term = item.term
+                    if term:is_open() then term:close() end
+                    term:change_direction('horizontal')
+                    term:open()
+                    vim.cmd('startinsert!')
+                end)
+                return
             end
+
+            telescope.pickers.new({}, {
+                prompt_title = 'Terminals',
+                finder = telescope.finders.new_table({
+                    results = terminals,
+                    entry_maker = function(term)
+                        return {
+                            value = term,
+                            display = 'Terminal ' .. term.id,
+                            ordinal = 'Terminal ' .. term.id,
+                            bufnr = term.bufnr,
+                        }
+                    end,
+                }),
+                sorter = telescope.conf.generic_sorter({}),
+                previewer = telescope.previewers.new_buffer_previewer({
+                    title = 'Terminal Preview',
+                    get_buffer_by_name = function(_, entry)
+                        return entry.bufnr
+                    end,
+                    define_preview = function(self, entry)
+                        local buf = entry.bufnr
+                        if not buf or not vim.api.nvim_buf_is_valid(buf) then
+                            return
+                        end
+                        local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
+                        vim.api.nvim_buf_set_lines(self.state.bufnr, 0, -1, false, lines)
+                        vim.bo[self.state.bufnr].filetype = 'toggleterm'
+                    end,
+                }),
+                attach_mappings = function(prompt_bufnr)
+                    telescope.actions.select_default:replace(function()
+                        local selection = telescope.action_state.get_selected_entry()
+                        telescope.actions.close(prompt_bufnr)
+                        if selection then
+                            local term = selection.value
+                            if term:is_open() then
+                                term:close()
+                            end
+                            term:change_direction('horizontal')
+                            term:open()
+                            vim.cmd('startinsert!')
+                        end
+                    end)
+                    return true
+                end,
+            }):find()
         end
 
         vim.keymap.set('n', '<leader>tt', show_terminals, { desc = 'List all terminals' })
+
+        local function toggle_terminal_fullscreen()
+            local ok, terms = pcall(require, 'toggleterm.terminal')
+            if not ok then
+                return
+            end
+
+            -- 优先使用当前 focused terminal，否则用 terminal 1
+            local term_id = terms.get_focused_id() or 1
+            local term = terms.get(term_id)
+            if not term then
+                term = terms.get_or_create_term(term_id)
+            end
+
+            -- 切换方向：半屏 horizontal <-> 全屏 float
+            local new_direction = term.direction == 'horizontal' and 'float' or 'horizontal'
+            term:change_direction(new_direction)
+            term:open()
+            vim.cmd('startinsert!')
+        end
+
+        -- 注意：<C-m> 在 Vim 中等价于 <CR>
+        vim.keymap.set('n', '<c-m>', toggle_terminal_fullscreen, { desc = 'Toggle terminal fullscreen' })
 
         -- 注册 commander 命令
         local ok, commander = pcall(require, 'commander')
@@ -157,6 +213,12 @@ return {
                     desc = 'List all terminals',
                     cmd = show_terminals,
                     keys = { 'n', '<leader>tt' },
+                    cat = 'terminal',
+                },
+                {
+                    desc = 'Toggle terminal fullscreen',
+                    cmd = toggle_terminal_fullscreen,
+                    keys = { 'n', '<c-m>' },
                     cat = 'terminal',
                 },
             })
