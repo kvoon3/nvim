@@ -51,7 +51,7 @@ local servers = {
   },
   -- Vue / JS / TS
   ts_ls = {},
-  volar = {},
+  vue_ls = {},
 
   -- CSS / HTML
   cssls = {},
@@ -62,17 +62,19 @@ local ensure_installed = vim.tbl_keys(servers or {})
 
 require('mason-lspconfig').setup {
   ensure_installed = ensure_installed,
-  automatic_installation = false,
-  handlers = {
-    function(server_name)
-      local server = servers[server_name] or {}
-      server.capabilities = require('cmp_nvim_lsp').default_capabilities()
-      require('lspconfig')[server_name].setup(server)
-    end,
-  },
+  automatic_enable = false, -- we enable servers manually below
 }
 
+local capabilities = require('cmp_nvim_lsp').default_capabilities()
+
+for server_name, server in pairs(servers) do
+  server.capabilities = capabilities
+  vim.lsp.config(server_name, server)
+  vim.lsp.enable(server_name)
+end
+
 -- UnoCSS language server (installed via npm, not Mason)
-require('lspconfig').unocss.setup {
-  capabilities = require('cmp_nvim_lsp').default_capabilities(),
-}
+vim.lsp.config('unocss', {
+  capabilities = capabilities,
+})
+vim.lsp.enable('unocss')
