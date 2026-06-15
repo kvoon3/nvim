@@ -9,9 +9,11 @@ vim.opt.splitright = true -- open new horizontal splits right
 
 -- Tab
 vim.opt.tabstop = 2 -- number of visual spaces per TAB
-vim.opt.softtabstop = 2 -- number of spacesin tab when editing
+vim.opt.softtabstop = 2 -- number of spaces in tab when editing
 vim.opt.shiftwidth = 2 -- insert 2 spaces on a tab
-vim.opt.expandtab = true -- tabs are spaces, mainly because of python
+vim.opt.expandtab = true -- always use spaces instead of tab characters
+vim.opt.smarttab = true -- use shiftwidth when inserting tabs at the beginning of a line
+vim.opt.autoindent = true -- copy indent from current line when starting a new line
 
 vim.opt.mouse="a"
 
