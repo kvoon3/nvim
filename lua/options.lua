@@ -19,12 +19,7 @@ vim.opt.confirm = true -- ask for confirmation when quitting with unsaved change
 -- Buffer management: auto-delete unchanged buffers when hidden
 vim.opt.bufhidden = 'wipe' -- automatically delete buffer when abandoned if unmodified
 
-vim.o.background = 'dark'
-vim.cmd[[
-  hi Normal guibg=NONE ctermbg=NONE
-  hi NormalNC guibg=NONE ctermbg=NONE
-  hi NormalFloat guibg=NONE ctermbg=NONE
-]]
+-- Background / colorscheme is managed by auto-dark-mode.nvim and olive-crt.nvim
 
 vim.opt.wrap = false
 
