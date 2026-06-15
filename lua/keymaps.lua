@@ -128,43 +128,40 @@ end
 -----------------
 
 local function toggle_right_panel()
-    -- 如果已经在 file explorer 中，关闭它
     if is_explorer_win() then
         close_explorer()
         return
     end
 
-    -- 先尝试标准窗口导航（例如多个 terminal 之间左右跳转）
     local start_win = vim.api.nvim_get_current_win()
     vim.cmd('wincmd l')
     if vim.api.nvim_get_current_win() ~= start_win then
         return
     end
 
-    -- 无法向右导航，且当前不在 terminal 中，才打开 file explorer
     if not is_terminal_win() then
         Snacks.picker.explorer()
     end
 end
 
 local function toggle_bottom_panel()
-    -- 如果已经在 terminal 中，关闭它
     if is_terminal_win() then
         close_terminal()
         return
     end
 
-    -- 先尝试标准窗口导航（例如多个 terminal 之间上下跳转）
     local start_win = vim.api.nvim_get_current_win()
     vim.cmd('wincmd j')
     if vim.api.nvim_get_current_win() ~= start_win then
         return
     end
 
-    -- 无法向下导航，且当前不在 file explorer 中，才打开 terminal
-    if not is_explorer_win() then
-        vim.cmd('ToggleTerm')
+    if is_explorer_win() then
+        close_explorer()
     end
+
+    -- 简洁逻辑：<c-w>j 就是 toggle 底部 terminal panel（smart toggle 保存/恢复视图）
+    vim.cmd('ToggleTerm')
 end
 
 -- <C-w>l / <C-w><C-l>: toggle right panel (file explorer)
