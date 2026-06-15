@@ -51,6 +51,7 @@ return {
               keys = {
                 ["o"] = "confirm",
                 ["O"] = "explorer_open",
+                ["%"] = "explorer_add",
               },
             },
           },
