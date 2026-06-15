@@ -166,6 +166,39 @@ local function toggle_bottom_panel()
     vim.cmd('ToggleTerm')
 end
 
+local picker_fts = {
+    snacks_picker_list = true,
+    snacks_picker_input = true,
+    snacks_picker_preview = true,
+}
+
+--[[
+Focus the main editor window when pressing <C-w>h from a Snacks picker window.
+This is needed because the file explorer preview is shown in the main editor,
+so the user expects <C-w>h to jump to the currently previewed file.
+]]
+local function focus_main_editor()
+    local current_win = vim.api.nvim_get_current_win()
+    local current_buf = vim.api.nvim_win_get_buf(current_win)
+    local current_ft = vim.bo[current_buf].filetype
+
+    if not picker_fts[current_ft] then
+        vim.cmd('wincmd h')
+        return
+    end
+
+    for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+        if win ~= current_win then
+            local buf = vim.api.nvim_win_get_buf(win)
+            local ft = vim.bo[buf].filetype
+            if not picker_fts[ft] and ft ~= 'toggleterm' then
+                vim.api.nvim_set_current_win(win)
+                return
+            end
+        end
+    end
+end
+
 -- <C-w>l / <C-w><C-l>: toggle right panel (file explorer)
 vim.keymap.set('n', '<c-w>l', toggle_right_panel, { desc = 'Toggle right panel (file explorer)' })
 vim.keymap.set('n', '<c-w><c-l>', toggle_right_panel, { desc = 'Toggle right panel (file explorer)' })
@@ -173,6 +206,10 @@ vim.keymap.set('n', '<c-w><c-l>', toggle_right_panel, { desc = 'Toggle right pan
 -- <C-w>j / <C-w><C-j>: toggle bottom panel (terminal)
 vim.keymap.set('n', '<c-w>j', toggle_bottom_panel, { desc = 'Toggle bottom panel (terminal)' })
 vim.keymap.set('n', '<c-w><c-j>', toggle_bottom_panel, { desc = 'Toggle bottom panel (terminal)' })
+
+-- <C-w>h / <C-w><C-h>: focus main editor from explorer preview
+vim.keymap.set('n', '<c-w>h', focus_main_editor, { desc = 'Focus main editor from explorer preview' })
+vim.keymap.set('n', '<c-w><c-h>', focus_main_editor, { desc = 'Focus main editor from explorer preview' })
 
 -----------------
 -- Terminal mode --

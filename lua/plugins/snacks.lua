@@ -41,7 +41,7 @@ return {
           -- so its content is visible without pressing Enter.
           layout = {
             preset = "sidebar",
-            preview = "main",
+            preview = "preview",
             layout = {
               position = "right",
             },
