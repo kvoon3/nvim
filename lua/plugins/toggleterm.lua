@@ -11,13 +11,14 @@ return {
                     return vim.o.columns * 0.4
                 end
             end,
-            -- 不在这里设置 open_mapping，避免和 Snacks 的 <C-t> 冲突
-            -- 我们在 keymaps.lua 里手动绑定
+
             direction = 'horizontal',
+
             float_opts = {
                 border = 'rounded',
                 winblend = 0,
             },
+
             start_in_insert = true,
             insert_mappings = true,
             terminal_mappings = true,
@@ -32,7 +33,6 @@ return {
 
         local Terminal = require('toggleterm.terminal').Terminal
 
-        -- 创建专用的 terminal 实例
         local lazygit = Terminal:new({
             cmd = 'lazygit',
             dir = 'git_dir',
@@ -158,24 +158,20 @@ return {
                 return
             end
 
-            -- 优先使用当前 focused terminal，否则用 terminal 1
             local term_id = terms.get_focused_id() or 1
             local term = terms.get(term_id)
             if not term then
                 term = terms.get_or_create_term(term_id)
             end
 
-            -- 切换方向：半屏 horizontal <-> 全屏 float
             local new_direction = term.direction == 'horizontal' and 'float' or 'horizontal'
             term:change_direction(new_direction)
             term:open()
             vim.cmd('startinsert!')
         end
 
-        -- 注意：<C-m> 在 Vim 中等价于 <CR>
         vim.keymap.set('n', '<c-m>', toggle_terminal_fullscreen, { desc = 'Toggle terminal fullscreen' })
 
-        -- 注册 commander 命令
         local ok, commander = pcall(require, 'commander')
         if ok then
             commander.add({
