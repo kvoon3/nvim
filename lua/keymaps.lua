@@ -60,8 +60,6 @@ vim.cmd([[cnoreabbrev <expr> lg getcmdtype() ==# ':' && getcmdline() ==# 'lg' ? 
 
 -- VSCode-style Command Center (Ctrl+Shift+P)
 vim.keymap.set('n', '<C-S-p>', function() require('commander').show() end, { desc = 'Command palette' })
--- Fallback in case terminal doesn't send Ctrl+Shift+P
-vim.keymap.set('n', '<leader>cc', function() require('commander').show() end, { desc = 'Command palette' })
 
 vim.keymap.set('n', '<leader>p', '"+p')
 vim.keymap.set('n', '<leader>A', 'ggVG', { desc = 'Select all' })
@@ -295,6 +293,17 @@ require('commander').add({
     desc = 'Open in GitHub',
     cmd = open_in_github.open_in_github,
     keys = { 'n', '<leader>go' },
+    cat = 'git',
+  },
+  {
+    desc = 'Open plugin in GitHub',
+    cmd = open_in_github.open_plugin_in_github,
+    keys = { 'n', '<leader>gO' },
+    cat = 'git',
+  },
+  {
+    desc = 'Open current file plugin in GitHub',
+    cmd = open_in_github.open_current_plugin_in_github,
     cat = 'git',
   },
 })
