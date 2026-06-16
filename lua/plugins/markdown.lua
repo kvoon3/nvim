@@ -10,6 +10,9 @@ return {
       heading = {
         backgrounds = {},
       },
+      win_options = {
+        wrap = { default = false, rendered = true },
+      },
     },
     commander = {
       {
