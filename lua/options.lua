@@ -16,6 +16,7 @@ vim.opt.smarttab = true -- use shiftwidth when inserting tabs at the beginning o
 vim.opt.autoindent = true -- copy indent from current line when starting a new line
 
 vim.opt.mouse="a"
+vim.opt.mousescroll = 'ver:1,hor:1' -- scroll one line/column per mouse wheel tick
 
 -- Safety
 vim.opt.confirm = true -- ask for confirmation when quitting with unsaved changes
