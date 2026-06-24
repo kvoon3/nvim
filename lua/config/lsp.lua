@@ -59,6 +59,9 @@ local servers = {
   -- CSS / HTML
   cssls = {},
   html = {},
+
+  -- Rust
+  rust_analyzer = {},
 }
 
 local ensure_installed = vim.tbl_keys(servers or {})

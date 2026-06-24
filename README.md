@@ -43,7 +43,7 @@ CJK Text Enhancement:
 
 ### LSP & Completion
 
-- **Language servers**: [nvim-lspconfig](https://github.com/neovim/nvim-lspconfig) + [Mason](https://github.com/williamboman/mason.nvim) manage `lua_ls`, `ts_ls`, `vue_ls`, `cssls`, `html`, and `unocss`.
+- **Language servers**: [nvim-lspconfig](https://github.com/neovim/nvim-lspconfig) + [Mason](https://github.com/williamboman/mason.nvim) manage `lua_ls`, `ts_ls`, `vue_ls`, `cssls`, `html`, `unocss`, and `rust_analyzer`.
 - **Autocompletion**: [nvim-cmp](https://github.com/hrsh7th/nvim-cmp) with LSP, LuaSnip, path, and buffer sources.
 - **Snippets**: [LuaSnip](https://github.com/L3MON4D3/LuaSnip) with `<C-l>` / `<C-h>` jump mappings.
 - **LSP actions**: Go to definition/references (`gd`, `gr`), hover (`gh`), rename (`<leader>rn`), code actions (`<leader>ca`), and format (`<leader>f`).

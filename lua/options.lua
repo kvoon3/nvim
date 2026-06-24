@@ -24,7 +24,7 @@ vim.opt.confirm = true -- ask for confirmation when quitting with unsaved change
 -- Buffer management: auto-delete unchanged buffers when hidden
 vim.opt.bufhidden = 'wipe' -- automatically delete buffer when abandoned if unmodified
 
--- Background / colorscheme is managed by auto-dark-mode.nvim and olive-crt.nvim
+-- Background / colorscheme is managed by auto-dark-mode.nvim; everforest-nvim is active, olive-crt.nvim is kept as an alternative
 
 vim.opt.wrap = false
 
