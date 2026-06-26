@@ -72,8 +72,8 @@ CJK Text Enhancement:
 ### UI & Themes
 
 - **Plugin management**: [lazy.nvim](https://github.com/folke/lazy.nvim) for fast, declarative plugin loading.
-- **Auto dark mode**: [auto-dark-mode.nvim](https://github.com/f-person/auto-dark-mode.nvim) switches between light and dark background based on macOS appearance.
-- **Color schemes**: [Kanagawa](https://github.com/rebelot/kanagawa.nvim), [moonfly](https://github.com/bluz71/vim-moonfly-colors), and [olive-crt](https://github.com/torgeir/olive-crt.nvim).
+- **Auto dark mode**: [auto-dark-mode.nvim](https://github.com/f-person/auto-dark-mode.nvim) switches between vitesse-light-soft (light) and vitesse-black (dark) based on macOS appearance.
+- **Color schemes**: [Vitesse](https://github.com/kvoon3/vitesse.nvim), [Everforest](https://github.com/neanias/everforest-nvim), [Kanagawa](https://github.com/rebelot/kanagawa.nvim), [moonfly](https://github.com/bluz71/vim-moonfly-colors), and [olive-crt](https://github.com/torgeir/olive-crt.nvim).
 - **Notifications & input**: Snacks notifier and input UI replace default message boxes.
 - **Statusline**: Custom minimal statusline showing filename, modified flag, and cursor position.
 - **Markdown rendering**: [render-markdown.nvim](https://github.com/MeanderingProgrammer/render-markdown.nvim) with toggle commands.
