@@ -26,6 +26,16 @@ vim.api.nvim_create_autocmd('LspAttach', {
     vim.keymap.set('n', '<leader>f', function()
       vim.lsp.buf.format { async = true }
     end, opts)
+
+    -- ponytail: format-on-save for Rust, sync so write waits for fmt
+    if vim.bo[ev.buf].filetype == 'rust' then
+      vim.api.nvim_create_autocmd('BufWritePre', {
+        buffer = ev.buf,
+        callback = function()
+          vim.lsp.buf.format { async = false }
+        end,
+      })
+    end
   end,
 })
 
