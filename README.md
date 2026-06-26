@@ -51,7 +51,7 @@ CJK Text Enhancement:
 ### Finding & Exploring
 
 - **Fuzzy finding**: [Telescope](https://github.com/nvim-telescope/telescope.nvim) for files (`<C-p>`), live grep (`<leader>ff`), buffers (`<leader>fb`), help tags (`<leader>fh`), and colorschemes (`<leader>cs`).
-- **File explorer**: [snacks.nvim](https://github.com/folke/snacks.nvim) `explorer` with a right-side sidebar, hidden files, and live preview.
+- **File explorer**: [snacks.nvim](https://github.com/folke/snacks.nvim) `explorer` with a right-side sidebar, hidden files, and live preview. Delete/move confirmations use a centered float modal.
 - **Command palette**: [commander.nvim](https://github.com/FeiyouG/commander.nvim) accessible with `<C-S-p>` or `<leader>cc`.
 - **Dashboard**: Snacks startup dashboard on launch.
 

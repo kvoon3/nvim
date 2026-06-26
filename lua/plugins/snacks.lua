@@ -55,7 +55,19 @@ return {
               },
             },
           },
-        }
+        },
+        -- Use a centered float modal for vim.ui.select confirmations
+        -- (e.g. the "Delete ...?" prompt from Snacks explorer).
+        -- We explicitly set position = "float" to override the global
+        -- sidebar/right layout that would otherwise leak into this source.
+        select = {
+          layout = {
+            preset = "select",
+            layout = {
+              position = "float",
+            },
+          },
+        },
       },
       layout = {
         preset = "sidebar",
