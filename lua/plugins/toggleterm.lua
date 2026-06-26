@@ -170,7 +170,7 @@ return {
             vim.cmd('startinsert!')
         end
 
-        vim.keymap.set('n', '<c-m>', toggle_terminal_fullscreen, { desc = 'Toggle terminal fullscreen' })
+        vim.keymap.set('n', '<C-S-t>', toggle_terminal_fullscreen, { desc = 'Toggle terminal fullscreen' })
 
         local ok, commander = pcall(require, 'commander')
         if ok then
@@ -214,7 +214,7 @@ return {
                 {
                     desc = 'Toggle terminal fullscreen',
                     cmd = toggle_terminal_fullscreen,
-                    keys = { 'n', '<c-m>' },
+                    keys = { 'n', '<C-S-t>' },
                     cat = 'terminal',
                 },
             })
