@@ -28,7 +28,7 @@ If the binary is not installed, the plugin is skipped silently and Neovim will s
 ### Editing
 
 - **Fast jump**: [flash.nvim](https://github.com/folke/flash.nvim) for quick character-level navigation.
-- **Jump to errors**: Navigate diagnostics (`[d` / `]d` / `<leader>en`), open diagnostic float (`<leader>df`), and diagnostics list (`<leader>q`).
+- **Jump to errors**: Navigate diagnostics (`[d` / `]d` / `<leader>en` / `<leader>wn` / `<leader>in` / `<leader>hn`), open diagnostic float (`<leader>df`), and diagnostics list (`<leader>q`).
 - **Mouse support**: Full mouse support for clicking to position the cursor, selecting text, scrolling, and more.
 - **Auto-pairs & surround**: Automatic bracket pairing and [nvim-surround](https://github.com/kylechui/nvim-surround) for changing surrounding characters.
 - **Enhanced commenting**: [ts-comments.nvim](https://github.com/folke/ts-comments.nvim) for context-aware line/block comments.
