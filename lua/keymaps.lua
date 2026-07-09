@@ -72,27 +72,6 @@ vim.keymap.set('n', '<leader>a', 'ggVG', { desc = 'Select all' })
 vim.keymap.set('n', '<C-/>', 'gcc', { remap = true, desc = 'Toggle comment' })
 vim.keymap.set('v', '<C-/>', 'gc', { remap = true, desc = 'Toggle comment' })
 
-----------
--- jieba
-----------
-
-local function jieba_motion(begin, forward)
-  return function()
-    local jieba = require('wordmotion.nvim.jieba')
-    jieba.init()
-    jieba.motion:keymap(begin, forward)
-  end
-end
-
-vim.keymap.set({ 'x', 'n' }, 'B', jieba_motion(true, false), { silent = true })
-vim.keymap.set({ 'x', 'n' }, 'b', jieba_motion(true, false), { silent = true })
-vim.keymap.set({ 'x', 'n' }, 'w', jieba_motion(true, true), { silent = true })
-vim.keymap.set({ 'x', 'n' }, 'W', jieba_motion(true, true), { silent = true })
-vim.keymap.set({ 'x', 'n' }, 'E', jieba_motion(false, true), { silent = true })
-vim.keymap.set({ 'x', 'n' }, 'e', jieba_motion(false, true), { silent = true })
-vim.keymap.set({ 'x', 'n' }, 'ge', jieba_motion(false, false), { silent = true })
-vim.keymap.set({ 'x', 'n' }, 'gE', jieba_motion(false, false), { silent = true })
-
 -----------------
 -- Panel helpers --
 -----------------
