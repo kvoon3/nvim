@@ -18,6 +18,16 @@ Needed to compile language parsers (Vue, TS, …):
 brew install tree-sitter-cli
 ```
 
+### oxfmt / oxlint (optional)
+
+JS/TS format + lint. Put binaries on `PATH` (or use [vite-plus](https://github.com/voidzero-dev/vite-plus)):
+
+```bash
+npm i -g oxfmt oxlint oxlint-tsgolint
+```
+
+Defaults live in [`config/oxfmt/`](config/oxfmt/) and [`config/oxlint/`](config/oxlint/); project configs take precedence.
+
 ### im-select (optional)
 
 The [im-select.nvim](https://github.com/keaising/im-select.nvim) plugin is used to switch input methods automatically when leaving/entering insert mode. It is only loaded when the `im-select` binary is found in your `PATH`.
@@ -56,6 +66,7 @@ CJK Text Enhancement:
 - **Autocompletion**: [nvim-cmp](https://github.com/hrsh7th/nvim-cmp) with LSP, LuaSnip, path, and buffer sources.
 - **Snippets**: [LuaSnip](https://github.com/L3MON4D3/LuaSnip) with `<C-l>` / `<C-h>` jump mappings.
 - **LSP actions**: Go to definition/references (`gd`, `gr`), hover (`gh`), rename (`<leader>rn`), code actions (`<leader>ca`), and format (`<leader>f`).
+- **oxfmt / oxlint**: Format + sort imports on save; lint with type-aware/TSGo when available. Safe fix on save; `:LspOxlintFixAll` to fix manually.
 
 ### Syntax & Treesitter
 
