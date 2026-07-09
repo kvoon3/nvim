@@ -4,6 +4,7 @@ require('config.lazy')
 require('options')
 require('keymaps')
 require('config.lsp')
+require('config.oxfmt').setup()
 require('vue-config')
 
 if vim.g.vscode then
