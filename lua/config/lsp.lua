@@ -68,6 +68,24 @@ require('mason').setup()
 
 -- Configure servers here.
 -- Servers listed in `ensure_installed` will be installed automatically by Mason.
+--
+-- Vue hybrid mode (vue_ls v3+):
+--   vue_ls owns HTML/CSS in .vue files;
+--   ts_ls (+ @vue/typescript-plugin) owns <script> TS/JS and must attach to vue ft.
+-- See: https://github.com/vuejs/language-tools/wiki/Neovim
+local vue_language_server_path = vim.fn.expand '$MASON/packages/vue-language-server/node_modules/@vue/language-server'
+if vim.fn.isdirectory(vue_language_server_path) == 0 then
+  vue_language_server_path = vim.fn.stdpath('data')
+    .. '/mason/packages/vue-language-server/node_modules/@vue/language-server'
+end
+
+local vue_plugin = {
+  name = '@vue/typescript-plugin',
+  location = vue_language_server_path,
+  languages = { 'vue' },
+  configNamespace = 'typescript',
+}
+
 local servers = {
   lua_ls = {
     settings = {
@@ -77,8 +95,21 @@ local servers = {
       },
     },
   },
-  -- Vue / JS / TS
-  ts_ls = {},
+  -- Vue / JS / TS (hybrid mode)
+  ts_ls = {
+    init_options = {
+      plugins = {
+        vue_plugin,
+      },
+    },
+    filetypes = {
+      'typescript',
+      'javascript',
+      'javascriptreact',
+      'typescriptreact',
+      'vue',
+    },
+  },
   vue_ls = {},
 
   -- CSS / HTML

@@ -10,6 +10,14 @@ git clone https://github.com/kvoon3/nvim.git ~/.config/nvim
 
 ## Requirement
 
+### tree-sitter-cli
+
+Needed to compile language parsers (Vue, TS, …):
+
+```bash
+brew install tree-sitter-cli
+```
+
 ### im-select (optional)
 
 The [im-select.nvim](https://github.com/keaising/im-select.nvim) plugin is used to switch input methods automatically when leaving/entering insert mode. It is only loaded when the `im-select` binary is found in your `PATH`.
@@ -44,9 +52,14 @@ CJK Text Enhancement:
 ### LSP & Completion
 
 - **Language servers**: [nvim-lspconfig](https://github.com/neovim/nvim-lspconfig) + [Mason](https://github.com/williamboman/mason.nvim) manage `lua_ls`, `ts_ls`, `vue_ls`, `cssls`, `html`, `unocss`, and `rust_analyzer`.
+- **Vue hybrid mode**: `vue_ls` (template/style) + `ts_ls` with `@vue/typescript-plugin` (`<script>` TS). Context: [notes/vue-treesitter.md](notes/vue-treesitter.md).
 - **Autocompletion**: [nvim-cmp](https://github.com/hrsh7th/nvim-cmp) with LSP, LuaSnip, path, and buffer sources.
 - **Snippets**: [LuaSnip](https://github.com/L3MON4D3/LuaSnip) with `<C-l>` / `<C-h>` jump mappings.
 - **LSP actions**: Go to definition/references (`gd`, `gr`), hover (`gh`), rename (`<leader>rn`), code actions (`<leader>ca`), and format (`<leader>f`).
+
+### Syntax & Treesitter
+
+- **Treesitter**: [nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter) installs parsers; core `vim.treesitter.start()` does highlighting. Context: [notes/vue-treesitter.md](notes/vue-treesitter.md).
 
 ### Finding & Exploring
 
@@ -81,4 +94,8 @@ CJK Text Enhancement:
 ### Others
 
 - **Coding time tracking**: [vim-wakatime](https://github.com/wakatime/vim-wakatime) integration.
+
+## Notes
+
+- [Vue & Treesitter](notes/vue-treesitter.md) — why hybrid LSP + archived nvim-treesitter
 
