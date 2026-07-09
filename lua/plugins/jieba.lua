@@ -3,24 +3,20 @@ return {
   lazy = false,
   config = function()
     --[[
-      jieba.hmm.cut prints non-Chinese blocks (debug leftover), which floods
-      the message area on w/b/e and triggers the hit-enter prompt.
+      Default HMM mode can split multi-byte non-Chinese chars (e.g. · U+00B7)
+      into raw bytes. wordmotion then crashes with "invalid UTF-8 code" and
+      shows the hit-enter prompt. Dictionary mode avoids that; quality is fine
+      for normal Chinese text.
     ]]
-    local hmm = require('jieba.hmm')
-    local cut = hmm.cut
-    hmm.cut = function(sentence)
-      local old = print
-      print = function() end
-      local ok, result = pcall(cut, sentence)
-      print = old
-      if not ok then
-        error(result)
-      end
-      return result
-    end
+    local j = require('wordmotion.nvim.jieba')
+    j.jieba_motion = {
+      jieba = require('jieba.jieba').Jieba({ hmm = false }),
+    }
+    j.motion = nil
+    j.init()
 
     -- Plugin maps w/b/e/ge; add WORD variants.
-    require('wordmotion.nvim.jieba').set_keymaps({
+    j.set_keymaps({
       W = { { 'n', 'x' }, { true, true } },
       B = { { 'n', 'x' }, { true, false } },
       E = { { 'n', 'x' }, { false, true } },
