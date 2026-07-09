@@ -62,7 +62,7 @@ vim.cmd([[cnoreabbrev <expr> lg getcmdtype() ==# ':' && getcmdline() ==# 'lg' ? 
 vim.keymap.set('n', '<C-S-p>', function() require('commander').show() end, { desc = 'Command palette' })
 
 vim.keymap.set('n', '<leader>p', '"+p')
-vim.keymap.set('n', '<leader>A', 'ggVG', { desc = 'Select all' })
+vim.keymap.set('n', '<leader>a', 'ggVG', { desc = 'Select all' })
 
 -----------------
 -- Comments --
