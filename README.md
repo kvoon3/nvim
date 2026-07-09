@@ -6,40 +6,10 @@ Kevin Kwong's Neovim config.
 
 ```sh
 git clone https://github.com/kvoon3/nvim.git ~/.config/nvim
+~/.config/nvim/scripts/setup.sh
 ```
 
-## Requirement
-
-### tree-sitter-cli
-
-Needed to compile language parsers (Vue, TS, …):
-
-```bash
-brew install tree-sitter-cli
-```
-
-### oxfmt / oxlint (optional)
-
-JS/TS format + lint. Put binaries on `PATH` (or use [vite-plus](https://github.com/voidzero-dev/vite-plus)):
-
-```bash
-npm i -g oxfmt oxlint oxlint-tsgolint
-```
-
-Defaults live in [`config/oxfmt/`](config/oxfmt/) and [`config/oxlint/`](config/oxlint/); project configs take precedence.
-
-### im-select (optional)
-
-The [im-select.nvim](https://github.com/keaising/im-select.nvim) plugin is used to switch input methods automatically when leaving/entering insert mode. It is only loaded when the `im-select` binary is found in your `PATH`.
-
-To install it on macOS:
-
-```bash
-brew tap daipeihust/tap
-brew install im-select
-```
-
-If the binary is not installed, the plugin is skipped silently and Neovim will start without errors.
+`setup.sh` installs brew/npm tools (`tree-sitter-cli`, `lazygit`, `im-select`, `oxfmt`, `oxlint`, …) and runs `Lazy! sync` (plugins include jieba). Ox defaults: [`config/oxfmt/`](config/oxfmt/), [`config/oxlint/`](config/oxlint/).
 
 ## Features
 
@@ -56,7 +26,7 @@ If the binary is not installed, the plugin is skipped silently and Neovim will s
 
 CJK Text Enhancement:
 
-- **Word Split**: [jieba](https://github.com/noearc/jieba.nvim)-powered `w`/`b`/`e` motions for Chinese and mixed-language text.
+- **Word Split**: [jieba](https://github.com/neo451/jieba-lua)-powered `w`/`b`/`e` motions for Chinese and mixed-language text.
 - **Input method auto-switch**: Optional `im-select` integration that switches input methods automatically when leaving/entering insert mode on macOS.
 
 ### LSP & Completion
@@ -109,4 +79,3 @@ CJK Text Enhancement:
 ## Notes
 
 - [Vue & Treesitter](notes/vue-treesitter.md) — why hybrid LSP + archived nvim-treesitter
-
