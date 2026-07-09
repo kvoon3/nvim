@@ -34,7 +34,7 @@ If the binary is not installed, the plugin is skipped silently and Neovim will s
 - **Enhanced commenting**: [ts-comments.nvim](https://github.com/folke/ts-comments.nvim) for context-aware line/block comments.
 - **Code folding**: [nvim-ufo](https://github.com/kevinhwang91/nvim-ufo) with fold level keymaps (`zR`, `zM`, `zr`, `zm`).
 - **System clipboard**: Paste from system clipboard via `<leader>p`.
-- **Select all**: `<leader>A` selects the entire buffer.
+- **Select all**: `<leader>a` selects the entire buffer.
 
 CJK Text Enhancement:
 
