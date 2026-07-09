@@ -7,6 +7,10 @@ This is a personal Neovim configuration rooted at `~/.config/nvim`. It is writte
 - Avoid writing comments inside the function body unless the code logic is very complex.
 - Write comments in English.
 
+## Docs
+
+- Features / install: `README.md`
+- Vue & treesitter context: `notes/vue-treesitter.md`
 
 ## Commit Codes
 
