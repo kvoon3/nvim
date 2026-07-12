@@ -36,7 +36,7 @@ CJK Text Enhancement:
 - **Autocompletion**: [nvim-cmp](https://github.com/hrsh7th/nvim-cmp) with LSP, LuaSnip, path, and buffer sources.
 - **Snippets**: [LuaSnip](https://github.com/L3MON4D3/LuaSnip) with `<C-l>` / `<C-h>` jump mappings.
 - **LSP actions**: Go to definition/references (`gd`, `gr`), hover (`gh`), rename (`<leader>rn`), code actions (`<leader>ca`), and format (`<leader>f`).
-- **oxfmt / oxlint**: Format + sort imports on save; lint with type-aware/TSGo when available. Safe fix on save; `:LspOxlintFixAll` to fix manually.
+- **oxfmt / oxlint**: Format + sort imports on save; lint with type-aware/TSGo when available. Safe fix on save; `:LspOxlintFixAll` to fix manually. Commander: `Ox: toggle/enable/disable` (persisted in state `ox.json`).
 
 ### Syntax & Treesitter
 

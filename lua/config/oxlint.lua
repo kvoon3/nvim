@@ -4,6 +4,8 @@ local M = {}
 
 local DEFAULT_CONFIG = vim.fn.stdpath('config') .. '/config/oxlint/.oxlintrc.json'
 
+M.enabled = true
+
 local PROJECT_CONFIG_NAMES = {
   '.oxlintrc.json',
   '.oxlintrc.jsonc',
@@ -178,6 +180,9 @@ function M.setup(opts)
         buffer = bufnr,
         group = vim.api.nvim_create_augroup('OxlintFixOnSave' .. bufnr, { clear = true }),
         callback = function()
+          if not M.enabled then
+            return
+          end
           if vim.fn.exists(':LspOxlintFixAll') == 2 then
             vim.cmd('LspOxlintFixAll')
           end
@@ -187,7 +192,9 @@ function M.setup(opts)
     end,
   })
 
-  vim.lsp.enable('oxlint')
+  if M.enabled then
+    vim.lsp.enable('oxlint')
+  end
 end
 
 return M

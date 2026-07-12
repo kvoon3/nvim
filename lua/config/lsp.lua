@@ -26,7 +26,7 @@ vim.api.nvim_create_autocmd('LspAttach', {
     vim.keymap.set('n', '<leader>f', function()
       -- Prefer oxfmt for JS/TS/Vue/etc.; fall back to LSP format otherwise.
       local oxfmt = require('config.oxfmt')
-      if oxfmt.supports_filetype(vim.bo[ev.buf].filetype) and oxfmt.is_available() then
+      if oxfmt.enabled and oxfmt.supports_filetype(vim.bo[ev.buf].filetype) and oxfmt.is_available() then
         oxfmt.format_buffer(ev.buf)
       else
         vim.lsp.buf.format { async = true }

@@ -4,6 +4,8 @@ local M = {}
 
 local DEFAULT_CONFIG = vim.fn.stdpath('config') .. '/config/oxfmt/.oxfmtrc.jsonc'
 
+M.enabled = true
+
 local FILETYPES = {
   javascript = true,
   javascriptreact = true,
@@ -55,6 +57,9 @@ end
 function M.format_buffer(bufnr)
   bufnr = bufnr or vim.api.nvim_get_current_buf()
 
+  if not M.enabled then
+    return false
+  end
   if not vim.api.nvim_buf_is_valid(bufnr) then
     return false
   end
@@ -118,10 +123,9 @@ function M.setup()
   vim.api.nvim_create_autocmd('BufWritePre', {
     group = vim.api.nvim_create_augroup('OxfmtFormatOnSave', { clear = true }),
     callback = function(ev)
-      if not M.supports_filetype(vim.bo[ev.buf].filetype) then
-        return
+      if M.supports_filetype(vim.bo[ev.buf].filetype) then
+        M.format_buffer(ev.buf)
       end
-      M.format_buffer(ev.buf)
     end,
     desc = 'Format current buffer with oxfmt on save',
   })
