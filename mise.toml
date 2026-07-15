@@ -5,6 +5,6 @@ just = "latest"
 lazygit = "latest"
 tree-sitter = "latest"
 
-# once per clone: point git at committed hooks
+# once per clone: install tracked hook into .git/hooks
 [tasks.prepare]
-run = "git config core.hooksPath .githooks"
+run = "cp .githooks/pre-commit .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit"
