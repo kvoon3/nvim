@@ -1,0 +1,18 @@
+ls:
+  .dir: kebab-case
+  .lua: kebab-case
+  .md: kebab-case | SCREAMING_SNAKE_CASE
+  .json: kebab-case
+  .toml: kebab-case
+  .yml: kebab-case
+  .yaml: kebab-case
+
+ignore:
+  - .git
+  - .claude
+  - .githooks
+  - .nvim
+  - lazy-lock.json
+  - LICENCE
+  - AGENTS.md
+  - CLAUDE.md

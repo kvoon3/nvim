@@ -9,11 +9,11 @@ Requires [mise](https://mise.jdx.dev) (shell hook / `mise activate`). Optional m
 ```sh
 git clone https://github.com/kvoon3/nvim.git ~/.config/nvim
 cd ~/.config/nvim
-mise install      # stylua, selene, just, …
+mise install      # stylua, selene, ls-lint, just, …
 mise run prepare  # install .githooks/pre-commit → .git/hooks/
 ```
 
-Open nvim once for Lazy/Mason. Pre-commit: stylua --check + selene on staged `*.lua`. Full tree: `just check`.
+Open nvim once for Lazy/Mason. Pre-commit: stylua --check + selene on staged `*.lua`. Full tree: `just check` (fmt + selene + ls-lint).
 
 ## Features
 
