@@ -90,15 +90,7 @@ local function get_line_anchor()
 end
 
 local function open_url(url)
-  local open_cmd
-  if vim.fn.has 'mac' == 1 then
-    open_cmd = 'open'
-  elseif vim.fn.has 'win32' == 1 or vim.fn.has 'win64' == 1 then
-    open_cmd = 'start'
-  else
-    open_cmd = 'xdg-open'
-  end
-  vim.fn.jobstart({ open_cmd, url }, { detach = true })
+  vim.ui.open(url)
 end
 
 function M.open_in_github()

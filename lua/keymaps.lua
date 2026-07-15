@@ -38,19 +38,9 @@ vim.keymap.set('v', 'K', ":move '<-2<CR>gv-gv", opts)
 vim.keymap.set('n', '<C-,>', function()
   Snacks.picker.explorer()
 end, { desc = 'Toggle file explorer' })
-vim.keymap.set('n', '<leader>fb', function()
-  require('telescope').extensions.file_browser.file_browser { path = vim.fn.expand '%:p:h', select_buffer = true }
-end, { desc = 'File browser in current directory' })
+-- New file in explorer: snacks key `%` (see lua/plugins/snacks.lua); keep global `%` for matchpairs.
 
--- Create new file
-vim.keymap.set(
-  'n',
-  '%',
-  ':call mkdir(expand("%:p:h"), "p")<CR>:e %<CR>',
-  { desc = 'Create new file and its parent directories' }
-)
-
-vim.keymap.set('n', "<c-'>", ':q')
+vim.keymap.set('n', "<c-'>", ':q<CR>')
 
 vim.keymap.set('n', '<c-s>', ':w<CR>')
 local builtin = require 'telescope.builtin'
@@ -58,9 +48,6 @@ vim.keymap.set('n', '<c-p>', builtin.find_files, { desc = 'Telescope find files'
 vim.keymap.set('n', '<leader>ff', builtin.live_grep, { desc = 'Telescope live grep' })
 vim.keymap.set('n', '<leader>fb', builtin.buffers, { desc = 'Telescope buffers' })
 vim.keymap.set('n', '<leader>fh', builtin.help_tags, { desc = 'Telescope help tags' })
-vim.keymap.set('n', '<leader>lg', function()
-  Snacks.lazygit()
-end, { desc = 'Open lazygit' })
 
 vim.api.nvim_create_user_command('Lazygit', function()
   Snacks.lazygit()

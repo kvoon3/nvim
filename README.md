@@ -19,7 +19,7 @@ Open nvim once for Lazy/Mason. Pre-commit: stylua --check + selene on staged `*.
 
 ### Editing
 
-- **Fast jump**: [flash.nvim](https://github.com/folke/flash.nvim) for quick character-level navigation.
+- **Fast jump**: [flash.nvim](https://github.com/folke/flash.nvim) on `f` (native `f`/`t` disabled via flash char mode).
 - **Jump to errors**: Navigate diagnostics (`[d` / `]d` / `<leader>en` / `<leader>wn` / `<leader>in` / `<leader>hn`), open diagnostic float (`<leader>df`), and diagnostics list (`<leader>q`).
 - **Mouse support**: Full mouse support for clicking to position the cursor, selecting text, scrolling, and more.
 - **Auto-pairs & surround**: Automatic bracket pairing and [nvim-surround](https://github.com/kylechui/nvim-surround) for changing surrounding characters.
@@ -49,7 +49,7 @@ CJK Text Enhancement:
 ### Finding & Exploring
 
 - **Fuzzy finding**: [Telescope](https://github.com/nvim-telescope/telescope.nvim) for files (`<C-p>`), live grep (`<leader>ff`), buffers (`<leader>fb`), help tags (`<leader>fh`), and colorschemes (`<leader>cs`).
-- **File explorer**: [snacks.nvim](https://github.com/folke/snacks.nvim) `explorer` with a right-side sidebar, hidden files, and live preview. Delete/move confirmations use a centered float modal.
+- **File explorer**: [snacks.nvim](https://github.com/folke/snacks.nvim) `explorer` with a right-side sidebar, hidden/ignored files, and live preview. In the explorer list, `%` creates a file; delete/move confirmations use a centered float.
 - **Command palette**: [commander.nvim](https://github.com/FeiyouG/commander.nvim) accessible with `<C-S-p>` or `<leader>cc`.
 - **Dashboard**: Snacks startup dashboard on launch.
 
@@ -57,7 +57,7 @@ CJK Text Enhancement:
 
 - **Inline Git signs**: [gitsigns.nvim](https://github.com/lewis6991/gitsigns.nvim) for blame, diff, and hunk actions.
 - **Visual diff**: [codediff.nvim](https://github.com/esmuellert/codediff.nvim) opens a VSCode-style diff explorer with `:CodeDiff`. Use `<leader>gd` for git status, `<leader>gD` to diff the current file against `HEAD`, and `<leader>gh` for file history. All commands are also available in the commander palette.
-- **LazyGit**: Open a floating LazyGit terminal with `<leader>lg` or the `:Lazygit` command.
+- **LazyGit**: `:lg` / `:Lazygit` opens a floating LazyGit (Snacks).
 - **Open in GitHub**: `<leader>go` opens the current file, selection, or repository in GitHub in your default browser.
 - **Git-aware terminal**: [flatten.nvim](https://github.com/willothy/flatten.nvim) opens files from inside terminal buffers in the current Neovim instance and handles `git commit`/`git rebase` smoothly.
 

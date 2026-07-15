@@ -10,8 +10,16 @@ return {
       -- Useful status updates for LSP
       { 'j-hui/fidget.nvim', opts = {} },
 
-      -- Additional lua configuration, makes nvim stuff amazing!
-      { 'folke/neodev.nvim', opts = {} },
+      -- LuaLS library for Neovim/plugin APIs (replaces neodev)
+      {
+        'folke/lazydev.nvim',
+        ft = 'lua',
+        opts = {
+          library = {
+            { path = '${3rd}/luv/library', words = { 'vim%.uv' } },
+          },
+        },
+      },
     },
   },
 
@@ -74,6 +82,7 @@ return {
           end, { 'i', 's' }),
         },
         sources = {
+          { name = 'lazydev', group_index = 0 },
           { name = 'nvim_lsp' },
           { name = 'luasnip' },
           { name = 'path' },
