@@ -3,9 +3,7 @@ vim = vim or {}
 require('config.lazy')
 require('options')
 require('keymaps')
-require('config.ox').load()
 require('config.lsp')
-require('config.oxfmt').setup()
 require('vue-config')
 
 if vim.g.vscode then
@@ -13,4 +11,3 @@ if vim.g.vscode then
 else
     -- ordinary Neovim
 end
-

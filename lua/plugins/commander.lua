@@ -129,27 +129,6 @@ return {
         cmd = "<CMD>CodeDiff --side-by-side<CR>",
         cat = "codediff",
       },
-      {
-        desc = "Ox: toggle format + lint",
-        cmd = function()
-          require("config.ox").toggle()
-        end,
-        cat = "ox",
-      },
-      {
-        desc = "Ox: enable format + lint",
-        cmd = function()
-          require("config.ox").enable()
-        end,
-        cat = "ox",
-      },
-      {
-        desc = "Ox: disable format + lint",
-        cmd = function()
-          require("config.ox").disable()
-        end,
-        cat = "ox",
-      },
     })
   end,
 }

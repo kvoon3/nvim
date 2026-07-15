@@ -24,13 +24,7 @@ vim.api.nvim_create_autocmd('LspAttach', {
     vim.keymap.set({ 'n', 'v' }, '<leader>ca', vim.lsp.buf.code_action, opts)
     vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)
     vim.keymap.set('n', '<leader>f', function()
-      -- Prefer oxfmt for JS/TS/Vue/etc.; fall back to LSP format otherwise.
-      local oxfmt = require('config.oxfmt')
-      if oxfmt.enabled and oxfmt.supports_filetype(vim.bo[ev.buf].filetype) and oxfmt.is_available() then
-        oxfmt.format_buffer(ev.buf)
-      else
-        vim.lsp.buf.format { async = true }
-      end
+      vim.lsp.buf.format { async = true }
     end, opts)
 
     -- ponytail: format-on-save for Rust, sync so write waits for fmt
@@ -147,5 +141,6 @@ vim.lsp.config('unocss', {
 })
 vim.lsp.enable('unocss')
 
--- Oxlint (PATH binary; default config + safe fix-on-save in lua/config/oxlint.lua)
-require('config.oxlint').setup({ capabilities = capabilities })
+vim.api.nvim_create_user_command('ReloadLsp', function()
+  vim.cmd('LspRestart')
+end, {})

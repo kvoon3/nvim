@@ -9,7 +9,7 @@ git clone https://github.com/kvoon3/nvim.git ~/.config/nvim
 ~/.config/nvim/scripts/setup.sh
 ```
 
-`setup.sh` installs brew/npm tools (`tree-sitter-cli`, `lazygit`, `im-select`, `oxfmt`, `oxlint`, …) and runs `Lazy! sync` (plugins include jieba). Ox defaults: [`config/oxfmt/`](config/oxfmt/), [`config/oxlint/`](config/oxlint/).
+`setup.sh` installs brew/npm tools (`tree-sitter-cli`, `lazygit`, `im-select`, …) and runs `Lazy! sync` (plugins include jieba).
 
 ## Features
 
@@ -36,7 +36,6 @@ CJK Text Enhancement:
 - **Autocompletion**: [nvim-cmp](https://github.com/hrsh7th/nvim-cmp) with LSP, LuaSnip, path, and buffer sources.
 - **Snippets**: [LuaSnip](https://github.com/L3MON4D3/LuaSnip) with `<C-l>` / `<C-h>` jump mappings.
 - **LSP actions**: Go to definition/references (`gd`, `gr`), hover (`gh`), rename (`<leader>rn`), code actions (`<leader>ca`), and format (`<leader>f`).
-- **oxfmt / oxlint**: Format + sort imports on save; lint with type-aware/TSGo when available. Safe fix on save; `:LspOxlintFixAll` to fix manually. Commander: `Ox: toggle/enable/disable` (persisted in state `ox.json`).
 
 ### Syntax & Treesitter
 

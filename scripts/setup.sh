@@ -12,10 +12,6 @@ if have brew; then
   fi
 fi
 
-if have npm; then
-  npm install -g oxfmt oxlint oxlint-tsgolint
-fi
-
 # Lazy plugins (jieba, treesitter, …) + Mason via config load
 nvim --headless "+Lazy! sync" +qa
 
