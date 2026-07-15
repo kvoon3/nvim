@@ -97,13 +97,6 @@ return {
   },
   commander = {
     {
-      desc = 'Open lazygit (lg)',
-      cmd = function()
-        Snacks.lazygit()
-      end,
-      cat = 'Git',
-    },
-    {
       desc = 'Stage hunk',
       cmd = function()
         require('gitsigns').stage_hunk()
