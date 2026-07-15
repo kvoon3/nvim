@@ -4,6 +4,7 @@ stylua = "latest"
 just = "latest"
 lazygit = "latest"
 tree-sitter = "latest"
+"npm:@ls-lint/ls-lint" = "latest"
 
 # once per clone: install tracked hook into .git/hooks
 [tasks.prepare]
