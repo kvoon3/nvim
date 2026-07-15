@@ -130,5 +130,13 @@ return {
         cat = "codediff",
       },
     })
+
+    require("commander").add({
+      {
+        desc = "LSP: reload all language servers",
+        cmd = "<CMD>ReloadLsp<CR>",
+        cat = "lsp",
+      },
+    })
   end,
 }
