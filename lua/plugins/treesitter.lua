@@ -4,7 +4,7 @@ return {
   build = ':TSUpdate',
   config = function()
     require('nvim-treesitter').setup {
-      install_dir = vim.fn.stdpath('data') .. '/site',
+      install_dir = vim.fn.stdpath 'data' .. '/site',
     }
 
     -- Parsers needed for Vue SFCs (script + template + style) and common langs.

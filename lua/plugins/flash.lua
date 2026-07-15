@@ -1,13 +1,13 @@
 return {
-    "folke/flash.nvim",
-    event = "VeryLazy",
-    ---@type Flash.Config
-    opts = {
-        modes = {
-            -- f is Flash jump; keep native f/t behavior
-            char = { enabled = false },
-        },
+  'folke/flash.nvim',
+  event = 'VeryLazy',
+  ---@type Flash.Config
+  opts = {
+    modes = {
+      -- f is Flash jump; keep native f/t behavior
+      char = { enabled = false },
     },
+  },
     -- stylua: ignore
     keys = {
         {
@@ -27,13 +27,13 @@ return {
             desc = "Remote Flash",
         },
     },
-    commander = {
-        {
-            desc = "Toggle Flash Search",
-            cmd = function()
-                require("flash").toggle()
-            end,
-            cat = "Flash",
-        },
+  commander = {
+    {
+      desc = 'Toggle Flash Search',
+      cmd = function()
+        require('flash').toggle()
+      end,
+      cat = 'Flash',
     },
+  },
 }

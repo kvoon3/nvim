@@ -1,7 +1,7 @@
 -- define common options
 local opts = {
-    noremap = true, -- non-recursive
-    silent = true -- do not show message
+  noremap = true, -- non-recursive
+  silent = true, -- do not show message
 }
 
 -----------------
@@ -31,35 +31,50 @@ vim.keymap.set('v', '<', '<gv', opts)
 vim.keymap.set('v', '>', '>gv', opts)
 
 -- 上下移动文本
-vim.keymap.set("v", "J", ":move '>+1<CR>gv-gv", opts)
-vim.keymap.set("v", "K", ":move '<-2<CR>gv-gv", opts)
+vim.keymap.set('v', 'J', ":move '>+1<CR>gv-gv", opts)
+vim.keymap.set('v', 'K', ":move '<-2<CR>gv-gv", opts)
 
 -- File explorer - using Snacks as primary
-vim.keymap.set('n', '<C-,>', function() Snacks.picker.explorer() end, { desc = 'Toggle file explorer' })
-vim.keymap.set('n', '<leader>fb', function() require('telescope').extensions.file_browser.file_browser({ path = vim.fn.expand('%:p:h'), select_buffer = true }) end, { desc = 'File browser in current directory' })
+vim.keymap.set('n', '<C-,>', function()
+  Snacks.picker.explorer()
+end, { desc = 'Toggle file explorer' })
+vim.keymap.set('n', '<leader>fb', function()
+  require('telescope').extensions.file_browser.file_browser { path = vim.fn.expand '%:p:h', select_buffer = true }
+end, { desc = 'File browser in current directory' })
 
 -- Create new file
-vim.keymap.set('n', '%', ':call mkdir(expand("%:p:h"), "p")<CR>:e %<CR>', { desc = 'Create new file and its parent directories' })
+vim.keymap.set(
+  'n',
+  '%',
+  ':call mkdir(expand("%:p:h"), "p")<CR>:e %<CR>',
+  { desc = 'Create new file and its parent directories' }
+)
 
 vim.keymap.set('n', "<c-'>", ':q')
 
-vim.keymap.set("n", '<c-s>', ':w<CR>')
-local builtin = require('telescope.builtin')
+vim.keymap.set('n', '<c-s>', ':w<CR>')
+local builtin = require 'telescope.builtin'
 vim.keymap.set('n', '<c-p>', builtin.find_files, { desc = 'Telescope find files' })
 vim.keymap.set('n', '<leader>ff', builtin.live_grep, { desc = 'Telescope live grep' })
 vim.keymap.set('n', '<leader>fb', builtin.buffers, { desc = 'Telescope buffers' })
 vim.keymap.set('n', '<leader>fh', builtin.help_tags, { desc = 'Telescope help tags' })
-vim.keymap.set('n', '<leader>lg', function() Snacks.lazygit() end, { desc = 'Open lazygit' })
+vim.keymap.set('n', '<leader>lg', function()
+  Snacks.lazygit()
+end, { desc = 'Open lazygit' })
 
-vim.api.nvim_create_user_command('Lazygit', function() Snacks.lazygit() end, { desc = 'Open lazygit' })
-vim.cmd([[cnoreabbrev <expr> lg getcmdtype() ==# ':' && getcmdline() ==# 'lg' ? 'Lazygit' : 'lg']])
+vim.api.nvim_create_user_command('Lazygit', function()
+  Snacks.lazygit()
+end, { desc = 'Open lazygit' })
+vim.cmd [[cnoreabbrev <expr> lg getcmdtype() ==# ':' && getcmdline() ==# 'lg' ? 'Lazygit' : 'lg']]
 
 -----------------
 -- Command palette --
 -----------------
 
 -- VSCode-style Command Center (Ctrl+Shift+P)
-vim.keymap.set('n', '<C-S-p>', function() require('commander').show() end, { desc = 'Command palette' })
+vim.keymap.set('n', '<C-S-p>', function()
+  require('commander').show()
+end, { desc = 'Command palette' })
 
 vim.keymap.set('n', '<leader>p', '"+p')
 vim.keymap.set('n', '<leader>a', 'ggVG', { desc = 'Select all' })
@@ -77,29 +92,27 @@ vim.keymap.set('v', '<C-/>', 'gc', { remap = true, desc = 'Toggle comment' })
 -----------------
 
 local function is_explorer_win(winid)
-    local buf = vim.api.nvim_win_get_buf(winid or 0)
-    local ft = vim.bo[buf].filetype
-    return ft == 'snacks_picker_list'
-        or ft == 'snacks_picker_input'
-        or ft == 'snacks_picker_preview'
+  local buf = vim.api.nvim_win_get_buf(winid or 0)
+  local ft = vim.bo[buf].filetype
+  return ft == 'snacks_picker_list' or ft == 'snacks_picker_input' or ft == 'snacks_picker_preview'
 end
 
 local function is_terminal_win(winid)
-    local buf = vim.api.nvim_win_get_buf(winid or 0)
-    return vim.bo[buf].filetype == 'toggleterm'
+  local buf = vim.api.nvim_win_get_buf(winid or 0)
+  return vim.bo[buf].filetype == 'toggleterm'
 end
 
 local function close_explorer()
-    local ok = pcall(function()
-        for _, picker in ipairs(Snacks.picker.get({ source = 'explorer' })) do
-            picker:close()
-        end
-    end)
-    return ok
+  local ok = pcall(function()
+    for _, picker in ipairs(Snacks.picker.get { source = 'explorer' }) do
+      picker:close()
+    end
+  end)
+  return ok
 end
 
 local function close_terminal()
-    vim.cmd('ToggleTerm')
+  vim.cmd 'ToggleTerm'
 end
 
 -----------------
@@ -107,46 +120,46 @@ end
 -----------------
 
 local function toggle_right_panel()
-    if is_explorer_win() then
-        close_explorer()
-        return
-    end
+  if is_explorer_win() then
+    close_explorer()
+    return
+  end
 
-    local start_win = vim.api.nvim_get_current_win()
-    vim.cmd('wincmd l')
-    if vim.api.nvim_get_current_win() ~= start_win then
-        return
-    end
+  local start_win = vim.api.nvim_get_current_win()
+  vim.cmd 'wincmd l'
+  if vim.api.nvim_get_current_win() ~= start_win then
+    return
+  end
 
-    if not is_terminal_win() then
-        Snacks.picker.explorer()
-    end
+  if not is_terminal_win() then
+    Snacks.picker.explorer()
+  end
 end
 
 local function toggle_bottom_panel()
-    if is_terminal_win() then
-        close_terminal()
-        return
-    end
+  if is_terminal_win() then
+    close_terminal()
+    return
+  end
 
-    local start_win = vim.api.nvim_get_current_win()
-    vim.cmd('wincmd j')
-    if vim.api.nvim_get_current_win() ~= start_win then
-        return
-    end
+  local start_win = vim.api.nvim_get_current_win()
+  vim.cmd 'wincmd j'
+  if vim.api.nvim_get_current_win() ~= start_win then
+    return
+  end
 
-    if is_explorer_win() then
-        close_explorer()
-    end
+  if is_explorer_win() then
+    close_explorer()
+  end
 
-    -- 简洁逻辑：<c-w>j 就是 toggle 底部 terminal panel（smart toggle 保存/恢复视图）
-    vim.cmd('ToggleTerm')
+  -- 简洁逻辑：<c-w>j 就是 toggle 底部 terminal panel（smart toggle 保存/恢复视图）
+  vim.cmd 'ToggleTerm'
 end
 
 local picker_fts = {
-    snacks_picker_list = true,
-    snacks_picker_input = true,
-    snacks_picker_preview = true,
+  snacks_picker_list = true,
+  snacks_picker_input = true,
+  snacks_picker_preview = true,
 }
 
 --[[
@@ -155,25 +168,25 @@ This is needed because the file explorer preview is shown in the main editor,
 so the user expects <C-w>h to jump to the currently previewed file.
 ]]
 local function focus_main_editor()
-    local current_win = vim.api.nvim_get_current_win()
-    local current_buf = vim.api.nvim_win_get_buf(current_win)
-    local current_ft = vim.bo[current_buf].filetype
+  local current_win = vim.api.nvim_get_current_win()
+  local current_buf = vim.api.nvim_win_get_buf(current_win)
+  local current_ft = vim.bo[current_buf].filetype
 
-    if not picker_fts[current_ft] then
-        vim.cmd('wincmd h')
+  if not picker_fts[current_ft] then
+    vim.cmd 'wincmd h'
+    return
+  end
+
+  for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+    if win ~= current_win then
+      local buf = vim.api.nvim_win_get_buf(win)
+      local ft = vim.bo[buf].filetype
+      if not picker_fts[ft] and ft ~= 'toggleterm' then
+        vim.api.nvim_set_current_win(win)
         return
+      end
     end
-
-    for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
-        if win ~= current_win then
-            local buf = vim.api.nvim_win_get_buf(win)
-            local ft = vim.bo[buf].filetype
-            if not picker_fts[ft] and ft ~= 'toggleterm' then
-                vim.api.nvim_set_current_win(win)
-                return
-            end
-        end
-    end
+  end
 end
 
 -- <C-w>l / <C-w><C-l>: toggle right panel (file explorer)
@@ -214,60 +227,60 @@ local toggleterm_auto_hide_group = vim.api.nvim_create_augroup('ToggleTermAutoHi
 
 -- Save terminal view before leaving a terminal window, so smart-toggle can restore it later
 vim.api.nvim_create_autocmd('WinLeave', {
-    group = toggleterm_auto_hide_group,
-    callback = function()
-        if vim.bo.filetype ~= 'toggleterm' then
-            return
-        end
-        local ok_ui, ui = pcall(require, 'toggleterm.ui')
-        local ok_terms, terms = pcall(require, 'toggleterm.terminal')
-        if not ok_ui or not ok_terms then
-            return
-        end
+  group = toggleterm_auto_hide_group,
+  callback = function()
+    if vim.bo.filetype ~= 'toggleterm' then
+      return
+    end
+    local ok_ui, ui = pcall(require, 'toggleterm.ui')
+    local ok_terms, terms = pcall(require, 'toggleterm.terminal')
+    if not ok_ui or not ok_terms then
+      return
+    end
 
-        local open_terms = {}
-        local focus_id = terms.get_focused_id()
-        for _, term in ipairs(terms.get_all()) do
-            if term:is_open() then
-                table.insert(open_terms, term.id)
-            end
-        end
-        if #open_terms > 0 then
-            ui.save_terminal_view(open_terms, focus_id)
-        end
-    end,
+    local open_terms = {}
+    local focus_id = terms.get_focused_id()
+    for _, term in ipairs(terms.get_all()) do
+      if term:is_open() then
+        table.insert(open_terms, term.id)
+      end
+    end
+    if #open_terms > 0 then
+      ui.save_terminal_view(open_terms, focus_id)
+    end
+  end,
 })
 
 -- Auto-hide terminal when focus moves back to the main editor
 vim.api.nvim_create_autocmd('WinEnter', {
-    group = toggleterm_auto_hide_group,
-    callback = function()
-        if vim.bo.filetype == 'toggleterm' then
-            return
-        end
-        local ok, terms = pcall(function()
-            return require('toggleterm.terminal').get_all()
-        end)
-        if not ok then
-            return
-        end
-        for _, term in ipairs(terms) do
-            if term:is_open() then
-                term:close()
-            end
-        end
-    end,
+  group = toggleterm_auto_hide_group,
+  callback = function()
+    if vim.bo.filetype == 'toggleterm' then
+      return
+    end
+    local ok, terms = pcall(function()
+      return require('toggleterm.terminal').get_all()
+    end)
+    if not ok then
+      return
+    end
+    for _, term in ipairs(terms) do
+      if term:is_open() then
+        term:close()
+      end
+    end
+  end,
 })
 
 -----------------
 -- Open in GitHub --
 -----------------
 
-local open_in_github = require('open-in-github')
+local open_in_github = require 'open-in-github'
 vim.keymap.set('n', '<leader>go', open_in_github.open_in_github, { desc = 'Open in GitHub' })
 vim.keymap.set('v', '<leader>go', open_in_github.open_in_github, { desc = 'Open in GitHub' })
 
-require('commander').add({
+require('commander').add {
   {
     desc = 'Open in GitHub',
     cmd = open_in_github.open_in_github,
@@ -285,4 +298,4 @@ require('commander').add({
     cmd = open_in_github.open_current_plugin_in_github,
     cat = 'git',
   },
-})
+}

@@ -1,4 +1,4 @@
 return {
-  "vimcolorschemes/olive-crt.nvim",
+  'vimcolorschemes/olive-crt.nvim',
   lazy = true,
 }

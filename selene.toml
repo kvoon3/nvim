@@ -1,0 +1,40 @@
+std = "lua51+vim"
+
+[lints]
+# lazy.nvim plugin specs: { 'plugin/name', opts = {} }
+mixed_table = "allow"
+
+# off by default — turn on
+high_cyclomatic_complexity = "deny"
+
+# default warn → deny (hook already fails on warn; make failures red/hard)
+almost_swapped = "deny"
+constant_table_comparison = "deny"
+deprecated = "deny"
+divide_by_zero = "deny"
+duplicate_keys = "deny"
+empty_if = "deny"
+empty_loop = "deny"
+global_usage = "deny"
+if_same_then_else = "deny"
+ifs_same_cond = "deny"
+incorrect_standard_library_use = "deny"
+manual_table_clone = "deny"
+mismatched_arg_count = "deny"
+multiple_statements = "deny"
+must_use = "deny"
+parenthese_conditions = "deny"
+shadowing = "deny"
+suspicious_reverse_loop = "deny"
+type_check_inside_call = "deny"
+unbalanced_assignments = "deny"
+undefined_variable = "deny"
+unscoped_variables = "deny"
+unused_variable = "deny"
+
+[config]
+# comment-only branch is intentional stub, not empty
+empty_if = { comments_count = true }
+# default 40 is loose; 15 catches real spaghetti, codebase still clean
+high_cyclomatic_complexity = { maximum_complexity = 15 }
+multiple_statements = { one_line_if = "break-return-only" }

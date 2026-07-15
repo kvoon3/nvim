@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# staged *.lua → stylua --check + selene
+set -euo pipefail
+
+files=$(git diff --cached --name-only --diff-filter=ACM -- '*.lua' || true)
+[[ -z "$files" ]] && exit 0
+
+# shell-quote-safe: null-delimited
+git diff --cached --name-only -z --diff-filter=ACM -- '*.lua' | xargs -0 stylua --check
+git diff --cached --name-only -z --diff-filter=ACM -- '*.lua' | xargs -0 selene
