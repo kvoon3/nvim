@@ -4,7 +4,7 @@ require('config.lazy')
 require('options')
 require('keymaps')
 require('config.lsp')
-require('config.oxfmt').setup()
+require('config.run_on_save').setup()
 require('vue-config')
 
 if vim.g.vscode then
@@ -12,4 +12,3 @@ if vim.g.vscode then
 else
     -- ordinary Neovim
 end
-
