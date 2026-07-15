@@ -36,6 +36,7 @@ CJK Text Enhancement:
 - **Autocompletion**: [nvim-cmp](https://github.com/hrsh7th/nvim-cmp) with LSP, LuaSnip, path, and buffer sources.
 - **Snippets**: [LuaSnip](https://github.com/L3MON4D3/LuaSnip) with `<C-l>` / `<C-h>` jump mappings.
 - **LSP actions**: Go to definition/references (`gd`, `gr`), hover (`gh`), rename (`<leader>rn`), code actions (`<leader>ca`), and format (`<leader>f`).
+- **Run on save**: `.nvim/settings.json` → `runOnSave: { "<glob>": string[] }` (shell cmds, sequential). `${{filepath}}` = saved file path.
 
 ### Syntax & Treesitter
 
