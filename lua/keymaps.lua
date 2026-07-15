@@ -44,7 +44,7 @@ vim.keymap.set('n', "<c-'>", ':q<CR>')
 
 vim.keymap.set('n', '<c-s>', ':w<CR>')
 local builtin = require 'telescope.builtin'
-vim.keymap.set('n', '<c-p>', builtin.find_files, { desc = 'Telescope find files' })
+vim.keymap.set('n', '<D-p>', builtin.find_files, { desc = 'Telescope find files' })
 vim.keymap.set('n', '<leader>ff', builtin.live_grep, { desc = 'Telescope live grep' })
 vim.keymap.set('n', '<leader>fb', builtin.buffers, { desc = 'Telescope buffers' })
 vim.keymap.set('n', '<leader>fh', builtin.help_tags, { desc = 'Telescope help tags' })
@@ -58,10 +58,12 @@ vim.cmd [[cnoreabbrev <expr> lg getcmdtype() ==# ':' && getcmdline() ==# 'lg' ? 
 -- Command palette --
 -----------------
 
--- VSCode-style Command Center (Ctrl+Shift+P)
-vim.keymap.set('n', '<C-S-p>', function()
+-- Cmd+Shift+P (macOS/VSCode); avoid C-S-p — Kitty uses it as a multi-key prefix.
+local function command_palette()
   require('commander').show()
-end, { desc = 'Command palette' })
+end
+vim.keymap.set('n', '<D-S-p>', command_palette, { desc = 'Command palette' })
+vim.keymap.set('n', '<leader>cc', command_palette, { desc = 'Command palette' })
 
 vim.keymap.set('n', '<leader>p', '"+p')
 vim.keymap.set('n', '<leader>a', 'ggVG', { desc = 'Select all' })
