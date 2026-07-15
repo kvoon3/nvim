@@ -1,0 +1,8 @@
+{
+  "runOnSave": {
+    "*.lua": [
+      "stylua '${{filepath}}'",
+      "selene '${{filepath}}'"
+    ]
+  }
+}

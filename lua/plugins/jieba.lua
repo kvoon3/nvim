@@ -8,19 +8,19 @@ return {
       shows the hit-enter prompt. Dictionary mode avoids that; quality is fine
       for normal Chinese text.
     ]]
-    local j = require('wordmotion.nvim.jieba')
+    local j = require 'wordmotion.nvim.jieba'
     j.jieba_motion = {
-      jieba = require('jieba.jieba').Jieba({ hmm = false }),
+      jieba = require('jieba.jieba').Jieba { hmm = false },
     }
     j.motion = nil
     j.init()
 
     -- Plugin maps w/b/e/ge; add WORD variants.
-    j.set_keymaps({
+    j.set_keymaps {
       W = { { 'n', 'x' }, { true, true } },
       B = { { 'n', 'x' }, { true, false } },
       E = { { 'n', 'x' }, { false, true } },
       gE = { { 'n', 'x' }, { false, false } },
-    })
+    }
   end,
 }

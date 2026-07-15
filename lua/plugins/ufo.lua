@@ -1,7 +1,7 @@
 return {
   'kevinhwang91/nvim-ufo',
   dependencies = {
-    'kevinhwang91/promise-async'
+    'kevinhwang91/promise-async',
   },
   event = 'VeryLazy',
   config = function()
@@ -16,5 +16,5 @@ return {
     vim.keymap.set('n', 'zM', require('ufo').closeAllFolds, { desc = 'Close all folds' })
     vim.keymap.set('n', 'zr', require('ufo').openFoldsExceptKinds, { desc = 'Open folds except kinds' })
     vim.keymap.set('n', 'zm', require('ufo').closeFoldsWith, { desc = 'Close folds with level' })
-  end
+  end,
 }

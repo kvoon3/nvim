@@ -1,5 +1,5 @@
 return {
-  "folke/snacks.nvim",
+  'folke/snacks.nvim',
   priority = 1000,
   lazy = false,
   opts = {
@@ -8,7 +8,7 @@ return {
     indent = { enabled = false },
     scroll = { enabled = false },
     statuscolumn = { enabled = true },
-    notifier = { 
+    notifier = {
       enabled = true,
       timeout = 3000,
     },
@@ -23,9 +23,9 @@ return {
     dashboard = {
       enabled = true,
       sections = {
-        { section = "header" },
-        { section = "keys", gap = 1, padding = 1 },
-        { section = "startup" },
+        { section = 'header' },
+        { section = 'keys', gap = 1, padding = 1 },
+        { section = 'startup' },
       },
     },
     lazygit = {
@@ -40,18 +40,18 @@ return {
           -- Preview the file under cursor in the main editor window,
           -- so its content is visible without pressing Enter.
           layout = {
-            preset = "sidebar",
-            preview = "preview",
+            preset = 'sidebar',
+            preview = 'preview',
             layout = {
-              position = "right",
+              position = 'right',
             },
           },
           win = {
             list = {
               keys = {
-                ["o"] = "confirm",
-                ["O"] = "explorer_open",
-                ["%"] = "explorer_add",
+                ['o'] = 'confirm',
+                ['O'] = 'explorer_open',
+                ['%'] = 'explorer_add',
               },
             },
           },
@@ -62,28 +62,28 @@ return {
         -- sidebar/right layout that would otherwise leak into this source.
         select = {
           layout = {
-            preset = "select",
+            preset = 'select',
             layout = {
-              position = "float",
+              position = 'float',
             },
           },
         },
       },
       layout = {
-        preset = "sidebar",
+        preset = 'sidebar',
         layout = {
-          position = "right",
-        }
-      }
+          position = 'right',
+        },
+      },
     },
     terminal = {
       win = {
-        style = "float",
+        style = 'float',
       },
     },
   },
   config = function(_, opts)
-    require("snacks").setup(opts)
+    require('snacks').setup(opts)
 
     -- Auto-hide file explorer when focus moves into the editor
     local picker_fts = {
@@ -92,14 +92,14 @@ return {
       snacks_picker_preview = true,
     }
 
-    vim.api.nvim_create_autocmd("WinEnter", {
-      group = vim.api.nvim_create_augroup("SnacksExplorerAutoHide", { clear = true }),
+    vim.api.nvim_create_autocmd('WinEnter', {
+      group = vim.api.nvim_create_augroup('SnacksExplorerAutoHide', { clear = true }),
       callback = function()
         if picker_fts[vim.bo.filetype] then
           return
         end
 
-        for _, picker in ipairs(Snacks.picker.get({ source = "explorer" })) do
+        for _, picker in ipairs(Snacks.picker.get { source = 'explorer' }) do
           picker:close()
         end
       end,

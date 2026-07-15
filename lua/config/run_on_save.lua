@@ -54,7 +54,7 @@ local function reload(bufnr)
   end
   local view = vim.api.nvim_get_current_buf() == bufnr and vim.fn.winsaveview() or nil
   vim.api.nvim_buf_call(bufnr, function()
-    vim.cmd('silent! edit!')
+    vim.cmd 'silent! edit!'
   end)
   if view then
     vim.fn.winrestview(view)

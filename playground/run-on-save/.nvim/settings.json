@@ -1,8 +1,0 @@
-{
-  "runOnSave": {
-    "*.{js,jsx,ts,tsx,mjs,cjs,vue}": [
-      "oxfmt --write '${{filepath}}'",
-      "oxlint '${{filepath}}'"
-    ]
-  }
-}

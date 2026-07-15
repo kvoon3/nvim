@@ -40,17 +40,17 @@ vim.api.nvim_create_autocmd('LspAttach', {
 })
 
 -- Diagnostic navigation (goto_next/goto_prev are deprecated; use jump)
-vim.diagnostic.config({
+vim.diagnostic.config {
   jump = {
     on_jump = function(_, bufnr)
-      vim.diagnostic.open_float({ bufnr = bufnr, scope = 'cursor', focus = false })
+      vim.diagnostic.open_float { bufnr = bufnr, scope = 'cursor', focus = false }
     end,
   },
-})
+}
 
 local function jump_diagnostic(count, severity)
   return function()
-    vim.diagnostic.jump({ count = count, severity = severity })
+    vim.diagnostic.jump { count = count, severity = severity }
   end
 end
 
@@ -75,7 +75,7 @@ require('mason').setup()
 -- See: https://github.com/vuejs/language-tools/wiki/Neovim
 local vue_language_server_path = vim.fn.expand '$MASON/packages/vue-language-server/node_modules/@vue/language-server'
 if vim.fn.isdirectory(vue_language_server_path) == 0 then
-  vue_language_server_path = vim.fn.stdpath('data')
+  vue_language_server_path = vim.fn.stdpath 'data'
     .. '/mason/packages/vue-language-server/node_modules/@vue/language-server'
 end
 
@@ -139,8 +139,8 @@ end
 vim.lsp.config('unocss', {
   capabilities = capabilities,
 })
-vim.lsp.enable('unocss')
+vim.lsp.enable 'unocss'
 
 vim.api.nvim_create_user_command('ReloadLsp', function()
-  vim.cmd('LspRestart')
+  vim.cmd 'LspRestart'
 end, {})
