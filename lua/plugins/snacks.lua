@@ -36,7 +36,8 @@ return {
       sources = {
         explorer = {
           enabled = true,
-          show_hidden = true,
+          hidden = true, -- dotfiles
+          ignored = true, -- gitignored (.git, etc.)
           -- Preview the file under cursor in the main editor window,
           -- so its content is visible without pressing Enter.
           layout = {
