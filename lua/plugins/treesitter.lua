@@ -47,5 +47,25 @@ return {
         vim.wo.foldmethod = 'expr'
       end,
     })
+
+    require('cmdr').add {
+      {
+        desc = 'Install treesitter parser for current filetype',
+        cmd = function()
+          local ft = vim.bo.filetype
+          if ft == '' then
+            vim.notify('No filetype detected', vim.log.levels.WARN)
+            return
+          end
+          vim.cmd('TSInstall ' .. ft)
+        end,
+        cat = 'treesitter',
+      },
+      {
+        desc = 'Update all treesitter parsers',
+        cmd = '<CMD>TSUpdate<CR>',
+        cat = 'treesitter',
+      },
+    }
   end,
 }

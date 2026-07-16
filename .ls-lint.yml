@@ -16,3 +16,5 @@ ignore:
   - LICENCE
   - AGENTS.md
   - CLAUDE.md
+  - lua/telescope/_extensions
+  - tests/*_spec.lua

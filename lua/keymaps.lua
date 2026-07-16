@@ -60,7 +60,7 @@ vim.cmd [[cnoreabbrev <expr> lg getcmdtype() ==# ':' && getcmdline() ==# 'lg' ? 
 
 -- Cmd+Shift+P (macOS/VSCode); avoid C-S-p — Kitty uses it as a multi-key prefix.
 local function command_palette()
-  require('commander').show()
+  require('cmdr').show()
 end
 vim.keymap.set('n', '<D-S-p>', command_palette, { desc = 'Command palette' })
 vim.keymap.set('n', '<leader>cc', command_palette, { desc = 'Command palette' })
@@ -268,23 +268,3 @@ vim.api.nvim_create_autocmd('WinEnter', {
 local open_in_github = require 'open-in-github'
 vim.keymap.set('n', '<leader>go', open_in_github.open_in_github, { desc = 'Open in GitHub' })
 vim.keymap.set('v', '<leader>go', open_in_github.open_in_github, { desc = 'Open in GitHub' })
-
-require('commander').add {
-  {
-    desc = 'Open in GitHub',
-    cmd = open_in_github.open_in_github,
-    keys = { 'n', '<leader>go' },
-    cat = 'git',
-  },
-  {
-    desc = 'Open plugin in GitHub',
-    cmd = open_in_github.open_plugin_in_github,
-    keys = { 'n', '<leader>gO' },
-    cat = 'git',
-  },
-  {
-    desc = 'Open current file plugin in GitHub',
-    cmd = open_in_github.open_current_plugin_in_github,
-    cat = 'git',
-  },
-}

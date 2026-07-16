@@ -16,5 +16,34 @@ return {
     vim.keymap.set('n', 'zM', require('ufo').closeAllFolds, { desc = 'Close all folds' })
     vim.keymap.set('n', 'zr', require('ufo').openFoldsExceptKinds, { desc = 'Open folds except kinds' })
     vim.keymap.set('n', 'zm', require('ufo').closeFoldsWith, { desc = 'Close folds with level' })
+
+    require('cmdr').add {
+      {
+        desc = 'Peek folded lines under cursor',
+        cmd = function()
+          require('ufo').peekFoldedLinesUnderCursor()
+        end,
+        cat = 'fold',
+      },
+      {
+        desc = 'Go to next closed fold',
+        cmd = function()
+          require('ufo').goNextClosedFold()
+        end,
+        cat = 'fold',
+      },
+      {
+        desc = 'Go to previous closed fold',
+        cmd = function()
+          require('ufo').goPreviousClosedFold()
+        end,
+        cat = 'fold',
+      },
+      {
+        desc = 'Inspect fold providers',
+        cmd = '<CMD>UfoInspect<CR>',
+        cat = 'fold',
+      },
+    }
   end,
 }

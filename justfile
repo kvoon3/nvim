@@ -1,4 +1,4 @@
-check: fmt lint ls
+check: fmt lint ls test
 
 fmt:
     stylua .
@@ -8,3 +8,6 @@ lint:
 
 ls:
     ls-lint
+
+test:
+    nvim --headless -u tests/minimal.lua -c 'PlenaryBustedDirectory tests/ {minimal_init = "tests/minimal.lua"}' -c 'qall!'
