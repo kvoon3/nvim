@@ -140,7 +140,3 @@ vim.lsp.config('unocss', {
   capabilities = capabilities,
 })
 vim.lsp.enable 'unocss'
-
-vim.api.nvim_create_user_command('ReloadLsp', function()
-  vim.cmd 'LspRestart'
-end, {})

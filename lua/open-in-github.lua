@@ -272,4 +272,24 @@ vim.api.nvim_create_user_command('OpenCurrentPluginInGitHub', M.open_current_plu
   desc = 'Open the GitHub repository of the plugin owning the current file',
 })
 
+require('cmdr').add {
+  {
+    desc = 'Open in GitHub',
+    cmd = M.open_in_github,
+    keys = { 'n', '<leader>go' },
+    cat = 'git',
+  },
+  {
+    desc = 'Open plugin in GitHub',
+    cmd = M.open_plugin_in_github,
+    keys = { 'n', '<leader>gO' },
+    cat = 'git',
+  },
+  {
+    desc = 'Open current file plugin in GitHub',
+    cmd = M.open_current_plugin_in_github,
+    cat = 'git',
+  },
+}
+
 return M

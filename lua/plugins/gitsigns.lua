@@ -95,41 +95,45 @@ return {
       map({ 'o', 'x' }, 'ih', ':<C-U>Gitsigns select_hunk<CR>', { desc = 'Select hunk' })
     end,
   },
-  commander = {
-    {
-      desc = 'Stage hunk',
-      cmd = function()
-        require('gitsigns').stage_hunk()
-      end,
-      cat = 'Git',
-    },
-    {
-      desc = 'Reset hunk',
-      cmd = function()
-        require('gitsigns').reset_hunk()
-      end,
-      cat = 'Git',
-    },
-    {
-      desc = 'Preview hunk',
-      cmd = function()
-        require('gitsigns').preview_hunk()
-      end,
-      cat = 'Git',
-    },
-    {
-      desc = 'Blame line',
-      cmd = function()
-        require('gitsigns').blame_line { full = true }
-      end,
-      cat = 'Git',
-    },
-    {
-      desc = 'Diff this',
-      cmd = function()
-        require('gitsigns').diffthis()
-      end,
-      cat = 'Git',
-    },
-  },
+  config = function(_, opts)
+    require('gitsigns').setup(opts)
+
+    require('cmdr').add {
+      {
+        desc = 'Stage hunk',
+        cmd = function()
+          require('gitsigns').stage_hunk()
+        end,
+        cat = 'git',
+      },
+      {
+        desc = 'Reset hunk',
+        cmd = function()
+          require('gitsigns').reset_hunk()
+        end,
+        cat = 'git',
+      },
+      {
+        desc = 'Preview hunk',
+        cmd = function()
+          require('gitsigns').preview_hunk()
+        end,
+        cat = 'git',
+      },
+      {
+        desc = 'Blame line',
+        cmd = function()
+          require('gitsigns').blame_line { full = true }
+        end,
+        cat = 'git',
+      },
+      {
+        desc = 'Diff this',
+        cmd = function()
+          require('gitsigns').diffthis()
+        end,
+        cat = 'git',
+      },
+    }
+  end,
 }

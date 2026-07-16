@@ -1,4 +1,4 @@
-std = "lua51+vim"
+std = "neovim-busted"
 
 [lints]
 # lazy.nvim plugin specs: { 'plugin/name', opts = {} }

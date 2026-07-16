@@ -21,6 +21,19 @@ return {
         },
       },
     },
+    config = function()
+      vim.api.nvim_create_user_command('ReloadLsp', function()
+        vim.cmd 'LspRestart'
+      end, {})
+
+      require('cmdr').add {
+        {
+          desc = 'LSP: reload all language servers',
+          cmd = '<CMD>ReloadLsp<CR>',
+          cat = 'lsp',
+        },
+      }
+    end,
   },
 
   -- Autocompletion

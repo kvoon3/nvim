@@ -86,6 +86,38 @@ return {
   config = function(_, opts)
     require('snacks').setup(opts)
 
+    require('cmdr').add {
+      {
+        desc = 'Open lazygit',
+        cmd = function()
+          Snacks.lazygit()
+        end,
+        cat = 'git',
+      },
+      {
+        desc = 'Open dashboard',
+        cmd = function()
+          Snacks.dashboard.open()
+        end,
+        cat = 'snacks',
+      },
+      {
+        desc = 'Show notification history',
+        cmd = function()
+          Snacks.notifier.show_history()
+        end,
+        cat = 'snacks',
+      },
+      {
+        desc = 'Toggle file explorer',
+        cmd = function()
+          Snacks.picker.explorer()
+        end,
+        keys = { 'n', '<C-,>' },
+        cat = 'snacks',
+      },
+    }
+
     -- Auto-hide file explorer when focus moves into the editor
     local picker_fts = {
       snacks_picker_list = true,

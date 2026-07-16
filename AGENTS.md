@@ -17,3 +17,10 @@ This is a personal Neovim configuration rooted at `~/.config/nvim`. It is writte
 - Following Conventional Commits
 - Update README.md when we add/update/remove neovim features
 
+## Command Palette (cmdr)
+
+- Register cmdr items in the plugin spec that owns the feature (`lua/plugins/<plugin>.lua`).
+- For local feature modules without a lazy.nvim spec, register items in the module itself.
+- Do not add `keys` to a new cmdr item unless the user explicitly asks for a keybinding. Keep any existing keybindings intact.
+- Whenever a new plugin is added, expose some of its capabilities as cmdr items so they are reachable from the command palette.
+

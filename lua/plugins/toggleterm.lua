@@ -51,40 +51,37 @@ return {
 
     vim.keymap.set('n', '<C-S-t>', toggle_terminal_fullscreen, { desc = 'Toggle terminal fullscreen' })
 
-    local ok, commander = pcall(require, 'commander')
-    if ok then
-      commander.add {
-        {
-          desc = 'Toggle terminal (toggleterm)',
-          cmd = function()
-            vim.cmd 'ToggleTerm'
-          end,
-          keys = { 'n', '<C-t>' },
-          cat = 'terminal',
-        },
-        {
-          desc = 'Toggle floating terminal',
-          cmd = function()
-            vim.cmd 'ToggleTerm direction=float'
-          end,
-          keys = { 'n', '<leader>tf' },
-          cat = 'terminal',
-        },
-        {
-          desc = 'Toggle vertical terminal',
-          cmd = function()
-            vim.cmd 'ToggleTerm direction=vertical'
-          end,
-          keys = { 'n', '<leader>tv' },
-          cat = 'terminal',
-        },
-        {
-          desc = 'Toggle terminal fullscreen',
-          cmd = toggle_terminal_fullscreen,
-          keys = { 'n', '<C-S-t>' },
-          cat = 'terminal',
-        },
-      }
-    end
+    require('cmdr').add {
+      {
+        desc = 'Toggle terminal (toggleterm)',
+        cmd = function()
+          vim.cmd 'ToggleTerm'
+        end,
+        keys = { 'n', '<C-t>' },
+        cat = 'terminal',
+      },
+      {
+        desc = 'Toggle floating terminal',
+        cmd = function()
+          vim.cmd 'ToggleTerm direction=float'
+        end,
+        keys = { 'n', '<leader>tf' },
+        cat = 'terminal',
+      },
+      {
+        desc = 'Toggle vertical terminal',
+        cmd = function()
+          vim.cmd 'ToggleTerm direction=vertical'
+        end,
+        keys = { 'n', '<leader>tv' },
+        cat = 'terminal',
+      },
+      {
+        desc = 'Toggle terminal fullscreen',
+        cmd = toggle_terminal_fullscreen,
+        keys = { 'n', '<C-S-t>' },
+        cat = 'terminal',
+      },
+    }
   end,
 }

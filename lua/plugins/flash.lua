@@ -8,6 +8,19 @@ return {
       char = { enabled = false },
     },
   },
+  config = function(_, opts)
+    require('flash').setup(opts)
+
+    require('cmdr').add {
+      {
+        desc = 'Toggle Flash Search',
+        cmd = function()
+          require('flash').toggle()
+        end,
+        cat = 'flash',
+      },
+    }
+  end,
   -- stylua: ignore
   keys = {
     {
@@ -25,15 +38,6 @@ return {
         require("flash").remote()
       end,
       desc = "Remote Flash",
-    },
-  },
-  commander = {
-    {
-      desc = 'Toggle Flash Search',
-      cmd = function()
-        require('flash').toggle()
-      end,
-      cat = 'Flash',
     },
   },
 }
