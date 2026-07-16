@@ -4,7 +4,7 @@ Kevin Kwong's Neovim config.
 
 ## Install
 
-Requires [mise](https://mise.jdx.dev) (shell hook / `mise activate`). Optional macOS: `brew install daipeihust/tap/im-select`.
+Requires [mise](https://mise.jdx.dev) (shell hook / `mise activate`). 
 
 ```sh
 git clone https://github.com/kvoon3/nvim.git ~/.config/nvim
@@ -14,6 +14,12 @@ mise run prepare  # install .githooks/pre-commit → .git/hooks/
 ```
 
 Open nvim once for Lazy/Mason. Pre-commit: stylua --check + selene on staged `*.lua`. Full tree: `just check` (fmt + selene + ls-lint).
+
+### macOS (Optional)
+
+```sh
+brew install daipeihust/tap/im-select
+```
 
 ## Features
 
