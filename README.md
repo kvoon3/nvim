@@ -4,7 +4,7 @@ Kevin Kwong's Neovim config.
 
 ## Install
 
-Requires [mise](https://mise.jdx.dev) (shell hook / `mise activate`). 
+Requires [mise](https://mise.jdx.dev) (shell hook / `mise activate`) and **Neovim 0.12+**. 
 
 ```sh
 git clone https://github.com/kvoon3/nvim.git ~/.config/nvim
