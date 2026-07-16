@@ -79,7 +79,7 @@ CJK Text Enhancement:
 - **Color schemes**: [Vitesse](https://github.com/kvoon3/vitesse.nvim), [Everforest](https://github.com/neanias/everforest-nvim), [Kanagawa](https://github.com/rebelot/kanagawa.nvim), [moonfly](https://github.com/bluz71/vim-moonfly-colors), and [olive-crt](https://github.com/torgeir/olive-crt.nvim).
 - **Notifications & input**: Snacks notifier and input UI replace default message boxes.
 - **Statusline**: Custom minimal statusline showing filename, modified flag, and cursor position.
-- **Markdown rendering**: [render-markdown.nvim](https://github.com/MeanderingProgrammer/render-markdown.nvim) renders in place in normal mode; insert mode auto-opens a split preview (raw source on the left, live-rendered output on the right). Toggle commands available.
+- **Markdown rendering**: [render-markdown.nvim](https://github.com/MeanderingProgrammer/render-markdown.nvim) keeps buffers raw; insert mode auto-opens a split preview (raw source beside live-rendered output, split right or below based on window aspect). Toggle commands available.
 
 ### Others
 
