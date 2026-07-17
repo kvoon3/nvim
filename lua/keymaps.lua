@@ -268,3 +268,24 @@ vim.api.nvim_create_autocmd('WinEnter', {
 local open_in_github = require 'open-in-github'
 vim.keymap.set('n', '<leader>go', open_in_github.open_in_github, { desc = 'Open in GitHub' })
 vim.keymap.set('v', '<leader>go', open_in_github.open_in_github, { desc = 'Open in GitHub' })
+
+-----------------
+-- Open link under cursor --
+-----------------
+
+--[[
+Open the <cfile> under the cursor (URL, file path, etc.).
+]]
+local function open_link_under_cursor()
+  local target = vim.fn.expand '<cfile>'
+  if target and target ~= '' then
+    local ok, err = pcall(vim.ui.open, target)
+    if not ok then
+      vim.notify('Failed to open link: ' .. tostring(err), vim.log.levels.ERROR)
+    end
+  else
+    vim.notify('No link under cursor', vim.log.levels.WARN)
+  end
+end
+
+vim.keymap.set('n', '<leader>l', open_link_under_cursor, { desc = 'Open link under cursor' })
