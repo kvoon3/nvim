@@ -5,17 +5,19 @@ return {
     require('cmdr').add {
       {
         desc = 'Show WakaTime today',
-        cmd = '<CMD>WakatimeToday<CR>',
+        cmd = '<CMD>WakaTimeToday<CR>',
         cat = 'wakatime',
       },
       {
         desc = 'Open WakaTime dashboard',
-        cmd = '<CMD>WakatimeOpenDashboard<CR>',
+        cmd = function()
+          vim.ui.open 'https://wakatime.com/dashboard'
+        end,
         cat = 'wakatime',
       },
       {
-        desc = 'Show WakaTime URL for current file',
-        cmd = '<CMD>WakaTimeUrl<CR>',
+        desc = 'Show WakaTime file experts',
+        cmd = '<CMD>WakaTimeFileExpert<CR>',
         cat = 'wakatime',
       },
     }
