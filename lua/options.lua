@@ -32,7 +32,7 @@ vim.opt.wrap = false
 vim.opt.ignorecase = true -- case-insensitive search by default
 vim.opt.smartcase = true -- override ignorecase when pattern contains uppercase letters
 
--- Statusline: display current file name and info
+-- Winbar (header) + statusline (footer): see lua/statusline.lua
+vim.opt.winbar = "%!v:lua.require'statusline'.render_header()" -- relative file path and flags; click to copy
 vim.opt.laststatus = 2 -- always show statusline
-vim.opt.statusline = '%f %m%r%h%w %= [%l,%c] [%p%%] [%L lines]'
--- Format: filename modified-flag readonly help-flag preview-flag | line,column | percentage | total-lines
+vim.opt.statusline = "%!v:lua.require'statusline'.render()" -- git branch/sync arrows | position info | clickable icons
