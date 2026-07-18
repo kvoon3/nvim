@@ -1,8 +1,9 @@
 local M = {}
 
--- Ahead/behind counts cached per git root; `running` dedupes concurrent refreshes.
+-- Ahead/behind and dirty state cached per git root; `running*` dedupes concurrent refreshes.
 local cache = {}
 local running = {}
+local running_dirty = {}
 
 local function notify(msg, level)
   vim.notify(msg, level or vim.log.levels.INFO)
@@ -17,9 +18,16 @@ local function git(args, root, on_done)
   end)
 end
 
---[[ Query the upstream sync state of root asynchronously and refresh the cache.
-A non-zero exit means there is no upstream (or not a repo): no arrows are shown. ]]
-function M.refresh(root)
+local function update_cache(root, key, value)
+  cache[root] = cache[root] or {}
+  if cache[root][key] ~= value then
+    cache[root][key] = value
+    return true
+  end
+  return false
+end
+
+local function refresh_sync(root)
   if not root or root == '' or running[root] then
     return
   end
@@ -34,27 +42,74 @@ function M.refresh(root)
     else
       new = { ahead = 0, behind = 0, upstream = false }
     end
-    if not vim.deep_equal(cache[root], new) then
-      cache[root] = new
+    local ahead_changed = update_cache(root, 'ahead', new.ahead)
+    local behind_changed = update_cache(root, 'behind', new.behind)
+    local upstream_changed = update_cache(root, 'upstream', new.upstream)
+    if ahead_changed or behind_changed or upstream_changed then
       vim.cmd 'redrawstatus'
     end
   end)
 end
 
---[[ Sync state for a buffer: branch from gitsigns, ahead/behind from the cache.
-Returns nil outside a git repository. ]]
-function M.get(bufnr)
+local function refresh_dirty(root)
+  if not root or root == '' or running_dirty[root] then
+    return
+  end
+  running_dirty[root] = true
+  git({ 'status', '--porcelain' }, root, function(code, stdout)
+    running_dirty[root] = nil
+    if code ~= 0 then
+      return
+    end
+    local dirty = stdout:match '%S' ~= nil
+    if update_cache(root, 'dirty', dirty) then
+      vim.cmd 'redrawstatus'
+    end
+  end)
+end
+
+--[[ Query the upstream sync state and dirty state of root asynchronously and refresh the cache.
+A non-zero exit from rev-list means there is no upstream (or not a repo): no arrows are shown. ]]
+function M.refresh(root)
+  refresh_sync(root)
+  refresh_dirty(root)
+end
+
+local function is_git_worktree(path)
+  return vim.fn.isdirectory(path .. '/.git') == 1 or vim.fn.filereadable(path .. '/.git') == 1
+end
+
+--[[ Resolve the git root and branch for a buffer.
+Normal buffers get this from gitsigns; netrw buffers use the browsed directory and have no branch name. ]]
+local function buffer_repo(bufnr)
   local dict = vim.b[bufnr].gitsigns_status_dict
-  if not dict or not dict.head or dict.head == '' then
+  if dict and dict.head and dict.head ~= '' and dict.root then
+    return dict.root, dict.head
+  end
+  if vim.bo[bufnr].filetype == 'netrw' then
+    local root = vim.b[bufnr].netrw_curdir
+    if root and root ~= '' and is_git_worktree(root) then
+      return root, nil
+    end
+  end
+  return nil, nil
+end
+
+--[[ Sync and dirty state for a buffer: branch from gitsigns, ahead/behind/dirty from the cache.
+For netrw buffers only the sync/dirty state is shown. Returns nil outside a git repository. ]]
+function M.get(bufnr)
+  local root, branch = buffer_repo(bufnr)
+  if not root then
     return nil
   end
-  local counts = dict.root and cache[dict.root]
+  local counts = cache[root] or {}
   return {
-    branch = dict.head,
-    root = dict.root,
-    upstream = counts and counts.upstream or false,
-    ahead = counts and counts.ahead or 0,
-    behind = counts and counts.behind or 0,
+    branch = branch,
+    root = root,
+    upstream = counts.upstream or false,
+    ahead = counts.ahead or 0,
+    behind = counts.behind or 0,
+    dirty = counts.dirty or false,
   }
 end
 
@@ -103,9 +158,9 @@ function M.pull_rebase_push()
 end
 
 local function refresh_buffer(bufnr)
-  local dict = vim.b[bufnr].gitsigns_status_dict
-  if dict and dict.root then
-    M.refresh(dict.root)
+  local root = buffer_repo(bufnr)
+  if root then
+    M.refresh(root)
   end
 end
 
@@ -122,9 +177,9 @@ vim.api.nvim_create_autocmd('User', {
   group = group,
   pattern = 'GitSignsUpdate',
   callback = function(ev)
-    if ev.data and ev.data.buffer then
-      refresh_buffer(ev.data.buffer)
-    end
+    -- Gitsigns omits `data` when the repo HEAD changes (e.g. after a commit),
+    -- so fall back to the current buffer.
+    refresh_buffer(ev.data and ev.data.buffer or 0)
   end,
 })
 

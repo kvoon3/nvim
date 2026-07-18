@@ -32,13 +32,6 @@ describe('statusline', function()
       assert.are.equal('%=', line:sub(-2))
       assert.is_true(line:find('%f %m%r%h%w', 1, true) ~= nil)
     end)
-
-    it('puts the copy click label on the icon only, not the path', function()
-      local line = statusline.render_header()
-      local inner = line:match 'click_copy_path@(.-)%%X'
-      assert.is_true(inner ~= nil and inner ~= '')
-      assert.is_nil(inner:find '%%')
-    end)
   end)
 
   describe('git section', function()
@@ -60,26 +53,39 @@ describe('statusline', function()
     end)
 
     it('shows the branch name as a lazygit click label', function()
-      stub_git { branch = 'main', upstream = true, ahead = 0, behind = 0 }
+      stub_git { branch = 'main', upstream = true, ahead = 0, behind = 0, dirty = false }
       local line = statusline.render()
       local inner = line:match 'click_branch@(.-)%%X'
       assert.is_true(inner ~= nil and inner:find('main', 1, true) ~= nil)
     end)
 
+    it('shows a dirty indicator when there are uncommitted changes', function()
+      stub_git { branch = 'main', upstream = true, ahead = 0, behind = 0, dirty = true }
+      local line = statusline.render()
+      assert.is_true(line:find('●', 1, true) ~= nil)
+    end)
+
+    it('shows only the branch icon when the branch name is unknown (netrw)', function()
+      stub_git { branch = nil, upstream = true, ahead = 0, behind = 0, dirty = false }
+      local line = statusline.render()
+      assert.is_true(line:find('click_branch@', 1, true) ~= nil)
+      assert.is_nil(line:find('click_branch@.-main', 1, true))
+    end)
+
     it('shows a push arrow when ahead', function()
-      stub_git { branch = 'main', upstream = true, ahead = 2, behind = 0 }
+      stub_git { branch = 'main', upstream = true, ahead = 2, behind = 0, dirty = false }
       local line = statusline.render()
       assert.is_true(line:find('click_push@', 1, true) ~= nil)
       assert.is_true(line:find('2', 1, true) ~= nil)
     end)
 
     it('shows a pull arrow when behind', function()
-      stub_git { branch = 'main', upstream = true, ahead = 0, behind = 3 }
+      stub_git { branch = 'main', upstream = true, ahead = 0, behind = 3, dirty = false }
       assert.is_true(statusline.render():find('click_pull@', 1, true) ~= nil)
     end)
 
     it('merges both arrows into one rebase+push button when diverged', function()
-      stub_git { branch = 'main', upstream = true, ahead = 2, behind = 3 }
+      stub_git { branch = 'main', upstream = true, ahead = 2, behind = 3, dirty = false }
       local line = statusline.render()
       assert.is_true(line:find('click_pull_rebase_push@', 1, true) ~= nil)
       assert.is_nil(line:find('click_push@', 1, true))
@@ -87,7 +93,7 @@ describe('statusline', function()
     end)
 
     it('shows no arrows without an upstream', function()
-      stub_git { branch = 'main', upstream = false, ahead = 0, behind = 0 }
+      stub_git { branch = 'main', upstream = false, ahead = 0, behind = 0, dirty = false }
       local line = statusline.render()
       assert.is_nil(line:find('click_push@', 1, true))
       assert.is_nil(line:find('click_pull@', 1, true))
@@ -209,19 +215,6 @@ describe('statusline', function()
     it('opens the current file in GitHub', function()
       left_click(statusline.click_github)
       assert.are.same({ 'github' }, calls)
-    end)
-
-    it('copies the absolute path of the clicked header', function()
-      vim.api.nvim_buf_set_name(0, '/tmp/nvim-copy-test.lua')
-      local copied
-      local orig_setreg = vim.fn.setreg
-      vim.fn.setreg = function(reg, val)
-        copied = { reg = reg, val = val }
-      end
-      left_click(statusline.click_copy_path)
-      vim.fn.setreg = orig_setreg
-      assert.are.equal('+', copied.reg)
-      assert.are.equal('/tmp/nvim-copy-test.lua', copied.val)
     end)
 
     it('ignores non-left clicks', function()

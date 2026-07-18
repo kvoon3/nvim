@@ -4,11 +4,11 @@ local icons = {
   branch = '󰘬',
   ahead = '󰁝',
   behind = '󰁅',
+  dirty = '●',
   explorer = '󰉋',
   terminal = '󰆍',
   finder = '󰝰',
   github = '󰊤',
-  copy = '󰆏',
 }
 
 -- test
@@ -64,10 +64,19 @@ local function toggle_explorer()
   Snacks.picker.explorer()
 end
 
+--[[ Return the absolute path that the current buffer represents.
+For netrw, this is the directory being browsed; otherwise the current file path. ]]
+local function buffer_path(buf)
+  if vim.bo[buf].filetype == 'netrw' then
+    return vim.b[buf].netrw_curdir
+  end
+  return vim.fn.expand '%:p'
+end
+
 --[[ Copy the absolute path of the current file to the system clipboard. ]]
 local function copy_absolute_path()
-  local path = vim.fn.expand '%:p'
-  if path == '' then
+  local path = buffer_path(vim.api.nvim_get_current_buf())
+  if not path or path == '' then
     vim.notify('No file in current buffer', vim.log.levels.WARN)
     return
   end
@@ -77,8 +86,8 @@ end
 
 --[[ Reveal the current file in macOS Finder. ]]
 local function reveal_in_finder()
-  local file = vim.fn.expand '%:p'
-  if file == '' then
+  local file = buffer_path(vim.api.nvim_get_current_buf())
+  if not file or file == '' then
     vim.notify('No file in current buffer', vim.log.levels.WARN)
     return
   end
@@ -128,11 +137,6 @@ M.click_pull_rebase_push = on_left_click(function()
   require('git-status').pull_rebase_push()
 end)
 
-M.click_copy_path = on_left_click(function()
-  focus_clicked_win()
-  copy_absolute_path()
-end)
-
 --[[ Git branch and sync arrows for the left side of the footer.
 Clicking the branch opens lazygit. Arrows: ahead = push, behind = pull, both = one rebase+push button. ]]
 local function git_section(buf)
@@ -140,7 +144,11 @@ local function git_section(buf)
   if not status then
     return nil
   end
-  local parts = { clickable('click_branch', icons.branch .. ' ' .. status.branch) }
+  local branch_label = status.branch and (icons.branch .. ' ' .. status.branch) or icons.branch
+  local parts = { clickable('click_branch', branch_label) }
+  if status.dirty then
+    parts[#parts + 1] = icons.dirty
+  end
   if status.upstream and status.ahead > 0 and status.behind > 0 then
     local diverged = icons.ahead .. status.ahead .. ' ' .. icons.behind .. status.behind
     parts[#parts + 1] = clickable('click_pull_rebase_push', diverged)
@@ -152,14 +160,13 @@ local function git_section(buf)
   return table.concat(parts, ' ')
 end
 
---[[ Render the winbar header: file path and flags centered, with a copy icon on their right.
-Only the icon is clickable (copies the path). Blank for explorer windows and non-file buffers. ]]
+--[[ Render the winbar header: file path and flags centered. Blank for explorer windows and non-file buffers. ]]
 function M.render_header()
   local buf = vim.api.nvim_win_get_buf(render_winid())
   if disabled_filetypes[vim.bo[buf].filetype] or vim.bo[buf].buftype ~= '' then
     return ''
   end
-  return '%=%f %m%r%h%w ' .. clickable('click_copy_path', icons.copy) .. '%='
+  return '%=%f %m%r%h%w %='
 end
 
 --[[ Render the footer: git branch and sync arrows on the left, cursor info and clickable
