@@ -12,6 +12,8 @@ describe('git-status', function()
   local notifications
   local orig_system
   local orig_notify
+  local orig_isdirectory
+  local orig_filereadable
 
   local function queue_result(code, stdout, stderr)
     table.insert(system_queue, { code = code, stdout = stdout or '', stderr = stderr or '' })
@@ -45,6 +47,8 @@ describe('git-status', function()
     notifications = {}
     orig_system = vim.system
     orig_notify = vim.notify
+    orig_isdirectory = vim.fn.isdirectory
+    orig_filereadable = vim.fn.filereadable
     vim.system = function(cmd, opts, on_exit)
       table.insert(system_calls, { cmd = cmd, opts = opts })
       local result = table.remove(system_queue, 1) or { code = 0, stdout = '', stderr = '' }
@@ -55,17 +59,31 @@ describe('git-status', function()
     vim.notify = function(msg, level)
       table.insert(notifications, { msg = msg, level = level })
     end
+    vim.fn.isdirectory = function(path)
+      return path == root .. '/.git' and 1 or 0
+    end
+    vim.fn.filereadable = function(_)
+      return 0
+    end
   end)
 
   after_each(function()
     vim.system = orig_system
     vim.notify = orig_notify
+    vim.fn.isdirectory = orig_isdirectory
+    vim.fn.filereadable = orig_filereadable
     if vim.api.nvim_buf_is_valid(bufnr) then
       vim.api.nvim_buf_delete(bufnr, { force = true })
     end
   end)
 
   it('returns nil without gitsigns data', function()
+    assert.is_nil(git_status.get(bufnr))
+  end)
+
+  it('returns nil for netrw outside a git repository', function()
+    vim.bo[bufnr].filetype = 'netrw'
+    vim.b[bufnr].netrw_curdir = '/tmp'
     assert.is_nil(git_status.get(bufnr))
   end)
 
@@ -80,7 +98,8 @@ describe('git-status', function()
 
   it('caches ahead/behind from rev-list --left-right output', function()
     vim.b[bufnr].gitsigns_status_dict = { head = 'main', root = root }
-    queue_result(0, '3\t2\n')
+    queue_result(0, '3\t2\n') -- rev-list
+    queue_result(0, '') -- status --porcelain
     git_status.refresh(root)
     flush()
 
@@ -91,28 +110,57 @@ describe('git-status', function()
     assert.are.equal(2, status.ahead) -- right side: HEAD-only commits
     assert.are.equal(3, status.behind) -- left side: upstream-only commits
     assert.is_true(status.upstream)
+    assert.is_false(status.dirty)
+  end)
+
+  it('detects dirty state from status --porcelain output', function()
+    vim.b[bufnr].gitsigns_status_dict = { head = 'main', root = root }
+    queue_result(0, '0\t0\n') -- rev-list
+    queue_result(0, ' M lua/git-status.lua\n') -- status --porcelain
+    git_status.refresh(root)
+    flush()
+
+    assert.is_true(git_status.get(bufnr).dirty)
+  end)
+
+  it('uses netrw directory as repo root and shows sync/dirty state', function()
+    vim.bo[bufnr].filetype = 'netrw'
+    vim.b[bufnr].netrw_curdir = root
+    vim.b[bufnr].gitsigns_status_dict = nil
+    queue_result(0, '0\t0\n') -- rev-list
+    queue_result(0, ' M lua/git-status.lua\n') -- status --porcelain
+    git_status.refresh(root)
+    flush()
+
+    local status = git_status.get(bufnr)
+    assert.is_true(status.dirty)
+    assert.is_nil(status.branch)
+    assert.are.equal(root, status.root)
   end)
 
   it('treats a non-zero exit as no upstream', function()
     vim.b[bufnr].gitsigns_status_dict = { head = 'main', root = root }
     queue_result(128, '', 'fatal: no upstream configured')
+    queue_result(0, '')
     git_status.refresh(root)
     flush()
     assert.is_false(git_status.get(bufnr).upstream)
   end)
 
   it('dedupes concurrent refreshes for the same root', function()
-    queue_result(0, '0\t0\n')
+    queue_result(0, '0\t0\n') -- rev-list
+    queue_result(0, '') -- status --porcelain
     git_status.refresh(root)
     git_status.refresh(root)
     flush()
-    assert.are.equal(1, #system_calls)
+    assert.are.equal(2, #system_calls)
   end)
 
   it('push runs git push in the repo root and refreshes', function()
     vim.b[bufnr].gitsigns_status_dict = { head = 'main', root = root }
     queue_result(0, '') -- push
-    queue_result(0, '0\t0\n') -- refresh
+    queue_result(0, '0\t0\n') -- rev-list
+    queue_result(0, '') -- status --porcelain
     git_status.push()
     flush()
 
@@ -125,6 +173,7 @@ describe('git-status', function()
     vim.b[bufnr].gitsigns_status_dict = { head = 'main', root = root }
     queue_result(1, '', 'rejected: non-fast-forward')
     queue_result(0, '1\t0\n')
+    queue_result(0, '')
     git_status.push()
     flush()
     assert.is_true(notified 'non%-fast%-forward')
@@ -134,7 +183,8 @@ describe('git-status', function()
     vim.b[bufnr].gitsigns_status_dict = { head = 'main', root = root }
     queue_result(0, '') -- pull --rebase
     queue_result(0, '') -- push
-    queue_result(0, '0\t0\n') -- refresh
+    queue_result(0, '0\t0\n') -- rev-list
+    queue_result(0, '') -- status --porcelain
     git_status.pull_rebase_push()
     flush()
 
@@ -147,10 +197,11 @@ describe('git-status', function()
     vim.b[bufnr].gitsigns_status_dict = { head = 'main', root = root }
     queue_result(1, '', 'could not apply abc123')
     queue_result(0, '2\t1\n')
+    queue_result(0, '')
     git_status.pull_rebase_push()
     flush()
 
-    assert.are.equal(2, #system_calls) -- no push after a failed rebase
+    assert.are.equal(3, #system_calls) -- no push after a failed rebase, but refresh runs
     assert.is_true(notified 'could not apply')
   end)
 
@@ -158,5 +209,18 @@ describe('git-status', function()
     git_status.push()
     assert.are.equal(0, #system_calls)
     assert.is_true(notified 'Not in a git repository')
+  end)
+
+  it('refreshes on GitSignsUpdate without data (e.g. after a commit)', function()
+    vim.b[bufnr].gitsigns_status_dict = { head = 'main', root = root }
+    local refreshed = {}
+    local orig_refresh = git_status.refresh
+    git_status.refresh = function(r)
+      table.insert(refreshed, r)
+    end
+    vim.api.nvim_exec_autocmds('User', { pattern = 'GitSignsUpdate' })
+    git_status.refresh = orig_refresh
+
+    assert.are.same({ root }, refreshed)
   end)
 end)
