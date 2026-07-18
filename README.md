@@ -78,7 +78,8 @@ CJK Text Enhancement:
 - **Auto dark mode**: [auto-dark-mode.nvim](https://github.com/f-person/auto-dark-mode.nvim) switches between vitesse-light-soft (light) and vitesse-black (dark) based on macOS appearance.
 - **Color schemes**: [Vitesse](https://github.com/kvoon3/vitesse.nvim), [Everforest](https://github.com/neanias/everforest-nvim), [Kanagawa](https://github.com/rebelot/kanagawa.nvim), [moonfly](https://github.com/bluz71/vim-moonfly-colors), and [olive-crt](https://github.com/torgeir/olive-crt.nvim).
 - **Notifications & input**: Snacks notifier and input UI replace default message boxes.
-- **Statusline**: Custom minimal statusline showing filename, modified flag, and cursor position.
+- **Winbar**: per-window header with the relative file path and flags centered, and a copy icon on their right (click the icon to copy the absolute path). Hidden on the explorer panel and non-file buffers.
+- **Statusline**: footer showing the git branch (click it to open LazyGit) with sync arrows (click to push unpushed commits, pull incoming ones, or rebase+push when diverged; counts refresh on focus/buffer switch, behind is as of last fetch), cursor position, and clickable icons (file explorer, terminal, Finder, GitHub). Hidden on the Snacks explorer panel and terminal windows. All icons use the Material Design Nerd Font set for a consistent look.
 - **Prose wrapping**: Markdown and text buffers soft-wrap at word boundaries with kept indent; `j`/`k` move by display line (counts like `3j` still use real lines).
 
 ### Others
