@@ -11,6 +11,8 @@ local icons = {
   copy = '󰆏',
 }
 
+-- test
+
 --[[ Snacks explorer sidebar windows get a blank statusline and winbar.
 With laststatus=2 the row itself cannot be removed per-window, only emptied. ]]
 local disabled_filetypes = {
