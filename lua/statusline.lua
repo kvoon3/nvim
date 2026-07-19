@@ -7,7 +7,7 @@ local icons = {
   dirty = '●',
   explorer = '󰉋',
   terminal = '󰆍',
-  finder = '󰝰',
+  finder = '󰀶',
   github = '󰊤',
 }
 
