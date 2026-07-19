@@ -4,4 +4,10 @@
 return {
   'kvoon3/vitesse.nvim',
   lazy = true,
+  config = function()
+    require('vitesse').setup {
+      -- Let the terminal compose Neovim's main background consistently.
+      transparent = true,
+    }
+  end,
 }
