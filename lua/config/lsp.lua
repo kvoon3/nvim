@@ -1,9 +1,16 @@
 -- Native LSP configuration (replaces coc.nvim)
 -- Add servers you install via Mason to the `ensure_installed` list below.
 
+local typescript = require 'config.typescript'
+
 vim.api.nvim_create_autocmd('LspAttach', {
   group = vim.api.nvim_create_augroup('UserLspConfig', {}),
   callback = function(ev)
+    local client = vim.lsp.get_client_by_id(ev.data.client_id)
+    if client then
+      typescript.track(client)
+    end
+
     -- Enable completion triggered by <c-x><c-o>
     vim.bo[ev.buf].omnifunc = 'v:lua.vim.lsp.omnifunc'
 
@@ -97,6 +104,8 @@ local servers = {
   },
   -- Vue / JS / TS (hybrid mode)
   ts_ls = {
+    before_init = typescript.before_init,
+    root_dir = typescript.ts_ls_root_dir,
     init_options = {
       plugins = {
         vue_plugin,
@@ -110,6 +119,10 @@ local servers = {
       'vue',
     },
   },
+  tsgo = {
+    cmd = typescript.tsgo_cmd,
+    root_dir = typescript.tsgo_root_dir,
+  },
   vue_ls = {},
 
   -- CSS / HTML
@@ -120,12 +133,19 @@ local servers = {
   rust_analyzer = {},
 }
 
-local ensure_installed = vim.tbl_keys(servers or {})
+local ensure_installed = vim
+  .iter(vim.tbl_keys(servers or {}))
+  :filter(function(server_name)
+    return server_name ~= 'tsgo'
+  end)
+  :totable()
 
 require('mason-lspconfig').setup {
   ensure_installed = ensure_installed,
   automatic_enable = false, -- we enable servers manually below
 }
+
+typescript.setup()
 
 local capabilities = require('cmp_nvim_lsp').default_capabilities()
 

@@ -23,7 +23,7 @@ return {
     },
     config = function()
       vim.api.nvim_create_user_command('ReloadLsp', function()
-        vim.cmd 'LspRestart'
+        vim.cmd 'lsp restart'
       end, {})
 
       require('cmdr').add {
