@@ -31,7 +31,7 @@ brew install daipeihust/tap/im-select
 - **Surround editing**: [nvim-surround](https://github.com/kylechui/nvim-surround) for changing surrounding characters.
 - **Enhanced commenting**: [ts-comments.nvim](https://github.com/folke/ts-comments.nvim) for context-aware line/block comments.
 - **Code folding**: [nvim-ufo](https://github.com/kevinhwang91/nvim-ufo) with fold level keymaps (`zR`, `zM`, `zr`, `zm`).
-- **System clipboard**: Paste from system clipboard via `<leader>p`.
+- **System clipboard**: Copy with `<leader>y` (operator or visual selection) and paste with `<leader>p`.
 - **Select all**: `<leader>a` selects the entire buffer.
 
 CJK Text Enhancement:
