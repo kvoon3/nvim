@@ -65,7 +65,8 @@ end
 vim.keymap.set('n', '<D-S-p>', command_palette, { desc = 'Command palette' })
 vim.keymap.set('n', '<leader>cc', command_palette, { desc = 'Command palette' })
 
-vim.keymap.set('n', '<leader>p', '"+p')
+vim.keymap.set({ 'n', 'x' }, '<leader>y', '"+y', { desc = 'Yank to system clipboard' })
+vim.keymap.set('n', '<leader>p', '"+p', { desc = 'Paste from system clipboard' })
 vim.keymap.set('n', '<leader>a', 'ggVG', { desc = 'Select all' })
 
 -----------------
