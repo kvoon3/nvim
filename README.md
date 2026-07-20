@@ -41,7 +41,8 @@ CJK Text Enhancement:
 
 ### LSP & Completion
 
-- **Language servers**: [nvim-lspconfig](https://github.com/neovim/nvim-lspconfig) + [Mason](https://github.com/williamboman/mason.nvim) manage `lua_ls`, `ts_ls`, `vue_ls`, `cssls`, `html`, `unocss`, and `rust_analyzer`.
+- **Language servers**: [nvim-lspconfig](https://github.com/neovim/nvim-lspconfig) + [Mason](https://github.com/williamboman/mason.nvim) manage `lua_ls`, `ts_ls`, `tsgo`, `vue_ls`, `cssls`, `html`, `unocss`, and `rust_analyzer`.
+- **Project TypeScript**: TypeScript 7 workspaces use their local native `tsc --lsp`; older and Vue workspaces use `ts_ls` so Vue's TypeScript plugin remains available. The active TypeScript LSP restarts after dependency installs change `node_modules`.
 - **Vue hybrid mode**: `vue_ls` (template/style) + `ts_ls` with `@vue/typescript-plugin` (`<script>` TS). Context: [notes/vue-treesitter.md](notes/vue-treesitter.md).
 - **Autocompletion**: [nvim-cmp](https://github.com/hrsh7th/nvim-cmp) with LSP, LuaSnip, path, and buffer sources.
 - **Snippets**: [LuaSnip](https://github.com/L3MON4D3/LuaSnip) with `<C-l>` / `<C-h>` jump mappings.
