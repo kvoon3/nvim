@@ -28,7 +28,7 @@ brew install daipeihust/tap/im-select
 - **Fast jump**: [flash.nvim](https://github.com/folke/flash.nvim) on `f` (native `f`/`t` disabled via flash char mode).
 - **Jump to errors**: Navigate diagnostics (`[d` / `]d` / `<leader>en` / `<leader>wn` / `<leader>in` / `<leader>hn`), open diagnostic float (`<leader>df`), and diagnostics list (`<leader>q`).
 - **Mouse support**: Full mouse support for clicking to position the cursor, selecting text, scrolling, and more.
-- **Auto-pairs & surround**: Automatic bracket pairing and [nvim-surround](https://github.com/kylechui/nvim-surround) for changing surrounding characters.
+- **Surround editing**: [nvim-surround](https://github.com/kylechui/nvim-surround) for changing surrounding characters.
 - **Enhanced commenting**: [ts-comments.nvim](https://github.com/folke/ts-comments.nvim) for context-aware line/block comments.
 - **Code folding**: [nvim-ufo](https://github.com/kevinhwang91/nvim-ufo) with fold level keymaps (`zR`, `zM`, `zr`, `zm`).
 - **System clipboard**: Paste from system clipboard via `<leader>p`.
