@@ -19,6 +19,7 @@ vim.opt.mouse = 'a'
 vim.opt.mousescroll = 'ver:1,hor:1' -- scroll one line/column per mouse wheel tick
 
 -- Safety
+vim.opt.shortmess:append 'A' -- auto-ignore swap files from dead processes
 vim.opt.confirm = true -- ask for confirmation when quitting with unsaved changes
 
 -- Buffer management: auto-delete unchanged buffers when hidden
