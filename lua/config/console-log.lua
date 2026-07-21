@@ -22,7 +22,12 @@ for _, ft in ipairs(filetypes) do
   for _, method in ipairs(methods) do
     local console_method = method
     snippets[#snippets + 1] = ls.s(
-      { trig = '^([ \t]*)([%w_.$%[%]\'"`]+)%.' .. console_method, regTrig = true, wordTrig = false },
+      {
+        trig = '^([ \t]*)([%w_.$%[%]\'"`]+)%.' .. console_method,
+        regTrig = true,
+        wordTrig = false,
+        name = 'console.' .. console_method,
+      },
       ls.d(1, function(_, parent)
         local indent = parent.snippet.captures[1]
         local expression = parent.snippet.captures[2]
