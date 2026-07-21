@@ -1,21 +1,28 @@
 # nvim
 
-Kevin Kwong's Neovim config.
+Kevin Kwong's Neovim configuration.
 
 ## Install
 
-Requires [mise](https://mise.jdx.dev) (shell hook / `mise activate`) and **Neovim 0.12+**. 
+Requires [mise](https://mise.jdx.dev) (with its shell hook enabled) and **Neovim 0.12+**.
 
 ```sh
 git clone https://github.com/kvoon3/nvim.git ~/.config/nvim
 cd ~/.config/nvim
-mise install      # stylua, selene, ls-lint, just, …
-mise run prepare  # install .githooks/pre-commit → .git/hooks/
+mise install
+mise run prepare
 ```
 
-Open nvim once for Lazy/Mason. Pre-commit: stylua --check + selene on staged `*.lua`. Full tree: `just check` (format check + Selene + ls-lint + tests); `just format` applies StyLua formatting. Tests run in an isolated Neovim data directory.
+Open Neovim once to install Lazy and Mason dependencies.
 
-### macOS (Optional)
+```sh
+just check   # format, lint, and tests
+just format  # apply formatting
+```
+
+Tests use an isolated Neovim data directory. The pre-commit hook checks staged Lua files with StyLua and Selene.
+
+### Optional: macOS input-method switching
 
 ```sh
 brew install daipeihust/tap/im-select
@@ -23,70 +30,12 @@ brew install daipeihust/tap/im-select
 
 ## Features
 
-### Editing
-
-- **Fast jump**: [flash.nvim](https://github.com/folke/flash.nvim) on `f` (native `f`/`t` disabled via flash char mode).
-- **Jump to errors**: Navigate diagnostics (`[d` / `]d` / `<leader>en` / `<leader>wn` / `<leader>in` / `<leader>hn`), open diagnostic float (`<leader>df`), and diagnostics list (`<leader>q`).
-- **Mouse support**: Full mouse support for clicking to position the cursor, selecting text, scrolling, and more.
-- **Surround editing**: [nvim-surround](https://github.com/kylechui/nvim-surround) for changing surrounding characters.
-- **Enhanced commenting**: [ts-comments.nvim](https://github.com/folke/ts-comments.nvim) for context-aware line/block comments.
-- **Code folding**: [nvim-ufo](https://github.com/kevinhwang91/nvim-ufo) with fold level keymaps (`zR`, `zM`, `zr`, `zm`).
-- **System clipboard**: Copy with `<leader>y` (operator or visual selection) and paste with `<leader>p`.
-- **Select all**: `<leader>a` selects the entire buffer.
-
-CJK Text Enhancement:
-
-- **Word Split**: [jieba](https://github.com/neo451/jieba-lua)-powered `w`/`b`/`e` motions for Chinese and mixed-language text.
-- **Input method auto-switch**: Optional `im-select` integration that switches input methods automatically when leaving/entering insert mode on macOS.
-
-### LSP & Completion
-
-- **Language servers**: [nvim-lspconfig](https://github.com/neovim/nvim-lspconfig) + [Mason](https://github.com/williamboman/mason.nvim) manage `lua_ls`, `ts_ls`, `tsgo`, `vue_ls`, `eslint`, `oxlint`, `oxfmt`, `cssls`, `html`, `unocss`, and `rust_analyzer`.
-- **Project TypeScript**: TypeScript 7 workspaces use their local native `tsc --lsp`; older and Vue workspaces use `ts_ls` so Vue's TypeScript plugin remains available. The active TypeScript LSP restarts after dependency installs change `node_modules`.
-- **Vue hybrid mode**: `vue_ls` (template/style) + `ts_ls` with `@vue/typescript-plugin` (`<script>` TS). Context: [notes/vue-treesitter.md](notes/vue-treesitter.md).
-- **Autocompletion**: [nvim-cmp](https://github.com/hrsh7th/nvim-cmp) with LSP, LuaSnip, path, and buffer sources.
-- **Snippets**: [LuaSnip](https://github.com/L3MON4D3/LuaSnip); `clg` / `cle` / `cli` / `clt` and `expression.log`.
-- **LSP actions**: Go to definition/references (`gd`, `gr`), hover (`gh`), rename (`<leader>rn`), code actions (`<leader>ca`), and format (`<leader>f`).
-- **Lint / format**: the persistent ESLint language server fixes TypeScript and JavaScript files before they are written; Oxlint provides diagnostics and `:LspOxlintFixAll`, while Oxfmt is available through `<leader>f`.
-
-### Syntax & Treesitter
-
-- **Treesitter**: [nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter) installs parsers; core `vim.treesitter.start()` does highlighting. Context: [notes/vue-treesitter.md](notes/vue-treesitter.md).
-
-### Finding & Exploring
-
-- **Fuzzy finding**: [Telescope](https://github.com/nvim-telescope/telescope.nvim) for files (`<D-p>` / Cmd+P), live grep (`<leader>ff`), buffers (`<leader>fb`), help tags (`<leader>fh`), and colorschemes (`<leader>cs`).
-- **File explorer**: [snacks.nvim](https://github.com/folke/snacks.nvim) `explorer` with a right-side sidebar, hidden/ignored files, and live preview. In the explorer list, `%` creates a file; delete/move confirmations use a centered float.
-- **Command palette**: a minimal local `cmdr` module accessible with `<D-S-p>` (Cmd+Shift+P) or `<leader>cc`.
-- **Dashboard**: Snacks startup dashboard on launch.
-
-### Git
-
-- **Inline Git signs**: [gitsigns.nvim](https://github.com/lewis6991/gitsigns.nvim) for blame, diff, and hunk actions.
-- **LazyGit**: `:lg` / `:Lazygit` opens a floating LazyGit (Snacks).
-- **Open in GitHub**: `<leader>go` opens the current file, selection, or repository in GitHub in your default browser.
-- **Git-aware terminal**: [flatten.nvim](https://github.com/willothy/flatten.nvim) opens files from inside terminal buffers in the current Neovim instance and handles `git commit`/`git rebase` smoothly.
-
-### Panel Management
-
-- **Smart panel toggles**: `<C-w>l` toggles the right file-explorer panel; `<C-w>j` toggles the bottom terminal panel.
-- **Toggle terminal**: [toggleterm.nvim](https://github.com/akinsho/toggleterm.nvim) with `<C-t>`, numbered terminals (`<leader>1/2/3`), and terminal-window navigation.
-- **Auto-hide panels**: Side (file explorer) and bottom (terminal) panels automatically close when focus moves back to the main editor.
-
-### UI & Themes
-
-- **Plugin management**: [lazy.nvim](https://github.com/folke/lazy.nvim) for fast, declarative plugin loading.
-- **Auto dark mode**: [auto-dark-mode.nvim](https://github.com/f-person/auto-dark-mode.nvim) switches between vitesse-light-soft (light) and vitesse-black (dark) based on macOS appearance.
-- **Color schemes**: [Vitesse](https://github.com/kvoon3/vitesse.nvim), [Everforest](https://github.com/neanias/everforest-nvim), [Kanagawa](https://github.com/rebelot/kanagawa.nvim), [moonfly](https://github.com/bluz71/vim-moonfly-colors), and [olive-crt](https://github.com/torgeir/olive-crt.nvim).
-- **Notifications & input**: Snacks notifier and input UI replace default message boxes.
-- **Winbar**: per-window header with the relative file path and flags centered, and a copy icon on their right (click the icon to copy the absolute path). Hidden on the explorer panel and non-file buffers.
-- **Statusline**: footer showing the git branch, including when Neovim opens a repository directory (click it to open LazyGit), with sync arrows (click to push unpushed commits, pull incoming ones, or rebase+push when diverged; counts refresh on focus/buffer switch, behind is as of last fetch), cursor position, and clickable icons (file explorer, terminal, Finder, GitHub). Hidden on the Snacks explorer panel and terminal windows. All icons use the Material Design Nerd Font set for a consistent look.
-- **Prose wrapping**: Markdown and text buffers soft-wrap at word boundaries with kept indent; `j`/`k` move by display line (counts like `3j` still use real lines).
-
-### Others
-
-- **Coding time tracking**: [vim-wakatime](https://github.com/wakatime/vim-wakatime) integration.
+- **Editing:** Flash jumps, Treesitter-aware comments, surround editing, folds, CJK motions, and system clipboard helpers.
+- **LSP:** Mason-managed Lua, TypeScript, Vue, web, and Rust servers; completion, snippets, formatting, linting, and ESLint fixes on save.
+- **Navigation:** Telescope, Snacks file explorer and dashboard, plus a command palette.
+- **Git:** Gitsigns, floating LazyGit (`:lg`), GitHub links, and terminal-aware Git editing.
+- **UI:** Lazy.nvim, macOS-aware light/dark themes, notifications, a clickable statusline, winbar, and prose wrapping.
 
 ## Notes
 
-- [Vue & Treesitter](notes/vue-treesitter.md) — why hybrid LSP + archived nvim-treesitter
+- [Vue & Treesitter](notes/vue-treesitter.md) — Vue hybrid LSP and Treesitter context.
