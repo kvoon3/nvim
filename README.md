@@ -41,13 +41,13 @@ CJK Text Enhancement:
 
 ### LSP & Completion
 
-- **Language servers**: [nvim-lspconfig](https://github.com/neovim/nvim-lspconfig) + [Mason](https://github.com/williamboman/mason.nvim) manage `lua_ls`, `ts_ls`, `tsgo`, `vue_ls`, `cssls`, `html`, `unocss`, and `rust_analyzer`.
+- **Language servers**: [nvim-lspconfig](https://github.com/neovim/nvim-lspconfig) + [Mason](https://github.com/williamboman/mason.nvim) manage `lua_ls`, `ts_ls`, `tsgo`, `vue_ls`, `eslint`, `oxlint`, `oxfmt`, `cssls`, `html`, `unocss`, and `rust_analyzer`.
 - **Project TypeScript**: TypeScript 7 workspaces use their local native `tsc --lsp`; older and Vue workspaces use `ts_ls` so Vue's TypeScript plugin remains available. The active TypeScript LSP restarts after dependency installs change `node_modules`.
 - **Vue hybrid mode**: `vue_ls` (template/style) + `ts_ls` with `@vue/typescript-plugin` (`<script>` TS). Context: [notes/vue-treesitter.md](notes/vue-treesitter.md).
 - **Autocompletion**: [nvim-cmp](https://github.com/hrsh7th/nvim-cmp) with LSP, LuaSnip, path, and buffer sources.
 - **Snippets**: [LuaSnip](https://github.com/L3MON4D3/LuaSnip) with `<C-l>` / `<C-h>` jump mappings; type `expression.log` and press Tab to expand a labeled `console.log` call (quoted strings omit the label; also supports `warn`, `error`, `info`, `debug`, and `table`).
 - **LSP actions**: Go to definition/references (`gd`, `gr`), hover (`gh`), rename (`<leader>rn`), code actions (`<leader>ca`), and format (`<leader>f`).
-- **Run on save**: `.nvim/settings.json` → `runOnSave: { "<glob>": string[] }` (shell cmds, sequential). `${{filepath}}` = saved file path.
+- **Lint / format**: the persistent ESLint language server fixes TypeScript and JavaScript files before they are written; Oxlint provides diagnostics and `:LspOxlintFixAll`, while Oxfmt is available through `<leader>f`.
 
 ### Syntax & Treesitter
 

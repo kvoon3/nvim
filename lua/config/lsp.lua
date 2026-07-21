@@ -112,6 +112,8 @@ local vue_plugin = {
   configNamespace = 'typescript',
 }
 
+local eslint_on_attach = vim.lsp.config.eslint.on_attach
+
 local servers = {
   lua_ls = {
     settings = {
@@ -143,6 +145,20 @@ local servers = {
     root_dir = typescript.tsgo_root_dir,
   },
   vue_ls = {},
+  eslint = {
+    on_attach = function(client, bufnr)
+      if eslint_on_attach then
+        eslint_on_attach(client, bufnr)
+      end
+      vim.api.nvim_create_autocmd('BufWritePre', {
+        buffer = bufnr,
+        command = 'LspEslintFixAll',
+      })
+    end,
+  },
+  --[[ Oxlint fixAll is async, so running it in BufWritePre leaves the buffer modified after the file is written. ]]
+  oxlint = {},
+  oxfmt = {},
 
   -- CSS / HTML
   cssls = {},
