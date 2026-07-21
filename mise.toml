@@ -1,4 +1,5 @@
 [tools]
+neovim = "0.12"
 stylua = "2"
 "cargo:selene" = "0"
 just = "1"

@@ -19,8 +19,8 @@ describe('statusline', function()
       local line = statusline.render()
       for _, handler in ipairs { 'click_explorer', 'click_terminal', 'click_finder', 'click_github' } do
         local label = "%@v:lua.require'statusline'." .. handler .. '@'
-        assert.is_true(line:find(label, 1, true) ~= nil, 'missing click label for ' .. handler)
-        assert.is_true(line:find(label .. '.-%%X') ~= nil, 'unterminated click label for ' .. handler)
+        assert.is_true(line:find(label, 1, true) ~= nil)
+        assert.is_true(line:find(label .. '.-%%X') ~= nil)
       end
     end)
   end)
@@ -185,6 +185,7 @@ describe('statusline', function()
     it('schedules startinsert after lazygit (click processing resets the mode)', function()
       local scheduled
       local orig_schedule = vim.schedule
+      ---@diagnostic disable-next-line: duplicate-set-field
       vim.schedule = function(fn)
         scheduled = fn
       end
@@ -204,6 +205,7 @@ describe('statusline', function()
       vim.api.nvim_buf_set_name(0, '/tmp/nvim-finder-test.lua')
       local cmd
       local orig_system = vim.system
+      ---@diagnostic disable-next-line: duplicate-set-field
       vim.system = function(c)
         cmd = c
       end
@@ -258,7 +260,7 @@ describe('statusline', function()
     it('renders blank footer and header for terminal buffers', function()
       local buf = vim.api.nvim_create_buf(false, true)
       vim.api.nvim_set_current_buf(buf)
-      vim.fn.termopen 'cat' -- buftype=terminal can only be set by termopen
+      vim.fn.jobstart({ 'cat' }, { term = true })
       winid = vim.api.nvim_open_win(buf, false, { split = 'right' })
       vim.g.statusline_winid = winid
       assert.are.equal('', statusline.render())

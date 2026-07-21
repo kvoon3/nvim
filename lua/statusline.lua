@@ -40,7 +40,7 @@ end
 --[[ Turn fn into a click handler that only fires on left-click.
 Click handlers are called with (minwid, clicks, button, modifiers). ]]
 local function on_left_click(fn)
-  return function(_minwid, _clicks, button)
+  return function(_minwid, _clicks, button, _modifiers)
     if button == 'l' then
       fn()
     end
