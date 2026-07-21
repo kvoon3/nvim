@@ -48,12 +48,31 @@ vim.api.nvim_create_autocmd('LspAttach', {
 
 -- Diagnostic navigation (goto_next/goto_prev are deprecated; use jump)
 vim.diagnostic.config {
+  virtual_text = true,
+  signs = true,
+  underline = true,
+  update_in_insert = false,
   jump = {
     on_jump = function(_, bufnr)
       vim.diagnostic.open_float { bufnr = bufnr, scope = 'cursor', focus = false }
     end,
   },
 }
+
+local function clear_diag_virtual_text_bg()
+  --[[ Preserve linked foreground colors while making diagnostic virtual text transparent. ]]
+  for _, severity in ipairs { 'Error', 'Warn', 'Info', 'Hint' } do
+    local group = 'DiagnosticVirtualText' .. severity
+    local link_to = 'Diagnostic' .. severity
+    local fg = vim.api.nvim_get_hl(0, { name = link_to, link = false }).fg
+    vim.api.nvim_set_hl(0, group, { fg = fg, bg = 'NONE' })
+  end
+end
+clear_diag_virtual_text_bg()
+vim.api.nvim_create_autocmd('ColorScheme', {
+  group = vim.api.nvim_create_augroup('DiagVirtualTextBg', {}),
+  callback = clear_diag_virtual_text_bg,
+})
 
 local function jump_diagnostic(count, severity)
   return function()
