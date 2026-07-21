@@ -9,5 +9,6 @@ vim.opt.packpath:prepend(root)
 local lazy_root = vim.fn.stdpath 'data' .. '/lazy'
 vim.opt.runtimepath:append(lazy_root .. '/plenary.nvim')
 vim.opt.runtimepath:append(lazy_root .. '/telescope.nvim')
+vim.opt.runtimepath:append(lazy_root .. '/LuaSnip')
 
 vim.cmd 'runtime! plugin/**/*.vim plugin/**/*.lua'
