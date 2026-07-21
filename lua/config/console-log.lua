@@ -18,7 +18,12 @@ function M.format(method, expression)
 end
 
 for _, ft in ipairs(filetypes) do
-  local snippets = {}
+  local snippets = {
+    ls.s({ trig = 'clg', name = 'console.log' }, { ls.t 'console.log(', ls.i(1), ls.t ')' }),
+    ls.s({ trig = 'cle', name = 'console.error' }, { ls.t 'console.error(', ls.i(1), ls.t ')' }),
+    ls.s({ trig = 'cli', name = 'console.info' }, { ls.t 'console.info(', ls.i(1), ls.t ')' }),
+    ls.s({ trig = 'clt', name = 'console.table' }, { ls.t 'console.table(', ls.i(1), ls.t ')' }),
+  }
   for _, method in ipairs(methods) do
     local console_method = method
     snippets[#snippets + 1] = ls.s(
