@@ -85,7 +85,6 @@ describe('TypeScript LSP configuration', function()
   it('restarts an attached TypeScript client after dependencies change', function()
     local restart_count = 0
     local original_get_clients = vim.lsp.get_clients
-    local original_notify = vim.notify
     local client = {
       name = 'tsgo',
       root_dir = root,
@@ -97,18 +96,16 @@ describe('TypeScript LSP configuration', function()
 
     typescript.track(client)
     vim.fn.writefile({ 'layoutVersion: 5' }, vim.fs.joinpath(root, 'node_modules', '.modules.yaml'))
+    ---@diagnostic disable-next-line: duplicate-set-field
     vim.lsp.get_clients = function()
       return { client }
     end
-    vim.notify = function() end
-
     typescript.refresh()
     vim.wait(1000, function()
       return restart_count == 1
     end)
 
     vim.lsp.get_clients = original_get_clients
-    vim.notify = original_notify
     assert.are.equal(1, restart_count)
   end)
 end)

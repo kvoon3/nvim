@@ -13,7 +13,7 @@ mise install      # stylua, selene, ls-lint, just, …
 mise run prepare  # install .githooks/pre-commit → .git/hooks/
 ```
 
-Open nvim once for Lazy/Mason. Pre-commit: stylua --check + selene on staged `*.lua`. Full tree: `just check` (fmt + selene + ls-lint).
+Open nvim once for Lazy/Mason. Pre-commit: stylua --check + selene on staged `*.lua`. Full tree: `just check` (format check + Selene + ls-lint + tests); `just format` applies StyLua formatting. Tests run in an isolated Neovim data directory.
 
 ### macOS (Optional)
 

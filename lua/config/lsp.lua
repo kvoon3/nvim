@@ -119,7 +119,12 @@ local servers = {
     settings = {
       Lua = {
         completion = { callSnippet = 'Replace' },
-        diagnostics = { disable = { 'missing-fields' } },
+        workspace = {
+          library = vim.list_extend(vim.api.nvim_get_runtime_file('', true), {
+            '${3rd}/busted/library',
+            '${3rd}/luassert/library',
+          }),
+        },
       },
     },
   },

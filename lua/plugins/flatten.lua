@@ -4,7 +4,10 @@ return {
   lazy = false,
   priority = 1001,
   opts = function()
-    ---@type Terminal?
+    ---@class ToggleTerm
+    ---@field close fun(self: ToggleTerm)
+    ---@field open fun(self: ToggleTerm)
+    ---@type ToggleTerm?
     local saved_terminal
 
     return {
