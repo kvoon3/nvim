@@ -67,8 +67,7 @@ local function buffer_root(bufnr)
   if dict and dict.root then
     return dict.root
   end
-  local path = vim.bo[bufnr].filetype == 'netrw' and vim.b[bufnr].netrw_curdir
-    or vim.api.nvim_buf_get_name(bufnr)
+  local path = vim.bo[bufnr].filetype == 'netrw' and vim.b[bufnr].netrw_curdir or vim.api.nvim_buf_get_name(bufnr)
   if not path or path == '' then
     return nil
   end

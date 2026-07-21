@@ -70,6 +70,17 @@ return {
           end,
         },
         completion = { completeopt = 'menu,menuone,noinsert' },
+        formatting = {
+          format = function(entry, vim_item)
+            if entry.source.name == 'luasnip' and entry.completion_item and entry.completion_item.data then
+              local ok, snip = pcall(require('luasnip').get_id_snippet, entry.completion_item.data.snip_id)
+              if ok and snip and snip.name then
+                vim_item.abbr = snip.name
+              end
+            end
+            return vim_item
+          end,
+        },
         mapping = cmp.mapping.preset.insert {
           ['<C-n>'] = cmp.mapping.select_next_item(),
           ['<C-p>'] = cmp.mapping.select_prev_item(),
