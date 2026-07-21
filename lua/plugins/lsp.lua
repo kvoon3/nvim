@@ -77,7 +77,9 @@ return {
           ['<C-f>'] = cmp.mapping.scroll_docs(4),
           ['<C-Space>'] = cmp.mapping.complete {},
           ['<Tab>'] = cmp.mapping(function(fallback)
-            if cmp.visible() then
+            if luasnip.expandable() then
+              luasnip.expand()
+            elseif cmp.visible() then
               cmp.confirm { select = true }
             else
               fallback()
