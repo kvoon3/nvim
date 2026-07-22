@@ -113,6 +113,34 @@ local vue_plugin = {
 }
 
 local eslint_on_attach = vim.lsp.config.eslint.on_attach
+local silent_lint_rules = {
+  'style/*',
+  '*-indent',
+  '*-spacing',
+  '*-spaces',
+  '*-order',
+  '*-dangle',
+  '*-newline',
+  '*quotes',
+  '*semi',
+}
+local silent_lint_rule_matchers = vim.tbl_map(function(rule)
+  return vim.regex(vim.fn.glob2regpat(rule))
+end, silent_lint_rules)
+local publish_diagnostics = vim.lsp.handlers['textDocument/publishDiagnostics']
+
+local function filter_stylistic_diagnostics(err, result, ctx, config)
+  --[[ Hide stylistic Oxlint diagnostics without disabling its fix-all command. ]]
+  if result then
+    result.diagnostics = vim.tbl_filter(function(diagnostic)
+      local rule = tostring(diagnostic.code or '')
+      return not vim.iter(silent_lint_rule_matchers):any(function(matcher)
+        return matcher:match_str(rule) ~= nil
+      end)
+    end, result.diagnostics)
+  end
+  return publish_diagnostics(err, result, ctx, config)
+end
 
 local servers = {
   lua_ls = {
@@ -151,6 +179,11 @@ local servers = {
   },
   vue_ls = {},
   eslint = {
+    settings = {
+      rulesCustomizations = vim.tbl_map(function(rule)
+        return { rule = rule, severity = 'off', fixable = true }
+      end, silent_lint_rules),
+    },
     on_attach = function(client, bufnr)
       if eslint_on_attach then
         eslint_on_attach(client, bufnr)
@@ -162,7 +195,11 @@ local servers = {
     end,
   },
   --[[ Oxlint fixAll is async, so running it in BufWritePre leaves the buffer modified after the file is written. ]]
-  oxlint = {},
+  oxlint = {
+    handlers = {
+      ['textDocument/publishDiagnostics'] = filter_stylistic_diagnostics,
+    },
+  },
   oxfmt = {},
 
   -- CSS / HTML
