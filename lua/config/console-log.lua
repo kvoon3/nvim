@@ -31,7 +31,7 @@ for _, ft in ipairs(filetypes) do
         trig = '^([ \t]*)([%w_.$%[%]\'"`]+)%.' .. console_method,
         regTrig = true,
         wordTrig = false,
-        name = 'console.' .. console_method,
+        name = 'console.' .. console_method .. ' with expression',
       },
       ls.d(1, function(_, parent)
         local indent = parent.snippet.captures[1]
