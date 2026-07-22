@@ -50,11 +50,11 @@ local function find_enclosing_pair(bufnr)
 end
 
 local function set_highlight()
-  local hl = vim.api.nvim_get_hl(0, { name = 'MatchParen' })
+  local normal = vim.api.nvim_get_hl(0, { name = 'Normal' })
+  local visual = vim.api.nvim_get_hl(0, { name = 'Visual' })
   vim.api.nvim_set_hl(0, hl_group, {
-    fg = hl.fg,
-    bg = hl.bg,
-    bold = true,
+    fg = normal.fg,
+    bg = visual.bg,
   })
 end
 
