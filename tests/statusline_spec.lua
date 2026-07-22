@@ -30,7 +30,17 @@ describe('statusline', function()
       local line = statusline.render_header()
       assert.are.equal('%=', line:sub(1, 2))
       assert.are.equal('%=', line:sub(-2))
-      assert.is_true(line:find('%f %m%r%h%w', 1, true) ~= nil)
+      assert.is_true(line:find('%f', 1, true) ~= nil)
+      assert.is_true(line:find('%r%h%w', 1, true) ~= nil)
+    end)
+
+    it('shows a dirty dot only for modified buffers', function()
+      local modified = vim.bo.modified
+      vim.bo.modified = true
+      assert.is_true(statusline.render_header():find('•', 1, true) ~= nil)
+      vim.bo.modified = false
+      assert.is_nil(statusline.render_header():find('•', 1, true))
+      vim.bo.modified = modified
     end)
   end)
 
@@ -62,7 +72,7 @@ describe('statusline', function()
     it('shows a dirty indicator when there are uncommitted changes', function()
       stub_git { branch = 'main', upstream = true, ahead = 0, behind = 0, dirty = true }
       local line = statusline.render()
-      assert.is_true(line:find('●', 1, true) ~= nil)
+      assert.is_true(line:find('•', 1, true) ~= nil)
     end)
 
     it('shows only the branch icon when the branch name is unknown (netrw)', function()

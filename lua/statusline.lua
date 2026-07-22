@@ -4,7 +4,7 @@ local icons = {
   branch = '󰘬',
   ahead = '󰁝',
   behind = '󰁅',
-  dirty = '●',
+  dirty = '•',
   explorer = '󰉋',
   terminal = '󰆍',
   finder = '󰀶',
@@ -203,7 +203,8 @@ function M.render_header()
   if disabled_filetypes[vim.bo[buf].filetype] or vim.bo[buf].buftype ~= '' then
     return ''
   end
-  return '%=' .. segment('StatusLineFile', '  %f ') .. '%m%r%h%w%='
+  local modified = vim.bo[buf].modified and segment('StatusLineGit', ' ' .. icons.dirty) or ''
+  return '%=' .. segment('StatusLineFile', '  %f') .. modified .. ' %r%h%w%='
 end
 
 --[[ Render the footer as compact, colored sections for editing state, Git, diagnostics, and actions. ]]
