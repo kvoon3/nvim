@@ -30,7 +30,7 @@ brew install daipeihust/tap/im-select
 
 ## Features
 
-- **Editing:** Flash jumps, Treesitter-aware comments, surround editing, folds, CJK motions, and system clipboard helpers.
+- **Editing:** Flash jumps, Treesitter-aware comments, surround editing, enclosing-bracket highlights, folds, CJK motions, and system clipboard helpers.
 - **LSP:** Mason-managed Lua, TypeScript, Vue, web, and Rust servers; completion, snippets, formatting, linting, and ESLint fixes on save.
 - **Navigation:** Telescope, Snacks file explorer and dashboard, plus a command palette.
 - **Git:** Gitsigns, floating LazyGit (`:lg`), GitHub links, and terminal-aware Git editing.
