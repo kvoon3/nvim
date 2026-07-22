@@ -199,7 +199,13 @@ vim.keymap.set('n', '<c-w><c-h>', focus_main_editor, { desc = 'Focus main editor
 vim.keymap.set('t', '<Esc>', '<C-\\><C-n>', opts)
 
 -- Toggle terminal (toggleterm)
-vim.keymap.set('n', '<C-t>', '<Cmd>ToggleTerm<CR>', { desc = 'Toggle terminal' })
+local function toggle_terminal()
+  vim.cmd 'ToggleTerm'
+  if vim.bo.buftype == 'terminal' then
+    vim.cmd 'startinsert'
+  end
+end
+vim.keymap.set('n', '<C-t>', toggle_terminal, { desc = 'Toggle terminal' })
 vim.keymap.set('t', '<C-t>', '<C-\\><C-n><Cmd>ToggleTerm<CR>', { desc = 'Toggle terminal' })
 
 -- Open numbered terminals
