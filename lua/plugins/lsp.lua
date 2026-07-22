@@ -49,7 +49,7 @@ return {
           end
           return 'make install_jsregexp'
         end)(),
-        dependencies = {},
+        dependencies = { 'rafamadriz/friendly-snippets' },
       },
       'saadparwaiz1/cmp_luasnip',
 
@@ -62,6 +62,26 @@ return {
       local cmp = require 'cmp'
       local luasnip = require 'luasnip'
       luasnip.config.setup {}
+      local function configure_console_log_snippets()
+        --[[ Hide generic console.log snippets that overlap local expression snippets. ]]
+        for _, ft in ipairs { 'javascript', 'javascriptreact', 'vue', 'svelte' } do
+          for _, snippet in ipairs(luasnip.get_snippets(ft)) do
+            if snippet.name == 'console.log' and snippet.trigger == 'cl' then
+              snippet.hidden = true
+            elseif snippet.name == 'console.log with log' and snippet.trigger == 'log' then
+              snippet.show_condition = function(line)
+                return not line:match '%.%w*$'
+              end
+            end
+          end
+        end
+      end
+      vim.api.nvim_create_autocmd('User', {
+        pattern = 'LuasnipSnippetsAdded',
+        callback = configure_console_log_snippets,
+      })
+      require('luasnip.loaders.from_vscode').lazy_load()
+      configure_console_log_snippets()
 
       cmp.setup {
         snippet = {
