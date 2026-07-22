@@ -9,7 +9,27 @@ local icons = {
   terminal = '󰆍',
   finder = '󰀶',
   github = '󰊤',
+  error = '󰅚',
+  warning = '󰀪',
+  info = '󰋽',
+  hint = '󰌶',
 }
+
+local function segment(group, text)
+  return '%#' .. group .. '#' .. text .. '%*'
+end
+
+local function setup_highlights()
+  vim.api.nvim_set_hl(0, 'StatusLineGit', { link = 'String' })
+  vim.api.nvim_set_hl(0, 'StatusLineFile', { link = 'Directory' })
+  vim.api.nvim_set_hl(0, 'StatusLineError', { link = 'DiagnosticError' })
+  vim.api.nvim_set_hl(0, 'StatusLineWarning', { link = 'DiagnosticWarn' })
+  vim.api.nvim_set_hl(0, 'StatusLineInfo', { link = 'DiagnosticInfo' })
+  vim.api.nvim_set_hl(0, 'StatusLineHint', { link = 'DiagnosticHint' })
+end
+
+setup_highlights()
+vim.api.nvim_create_autocmd('ColorScheme', { callback = setup_highlights })
 
 -- test
 
@@ -157,7 +177,24 @@ local function git_section(buf)
   elseif status.upstream and status.behind > 0 then
     parts[#parts + 1] = clickable('click_pull', icons.behind .. status.behind)
   end
-  return table.concat(parts, ' ')
+  return segment('StatusLineGit', ' ' .. table.concat(parts, ' ') .. ' ')
+end
+
+local function diagnostics_section(buf)
+  local counts = vim.diagnostic.count(buf)
+  local parts = {}
+  for _, item in ipairs {
+    { vim.diagnostic.severity.ERROR, 'StatusLineError', icons.error },
+    { vim.diagnostic.severity.WARN, 'StatusLineWarning', icons.warning },
+    { vim.diagnostic.severity.INFO, 'StatusLineInfo', icons.info },
+    { vim.diagnostic.severity.HINT, 'StatusLineHint', icons.hint },
+  } do
+    local count = counts[item[1]] or 0
+    if count > 0 then
+      parts[#parts + 1] = segment(item[2], ' ' .. item[3] .. count .. ' ')
+    end
+  end
+  return table.concat(parts)
 end
 
 --[[ Render the winbar header: file path and flags centered. Blank for explorer windows and non-file buffers. ]]
@@ -166,29 +203,26 @@ function M.render_header()
   if disabled_filetypes[vim.bo[buf].filetype] or vim.bo[buf].buftype ~= '' then
     return ''
   end
-  return '%=%f %m%r%h%w %='
+  return '%=' .. segment('StatusLineFile', '  %f ') .. '%m%r%h%w%='
 end
 
---[[ Render the footer: git branch and sync arrows on the left, cursor info and clickable
-action icons on the right. Blank for explorer windows and terminal buffers. ]]
+--[[ Render the footer as compact, colored sections for editing state, Git, diagnostics, and actions. ]]
 function M.render()
   local buf = vim.api.nvim_win_get_buf(render_winid())
   if disabled_filetypes[vim.bo[buf].filetype] or vim.bo[buf].buftype == 'terminal' then
     return ''
   end
-  local parts = {
-    git_section(buf),
+  return table.concat({
+    git_section(buf) or '',
     '%=',
-    '[%l,%c] [%p%%] [%L lines]',
+    diagnostics_section(buf),
+    segment('StatusLineFile', ' ' .. (vim.bo[buf].filetype ~= '' and vim.bo[buf].filetype or 'text') .. ' '),
+    ' %l:%c  %p%% ',
     clickable('click_explorer', ' ' .. icons.explorer .. ' '),
     clickable('click_terminal', ' ' .. icons.terminal .. ' '),
     clickable('click_finder', ' ' .. icons.finder .. ' '),
     clickable('click_github', ' ' .. icons.github .. ' '),
-  }
-  if not parts[1] then
-    table.remove(parts, 1)
-  end
-  return table.concat(parts, ' ')
+  }, ' ')
 end
 
 require('cmdr').add {
