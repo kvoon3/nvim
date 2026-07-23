@@ -1,4 +1,4 @@
--- Minimal init for running plenary tests headlessly.
+-- Minimal init for running tests headlessly.
 -- The project root is inferred from this file's location.
 local root = vim.fn.fnamemodify(vim.fn.resolve(vim.fn.expand '<sfile>:p'), ':h:h')
 
@@ -8,8 +8,17 @@ vim.opt.packpath:prepend(root)
 -- Add lazy-installed dependencies that tests need.
 local lazy_root = vim.env.NVIM_TEST_PLUGIN_DATA or vim.fn.stdpath 'data'
 lazy_root = lazy_root .. '/lazy'
-vim.opt.runtimepath:append(lazy_root .. '/plenary.nvim')
+vim.opt.runtimepath:append(lazy_root .. '/mini.test')
 vim.opt.runtimepath:append(lazy_root .. '/telescope.nvim')
+vim.opt.runtimepath:append(lazy_root .. '/plenary.nvim') -- Telescope dependency
 vim.opt.runtimepath:append(lazy_root .. '/LuaSnip')
+
+require('mini.test').setup {
+  collect = {
+    find_files = function()
+      return vim.fn.globpath('tests', '**/*_spec.lua', true, true)
+    end,
+  },
+}
 
 vim.cmd 'runtime! plugin/**/*.vim plugin/**/*.lua'

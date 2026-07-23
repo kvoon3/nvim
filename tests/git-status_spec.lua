@@ -1,6 +1,7 @@
--- Headless plenary/busted spec for lua/git-status.lua.
+-- Headless mini.test spec for lua/git-status.lua.
 -- Run all specs with: just test
 
+local expect = require('mini.test').expect
 local git_status = require 'git-status'
 
 describe('git-status', function()
@@ -84,22 +85,22 @@ describe('git-status', function()
   end)
 
   it('returns nil without gitsigns data', function()
-    assert.is_nil(git_status.get(bufnr))
+    expect.equality(nil, git_status.get(bufnr))
   end)
 
   it('returns nil for netrw outside a git repository', function()
     vim.bo[bufnr].filetype = 'netrw'
     vim.b[bufnr].netrw_curdir = '/tmp'
-    assert.is_nil(git_status.get(bufnr))
+    expect.equality(nil, git_status.get(bufnr))
   end)
 
   it('returns an empty status before the first refresh completes', function()
     vim.b[bufnr].gitsigns_status_dict = { head = 'main', root = root }
     local status = assert(git_status.get(bufnr))
-    assert.is_nil(status.branch)
-    assert.are.equal(0, status.ahead)
-    assert.are.equal(0, status.behind)
-    assert.is_false(status.upstream)
+    expect.equality(nil, status.branch)
+    expect.equality(0, status.ahead)
+    expect.equality(0, status.behind)
+    expect.equality(false, status.upstream)
   end)
 
   it('caches branch and ahead/behind from porcelain v2 output', function()
@@ -108,15 +109,15 @@ describe('git-status', function()
     git_status.refresh(root)
     flush()
 
-    assert.are.same({ 'git', 'status', '--porcelain=v2', '--branch' }, system_calls[1].cmd)
-    assert.are.equal(root, system_calls[1].opts.cwd)
+    expect.equality({ 'git', 'status', '--porcelain=v2', '--branch' }, system_calls[1].cmd)
+    expect.equality(root, system_calls[1].opts.cwd)
 
     local status = assert(git_status.get(bufnr))
-    assert.are.equal('main', status.branch)
-    assert.are.equal(2, status.ahead)
-    assert.are.equal(3, status.behind)
-    assert.is_true(status.upstream)
-    assert.is_false(status.dirty)
+    expect.equality('main', status.branch)
+    expect.equality(2, status.ahead)
+    expect.equality(3, status.behind)
+    expect.equality(true, status.upstream)
+    expect.equality(false, status.dirty)
   end)
 
   it('detects dirty state from porcelain v2 output', function()
@@ -125,7 +126,7 @@ describe('git-status', function()
     git_status.refresh(root)
     flush()
 
-    assert.is_true(git_status.get(bufnr).dirty)
+    expect.equality(true, git_status.get(bufnr).dirty)
   end)
 
   it('uses netrw directory as repo root and shows sync/dirty state', function()
@@ -141,9 +142,9 @@ describe('git-status', function()
     flush()
 
     local status = assert(git_status.get(bufnr))
-    assert.is_true(status.dirty)
-    assert.is_false(status.branch)
-    assert.are.equal(root, status.root)
+    expect.equality(true, status.dirty)
+    expect.equality(false, status.branch)
+    expect.equality(root, status.root)
   end)
 
   it('treats a non-zero status exit as no upstream', function()
@@ -151,7 +152,7 @@ describe('git-status', function()
     queue_result(128, '', 'fatal: not a git repository')
     git_status.refresh(root)
     flush()
-    assert.is_false(git_status.get(bufnr).upstream)
+    expect.equality(false, git_status.get(bufnr).upstream)
   end)
 
   it('dedupes concurrent refreshes for the same root', function()
@@ -159,7 +160,7 @@ describe('git-status', function()
     git_status.refresh(root)
     git_status.refresh(root)
     flush()
-    assert.are.equal(1, #system_calls)
+    expect.equality(1, #system_calls)
   end)
 
   it('push runs git push in the repo root and refreshes', function()
@@ -170,9 +171,9 @@ describe('git-status', function()
     git_status.push()
     flush()
 
-    assert.are.same({ 'git', 'push' }, system_calls[2].cmd)
-    assert.are.equal(root, system_calls[2].opts.cwd)
-    assert.is_true(notified 'git push: done')
+    expect.equality({ 'git', 'push' }, system_calls[2].cmd)
+    expect.equality(root, system_calls[2].opts.cwd)
+    expect.equality(true, notified 'git push: done')
   end)
 
   it('push failure notifies the stderr', function()
@@ -182,7 +183,7 @@ describe('git-status', function()
     queue_result(0, '') -- final refresh
     git_status.push()
     flush()
-    assert.is_true(notified 'non%-fast%-forward')
+    expect.equality(true, notified 'non%-fast%-forward')
   end)
 
   it('pull_rebase_push chains pull --rebase then push', function()
@@ -194,9 +195,9 @@ describe('git-status', function()
     git_status.pull_rebase_push()
     flush()
 
-    assert.are.same({ 'git', 'pull', '--rebase' }, system_calls[2].cmd)
-    assert.are.same({ 'git', 'push' }, system_calls[3].cmd)
-    assert.is_true(notified 'git push: done')
+    expect.equality({ 'git', 'pull', '--rebase' }, system_calls[2].cmd)
+    expect.equality({ 'git', 'push' }, system_calls[3].cmd)
+    expect.equality(true, notified 'git push: done')
   end)
 
   it('pull_rebase_push stops after a failed rebase', function()
@@ -207,14 +208,14 @@ describe('git-status', function()
     git_status.pull_rebase_push()
     flush()
 
-    assert.are.equal(3, #system_calls) -- no push after a failed rebase, but refresh runs
-    assert.is_true(notified 'could not apply')
+    expect.equality(3, #system_calls) -- no push after a failed rebase, but refresh runs
+    expect.equality(true, notified 'could not apply')
   end)
 
   it('warns instead of running outside a git repository', function()
     git_status.push()
-    assert.are.equal(0, #system_calls)
-    assert.is_true(notified 'Not in a git repository')
+    expect.equality(0, #system_calls)
+    expect.equality(true, notified 'Not in a git repository')
   end)
 
   it('refreshes on GitSignsUpdate without data (e.g. after a commit)', function()
@@ -228,6 +229,6 @@ describe('git-status', function()
     vim.api.nvim_exec_autocmds('User', { pattern = 'GitSignsUpdate' })
     git_status.refresh = orig_refresh
 
-    assert.are.same({ root }, refreshed)
+    expect.equality({ root }, refreshed)
   end)
 end)
