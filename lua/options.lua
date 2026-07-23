@@ -1,5 +1,5 @@
 -- UI config
-vim.opt.number = true -- show absolute number
+vim.opt.number = false -- hide line numbers by default
 vim.opt.relativenumber = false -- add numbers to each line on the left side
 vim.opt.cursorline = false -- highlight cursor line underneath the cursor horizontally
 vim.opt.guicursor = 'n-v-c-sm:block,i-ci-ve:ver25,r-cr-o:hor20,t:ver25'
@@ -36,3 +36,13 @@ vim.opt.smartcase = true -- override ignorecase when pattern contains uppercase 
 -- Winbar (header): see lua/statusline.lua. Footer is provided by mini.statusline.
 vim.opt.winbar = "%!v:lua.require'statusline'.render_header()" -- relative file path and flags; click to copy
 vim.opt.laststatus = 2 -- always show statusline
+
+require('cmdr').add {
+  {
+    desc = 'Toggle line numbers',
+    cmd = function()
+      vim.wo.number = not vim.wo.number
+    end,
+    cat = 'view',
+  },
+}
