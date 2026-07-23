@@ -20,14 +20,6 @@ return {
       replace_netrw = false,
       trash = true,
     },
-    dashboard = {
-      enabled = true,
-      sections = {
-        { section = 'header' },
-        { section = 'keys', gap = 1, padding = 1 },
-        { section = 'startup' },
-      },
-    },
     lazygit = {
       enabled = true,
       configure = true,
@@ -93,13 +85,6 @@ return {
           Snacks.lazygit()
         end,
         cat = 'git',
-      },
-      {
-        desc = 'Open dashboard',
-        cmd = function()
-          Snacks.dashboard.open()
-        end,
-        cat = 'snacks',
       },
       {
         desc = 'Show notification history',
