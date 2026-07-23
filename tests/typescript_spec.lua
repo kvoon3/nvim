@@ -1,3 +1,4 @@
+local expect = require('mini.test').expect
 local typescript = require 'config.typescript'
 
 describe('TypeScript LSP configuration', function()
@@ -16,7 +17,7 @@ describe('TypeScript LSP configuration', function()
     local tsserver = vim.fs.joinpath(root, 'node_modules', 'typescript', 'lib', 'tsserver.js')
     vim.fn.writefile({}, tsserver)
 
-    assert.are.equal(tsserver, typescript.tsserver_path(root))
+    expect.equality(tsserver, typescript.tsserver_path(root))
   end)
 
   it('uses the workspace TypeScript 7 executable when tsserver is absent', function()
@@ -26,7 +27,7 @@ describe('TypeScript LSP configuration', function()
     vim.fn.writefile({}, tsc)
     vim.uv.fs_chmod(tsc, 493)
 
-    assert.are.equal(tsc, typescript.tsgo_path(root))
+    expect.equality(tsc, typescript.tsgo_path(root))
   end)
 
   it('keeps Vue projects on ts_ls for TypeScript plugin support', function()
@@ -55,8 +56,8 @@ describe('TypeScript LSP configuration', function()
     end)
 
     vim.api.nvim_buf_delete(bufnr, { force = true })
-    assert.are.equal(vim.uv.fs_realpath(root), ts_ls_root)
-    assert.is_nil(tsgo_root)
+    expect.equality(vim.uv.fs_realpath(root), ts_ls_root)
+    expect.equality(nil, tsgo_root)
   end)
 
   it('sets and clears the configured tsserver path before initialization', function()
@@ -67,11 +68,11 @@ describe('TypeScript LSP configuration', function()
     }
 
     typescript.before_init({}, config)
-    assert.is_nil(config.init_options.tsserver.path)
+    expect.equality(nil, config.init_options.tsserver.path)
 
     vim.fn.writefile({}, tsserver)
     typescript.before_init({}, config)
-    assert.are.equal(tsserver, config.init_options.tsserver.path)
+    expect.equality(tsserver, config.init_options.tsserver.path)
   end)
 
   it('detects dependency installation changes', function()
@@ -79,7 +80,7 @@ describe('TypeScript LSP configuration', function()
     vim.fn.writefile({ 'layoutVersion: 5' }, vim.fs.joinpath(root, 'node_modules', '.modules.yaml'))
     local after = typescript.dependency_signature(root)
 
-    assert.are_not.equal(before, after)
+    expect.no_equality(before, after)
   end)
 
   it('restarts an attached TypeScript client after dependencies change', function()
@@ -106,6 +107,6 @@ describe('TypeScript LSP configuration', function()
     end)
 
     vim.lsp.get_clients = original_get_clients
-    assert.are.equal(1, restart_count)
+    expect.equality(1, restart_count)
   end)
 end)

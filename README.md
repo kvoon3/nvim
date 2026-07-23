@@ -20,7 +20,7 @@ just check   # format, lint, and tests
 just format  # apply formatting
 ```
 
-Tests use an isolated Neovim data directory. The pre-commit hook checks staged Lua files with StyLua and Selene.
+Tests run with `mini.test` in an isolated Neovim data directory. The pre-commit hook checks staged Lua files with StyLua and Selene.
 
 ### Optional: macOS input-method switching
 
