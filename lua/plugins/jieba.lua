@@ -22,5 +22,16 @@ return {
       E = { { 'n', 'x' }, { false, true } },
       gE = { { 'n', 'x' }, { false, false } },
     }
+
+    vim.schedule(function()
+      local clue = require 'mini.clue'
+      for _, mapping in ipairs {
+        { 'ge', 'Go backwards to end of previous word' },
+        { 'gE', 'Go backwards to end of previous WORD' },
+      } do
+        clue.set_mapping_desc('n', mapping[1], mapping[2])
+        clue.set_mapping_desc('x', mapping[1], mapping[2])
+      end
+    end)
   end,
 }
