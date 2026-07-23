@@ -30,7 +30,7 @@ vim.keymap.set('n', '<C-Right>', ':vertical resize +2<CR>', opts)
 vim.keymap.set('v', '<', '<gv', opts)
 vim.keymap.set('v', '>', '>gv', opts)
 
--- 上下移动文本
+-- Move selected text up and down
 vim.keymap.set('v', 'J', ":move '>+1<CR>gv-gv", opts)
 vim.keymap.set('v', 'K', ":move '<-2<CR>gv-gv", opts)
 
@@ -142,7 +142,7 @@ local function toggle_bottom_panel()
     close_explorer()
   end
 
-  -- 简洁逻辑：<c-w>j 就是 toggle 底部 terminal panel（smart toggle 保存/恢复视图）
+  -- <c-w>j reaches the bottom panel; ToggleTerm handles view restoration.
   vim.cmd 'ToggleTerm'
 end
 
