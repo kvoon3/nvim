@@ -20,6 +20,7 @@
   "mason-lspconfig.nvim": { "branch": "main", "commit": "7adc933dabcc7c86ae6b07aff7ee68eac398491f" },
   "mason.nvim": { "branch": "main", "commit": "2a6940af80375532e5e9e7c1f2fc6319a1b7a69d" },
   "mini.icons": { "branch": "main", "commit": "98faae31e9be1cc054ae63485e58ceb185efcad0" },
+  "mini.statusline": { "branch": "main", "commit": "127997ebef7ef632161203b960c5ef9d158f4810" },
   "mini.test": { "branch": "main", "commit": "86a2f85cca908077f29ab11565472e8055fa13e8" },
   "moonfly": { "branch": "master", "commit": "261664f92ed51cf0c077555b2d4b2530307eac17" },
   "nvim-cmp": { "branch": "main", "commit": "2ffe79f1f021def8dd1fcd81deb16f1bb0d989f3" },

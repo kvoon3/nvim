@@ -207,6 +207,16 @@ function M.render_header()
   return '%=' .. segment('StatusLineFile', '  %f') .. modified .. ' %r%h%w%='
 end
 
+--[[ Return clickable shortcuts for the custom actions retained in mini.statusline. ]]
+function M.actions()
+  return table.concat({
+    clickable('click_explorer', icons.explorer),
+    clickable('click_terminal', icons.terminal),
+    clickable('click_finder', icons.finder),
+    clickable('click_github', icons.github),
+  }, '  ')
+end
+
 --[[ Render the footer as compact, colored sections for editing state, Git, diagnostics, and actions. ]]
 function M.render()
   local buf = vim.api.nvim_win_get_buf(render_winid())
