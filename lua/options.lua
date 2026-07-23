@@ -33,8 +33,6 @@ vim.opt.wrap = false
 vim.opt.ignorecase = true -- case-insensitive search by default
 vim.opt.smartcase = true -- override ignorecase when pattern contains uppercase letters
 
--- Winbar (header) + statusline (footer): see lua/statusline.lua
+-- Winbar (header): see lua/statusline.lua. Footer is provided by mini.statusline.
 vim.opt.winbar = "%!v:lua.require'statusline'.render_header()" -- relative file path and flags; click to copy
 vim.opt.laststatus = 2 -- always show statusline
-vim.opt.showmode = true -- show Neovim's -- INSERT -- mode indicator in the command line
-vim.opt.statusline = "%!v:lua.require'statusline'.render()" -- git branch/sync arrows | position info | clickable icons
