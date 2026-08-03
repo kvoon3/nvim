@@ -7,3 +7,4 @@ require('config.run-on-save').setup()
 require 'vue-config'
 require 'config.console-log'
 require('enclosing-brackets').setup()
+require('markdown-table').setup()
