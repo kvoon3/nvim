@@ -82,9 +82,7 @@ end
 
 vim.keymap.set('n', '[d', jump_diagnostic(-1), { desc = 'Go to previous diagnostic' })
 vim.keymap.set('n', ']d', jump_diagnostic(1), { desc = 'Go to next diagnostic' })
-vim.keymap.set('n', '<leader>en', jump_diagnostic(1, vim.diagnostic.severity.ERROR), { desc = 'Go to next error' })
-vim.keymap.set('n', '<leader>wn', jump_diagnostic(1, vim.diagnostic.severity.WARN), { desc = 'Go to next warning' })
-vim.keymap.set('n', '<leader>in', jump_diagnostic(1, vim.diagnostic.severity.INFO), { desc = 'Go to next info' })
+vim.keymap.set('n', '<leader>en', jump_diagnostic(1), { desc = 'Go to next diagnostic' })
 vim.keymap.set('n', '<leader>hn', jump_diagnostic(1, vim.diagnostic.severity.HINT), { desc = 'Go to next hint' })
 vim.keymap.set('n', '<leader>df', vim.diagnostic.open_float, { desc = 'Open diagnostic float' })
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostics list' })
