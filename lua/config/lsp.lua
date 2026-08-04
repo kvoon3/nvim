@@ -200,6 +200,10 @@ local servers = {
   },
   oxfmt = {},
 
+  -- Spelling / grammar
+  typos_lsp = {},
+  harper_ls = {},
+
   -- CSS / HTML
   cssls = {},
   html = {},
