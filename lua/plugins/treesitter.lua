@@ -13,6 +13,7 @@ return {
       'vue',
       'typescript',
       'javascript',
+      'jsdoc',
       'tsx',
       'html',
       'css',
