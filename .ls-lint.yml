@@ -13,6 +13,7 @@ ignore:
   - .githooks
   - .github
   - .nvim
+  - .pi
   - lazy-lock.json
   - LICENCE
   - AGENTS.md
