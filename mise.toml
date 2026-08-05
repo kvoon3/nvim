@@ -7,6 +7,6 @@ lazygit = "0"
 tree-sitter = "0"
 "npm:@ls-lint/ls-lint" = "2"
 
-# once per clone: install tracked hook into .git/hooks
+# Once per clone: install tracked hook into `.git/hooks`
 [tasks.prepare]
 run = "cp .githooks/pre-commit .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit"
