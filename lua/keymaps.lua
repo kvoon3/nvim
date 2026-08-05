@@ -54,6 +54,20 @@ vim.api.nvim_create_user_command('Lazygit', function()
 end, { desc = 'Open lazygit' })
 vim.cmd [[cnoreabbrev <expr> lg getcmdtype() ==# ':' && getcmdline() ==# 'lg' ? 'Lazygit' : 'lg']]
 
+vim.api.nvim_create_user_command('Hunk', function()
+  Snacks.terminal({ 'hunk', 'diff' }, { win = { style = 'float' } })
+end, { desc = 'Open hunk diff viewer' })
+vim.cmd [[cnoreabbrev <expr> hk getcmdtype() ==# ':' && getcmdline() ==# 'hk' ? 'Hunk' : 'hk']]
+require('cmdr').add {
+  {
+    desc = 'Open hunk diff viewer',
+    cmd = function()
+      Snacks.terminal({ 'hunk', 'diff' }, { win = { style = 'float' } })
+    end,
+    cat = 'git',
+  },
+}
+
 -----------------
 -- Command palette --
 -----------------
