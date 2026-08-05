@@ -15,13 +15,41 @@ return {
       end,
     })
 
+    -- Hover a dep line to show npm metadata (description, homepage, repo)
+    -- ponytail: fetches on every K press; add a cache if registry latency annoys
     vim.keymap.set('n', 'K', function()
-      if vim.fn.expand '%:t' == 'package.json' then
-        pi.show()
-      else
-        vim.lsp.buf.hover()
+      if vim.fn.expand '%:t' ~= 'package.json' then
+        return vim.lsp.buf.hover()
       end
-    end, { desc = 'Show package info (package.json) or LSP hover' })
+      local name = vim.api.nvim_get_current_line():match '^%s*"(.-)"%s*:'
+      if not name then
+        return
+      end
+      vim.system(
+        { 'npm', 'view', name, 'description', 'homepage', 'repository.url', '--json' },
+        { text = true },
+        function(res)
+          if res.code ~= 0 then
+            return
+          end
+          local data = vim.json.decode(res.stdout)
+          local lines = {
+            '# ' .. name,
+            '',
+            data.description or '',
+            '',
+            data.homepage or '',
+            data['repository.url'] or '',
+          }
+          while lines[#lines] == '' do
+            lines[#lines] = nil
+          end
+          vim.schedule(function()
+            vim.lsp.util.open_floating_preview(lines, 'markdown', { focusable = false })
+          end)
+        end
+      )
+    end, { desc = 'Show npm metadata (package.json) or LSP hover' })
 
     require('cmdr').add {
       {
