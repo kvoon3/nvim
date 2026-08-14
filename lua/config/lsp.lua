@@ -122,22 +122,79 @@ local silent_lint_rules = {
   '*quotes',
   '*semi',
 }
-local silent_lint_rule_matchers = vim.tbl_map(function(rule)
-  return vim.regex(vim.fn.glob2regpat(rule))
+--[[ Oxlint codes look like `stylistic(semi)`, `perfectionist(sort-imports)`: plugin-scoped, parenthesized.
+  glob2regpat('*-semi') -> '-semi$' would require the code to END in '-semi', which a parenthesized code never does.
+  So extract the parenthesized rule name and match its suffix (the glob's `*` = leading wildcard). ]]
+local silent_lint_rule_suffixes = vim.tbl_map(function(rule)
+  if rule == 'style/*' then
+    return 'stylistic'
+  end
+  return (rule:gsub('^%*%-', ''):gsub('^%*', ''))
 end, silent_lint_rules)
 local publish_diagnostics = vim.lsp.handlers['textDocument/publishDiagnostics']
+
+local function is_silenced_lsp_diagnostic(diagnostic)
+  local rule = tostring(diagnostic.code or '')
+  local rule_name = rule:match('^[%w-]+%(([%w-]+)%)$')
+  if not rule_name then
+    return false
+  end
+  return vim.iter(silent_lint_rule_suffixes):any(function(suffix)
+    return suffix ~= '' and rule_name:sub(-#suffix) == suffix
+  end)
+end
+
+local function filter_lsp_diagnostics(items)
+  return vim.tbl_filter(function(diagnostic)
+    return not is_silenced_lsp_diagnostic(diagnostic)
+  end, items)
+end
 
 local function filter_stylistic_diagnostics(err, result, ctx, config)
   --[[ Hide stylistic Oxlint diagnostics without disabling its fix-all command. ]]
   if result then
-    result.diagnostics = vim.tbl_filter(function(diagnostic)
-      local rule = tostring(diagnostic.code or '')
-      return not vim.iter(silent_lint_rule_matchers):any(function(matcher)
-        return matcher:match_str(rule) ~= nil
-      end)
-    end, result.diagnostics)
+    result.diagnostics = filter_lsp_diagnostics(result.diagnostics)
   end
   return publish_diagnostics(err, result, ctx, config)
+end
+
+--[[ Oxlint (>= 1.77) dropped `workspace/executeCommand oxc.fixAll`;
+  lspconfig's :LspOxlintFixAll is now a dead command (server logs `Unknown command oxc.fixAll`).
+  The working mechanism is textDocument/codeAction `source.fixAll.oxc`.
+  Its first response is computed against stale state and drops overlapping fixes,
+  so loop: each pass re-requests after applying, until the server returns no edits. ]]
+local function oxlint_fix_all(bufnr)
+  local client = vim.lsp.get_clients({ bufnr = bufnr, name = 'oxlint' })[1]
+  if not client then
+    return
+  end
+  local uri = vim.uri_from_bufnr(bufnr)
+  for _ = 1, 5 do
+    local params = {
+      textDocument = { uri = uri },
+      range = {
+        start = { line = 0, character = 0 },
+        ['end'] = { line = vim.api.nvim_buf_line_count(bufnr) - 1, character = 0 },
+      },
+      context = { diagnostics = {}, only = { 'source.fixAll.oxc' } },
+    }
+    local responses = vim.lsp.buf_request_sync(bufnr, 'textDocument/codeAction', params, 2000)
+    local applied_edits = 0
+    for _, res in ipairs(responses or {}) do
+      if res.result and #res.result > 0 then
+        local edit = res.result[1].edit
+        local changes = edit.changes and edit.changes[uri]
+        applied_edits = applied_edits + (changes and #changes or 0)
+        vim.lsp.util.apply_workspace_edit(edit, client.offset_encoding or 'utf-16')
+      end
+    end
+    if applied_edits == 0 then
+      break
+    end
+    --[[ The server recomputes diagnostics asynchronously after the buffer change;
+      waiting too short returns the stale fix set and drops overlapping fixes (quotes). ]]
+    vim.wait(300)
+  end
 end
 
 local servers = {
@@ -192,11 +249,27 @@ local servers = {
       })
     end,
   },
-  --[[ Oxlint fixAll is async, so running it in BufWritePre leaves the buffer modified after the file is written. ]]
   oxlint = {
     handlers = {
       ['textDocument/publishDiagnostics'] = filter_stylistic_diagnostics,
+      --[[ oxlint 1.77+ advertises diagnosticProvider (pull-based); Neovim 0.12 then
+        pulls via textDocument/diagnostic, bypassing publishDiagnostics. Filter there too. ]]
+      ['textDocument/diagnostic'] = function(err, result, ctx, config)
+        if result and result.kind == 'full' then
+          result.items = filter_lsp_diagnostics(result.items)
+        end
+        return vim.lsp.diagnostic.on_diagnostic(err, result, ctx)
+      end,
     },
+    on_attach = function(_, bufnr)
+      --[[ oxlint_fix_all is synchronous (buf_request_sync), so it completes before nvim writes. ]]
+      vim.api.nvim_create_autocmd('BufWritePre', {
+        buffer = bufnr,
+        callback = function()
+          oxlint_fix_all(bufnr)
+        end,
+      })
+    end,
   },
   oxfmt = {},
 
