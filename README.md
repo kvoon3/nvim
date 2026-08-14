@@ -34,7 +34,6 @@ brew install daipeihust/tap/im-select
 - **LSP:** Mason-managed Lua, TypeScript, Vue, web, Rust, spelling, and grammar servers; completion, snippets, formatting, linting with silent stylistic diagnostics, and ESLint fixes on save.
 - **Navigation:** Telescope, Snacks file explorer, editable quickfix lists, mini.starter start screen with recent projects, and a command palette.
 - **Git:** Gitsigns, floating LazyGit (`:lg`), GitHub links, and terminal-aware Git editing.
-- **Packages:** package.json dependency versions, hover metadata, and version updates via package-info.nvim.
 - **UI:** Lazy.nvim, macOS-aware light/dark themes, notifications, keybinding clues, theme-aware mini.statusline, winbar with an unsaved-change indicator, hidden-by-default line numbers with a command-palette toggle, and prose wrapping.
 
 ## Notes
