@@ -119,7 +119,7 @@ local function restart_changed_clients()
   for _, client in ipairs(vim.lsp.get_clients()) do
     local root_dir = client.root_dir
     local key = root_dir and client.name .. ':' .. root_dir or nil
-    if (client.name == 'ts_ls' or client.name == 'tsgo') and key and not seen_clients[key] then
+    if (client.name == 'ts_ls' or client.name == 'tsc') and key and not seen_clients[key] then
       seen_clients[key] = true
       local signature = M.dependency_signature(root_dir)
       local previous = dependency_states[key]
@@ -149,7 +149,7 @@ function M.refresh()
 end
 
 function M.track(client)
-  if (client.name == 'ts_ls' or client.name == 'tsgo') and client.root_dir then
+  if (client.name == 'ts_ls' or client.name == 'tsc') and client.root_dir then
     dependency_states[client.name .. ':' .. client.root_dir] = M.dependency_signature(client.root_dir)
   end
 end
