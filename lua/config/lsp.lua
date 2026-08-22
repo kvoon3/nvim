@@ -135,7 +135,7 @@ local publish_diagnostics = vim.lsp.handlers['textDocument/publishDiagnostics']
 
 local function is_silenced_lsp_diagnostic(diagnostic)
   local rule = tostring(diagnostic.code or '')
-  local rule_name = rule:match('^[%w-]+%(([%w-]+)%)$')
+  local rule_name = rule:match '^[%w-]+%(([%w-]+)%)$'
   if not rule_name then
     return false
   end
@@ -254,7 +254,7 @@ local servers = {
       ['textDocument/publishDiagnostics'] = filter_stylistic_diagnostics,
       --[[ oxlint 1.77+ advertises diagnosticProvider (pull-based); Neovim 0.12 then
         pulls via textDocument/diagnostic, bypassing publishDiagnostics. Filter there too. ]]
-      ['textDocument/diagnostic'] = function(err, result, ctx, config)
+      ['textDocument/diagnostic'] = function(err, result, ctx)
         if result and result.kind == 'full' then
           result.items = filter_lsp_diagnostics(result.items)
         end
