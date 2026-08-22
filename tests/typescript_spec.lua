@@ -87,7 +87,7 @@ describe('TypeScript LSP configuration', function()
     local restart_count = 0
     local original_get_clients = vim.lsp.get_clients
     local client = {
-      name = 'tsgo',
+      name = 'tsc',
       root_dir = root,
       exit_timeout = false,
       _restart = function()

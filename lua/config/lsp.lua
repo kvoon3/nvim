@@ -228,7 +228,7 @@ local servers = {
       'vue',
     },
   },
-  tsgo = {
+  tsc = {
     cmd = typescript.tsgo_cmd,
     root_dir = typescript.tsgo_root_dir,
   },
@@ -288,7 +288,7 @@ local servers = {
 local ensure_installed = vim
   .iter(vim.tbl_keys(servers or {}))
   :filter(function(server_name)
-    return server_name ~= 'tsgo'
+    return server_name ~= 'tsc'
   end)
   :totable()
 
