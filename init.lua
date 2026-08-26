@@ -9,3 +9,4 @@ require 'config.console-log'
 require('enclosing-brackets').setup()
 require('markdown-table').setup()
 require('pnpm-catalog-lens').setup()
+require('eslint-codemod').setup()

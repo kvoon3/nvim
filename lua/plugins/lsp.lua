@@ -129,6 +129,9 @@ return {
         },
         sources = {
           { name = 'lazydev', group_index = 0 },
+          --[[ eslint-codemod registers itself lazily; auto-trigger is
+            handled by its own InsertCharPre autocmd. ]]
+          { name = 'eslint_codemod' },
           { name = 'nvim_lsp' },
           { name = 'luasnip' },
           { name = 'path' },
