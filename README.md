@@ -22,6 +22,8 @@ just format  # apply formatting
 
 Tests run with `mini.test` in an isolated Neovim data directory. The pre-commit hook checks staged Lua files with StyLua and Selene.
 
+The eslint-codemod plugin has an extra integration suite backed by a real ESLint project in [`playground/eslint-codemod/`](playground/eslint-codemod). Run `pnpm install` once there; without it the suite stays green via a placeholder.
+
 ### Optional: macOS input-method switching
 
 ```sh
@@ -30,7 +32,7 @@ brew install daipeihust/tap/im-select
 
 ## Features
 
-- **Editing:** Flash jumps, Treesitter-aware comments and JSDoc highlighting, surround editing, Markdown table formatting, enclosing-bracket highlights, pnpm catalog version hints, folds, CJK motions, and system clipboard helpers.
+- **Editing:** Flash jumps, Treesitter-aware comments and JSDoc highlighting, surround editing, Markdown table formatting, enclosing-bracket highlights, pnpm catalog version hints, ESLint codemod autocomplete (`///` `// @` `/* @` triggers with fixability filtering via eslint-plugin-command), folds, CJK motions, and system clipboard helpers.
 - **LSP:** Mason-managed Lua, TypeScript, Vue, web, Rust, spelling, and grammar servers; completion, snippets, formatting, linting with silent stylistic diagnostics, and ESLint fixes on save.
 - **Navigation:** Telescope, Snacks file explorer, editable quickfix lists, mini.starter start screen with recent projects, and a command palette.
 - **Git:** Gitsigns, floating LazyGit (`:lg`), GitHub links, and terminal-aware Git editing.
