@@ -31,6 +31,7 @@ return {
       'yaml',
       'toml',
       'rust',
+      'diff', -- for ```diff fences in markdown notes
     }
 
     -- Enable treesitter highlighting (and injection) for every filetype

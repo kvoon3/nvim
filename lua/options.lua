@@ -11,6 +11,9 @@ vim.opt.splitright = true -- open new horizontal splits right
 vim.opt.tabstop = 2 -- number of visual spaces per TAB
 vim.opt.softtabstop = 2 -- number of spaces in tab when editing
 vim.opt.shiftwidth = 2 -- insert 2 spaces on a tab
+-- Markdown ftplugin defaults to tabstop/shiftwidth/softtabstop=4 ('markdown_recommended_style');
+-- disable so buffers inherit our global 2-space settings
+vim.g.markdown_recommended_style = 0
 vim.opt.expandtab = true -- always use spaces instead of tab characters
 vim.opt.smarttab = true -- use shiftwidth when inserting tabs at the beginning of a line
 vim.opt.autoindent = true -- copy indent from current line when starting a new line
