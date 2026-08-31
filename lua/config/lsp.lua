@@ -82,9 +82,12 @@ local function jump_diagnostic(count, severity)
   end
 end
 
-vim.keymap.set('n', '[d', jump_diagnostic(-1), { desc = 'Go to previous diagnostic' })
-vim.keymap.set('n', ']d', jump_diagnostic(1), { desc = 'Go to next diagnostic' })
-vim.keymap.set('n', '<leader>en', jump_diagnostic(1), { desc = 'Go to next diagnostic' })
+--[[ Main navigation paths skip hints/infos so real problems don't get buried;
+  [D/]D cover all severities, <leader>hn stays hint-specific. ]]
+local w_e = { vim.diagnostic.severity.WARN, vim.diagnostic.severity.ERROR }
+vim.keymap.set('n', '[d', jump_diagnostic(-1, w_e), { desc = 'Go to previous diagnostic' })
+vim.keymap.set('n', ']d', jump_diagnostic(1, w_e), { desc = 'Go to next diagnostic' })
+vim.keymap.set('n', '<leader>en', jump_diagnostic(1, w_e), { desc = 'Go to next diagnostic' })
 vim.keymap.set('n', '<leader>hn', jump_diagnostic(1, vim.diagnostic.severity.HINT), { desc = 'Go to next hint' })
 vim.keymap.set('n', '<leader>df', vim.diagnostic.open_float, { desc = 'Open diagnostic float' })
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostics list' })
