@@ -29,7 +29,9 @@ vim.api.nvim_create_autocmd('LspAttach', {
     vim.keymap.set('n', 'gt', vim.lsp.buf.type_definition, opts)
     vim.keymap.set('n', '<leader>rn', vim.lsp.buf.rename, opts)
     vim.keymap.set({ 'n', 'v' }, '<C-.>', vim.lsp.buf.code_action, opts)
-    vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)
+    --[[ `gr` (references) is intentionally not mapped: the runtime ships built-in `gr*` maps
+      (grr/gri/grt/grx/gra/grn) and a buffer-local `gr` would become their prefix sibling,
+      so mini.clue's `g` trigger can never reach a unique target and stalls on a clue float. ]]
     vim.keymap.set('n', '<leader>f', function()
       vim.lsp.buf.format { async = true }
     end, opts)
