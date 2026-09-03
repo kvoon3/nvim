@@ -185,7 +185,7 @@ local function oxlint_fix_all(bufnr)
     }
     local responses = vim.lsp.buf_request_sync(bufnr, 'textDocument/codeAction', params, 2000)
     local applied_edits = 0
-    for _, res in ipairs(responses or {}) do
+    for _, res in pairs(responses or {}) do
       if res.result and #res.result > 0 then
         local edit = res.result[1].edit
         local changes = edit.changes and edit.changes[uri]
