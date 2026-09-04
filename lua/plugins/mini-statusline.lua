@@ -6,6 +6,7 @@ local function active()
   local diff = statusline.section_diff { trunc_width = 75 }
   local diagnostics = statusline.section_diagnostics { trunc_width = 75 }
   local lsp = statusline.section_lsp { trunc_width = 75 }
+  local todos = require('project-todos').section()
   local filename = statusline.section_filename { trunc_width = 140 }
   local fileinfo = statusline.section_fileinfo { trunc_width = 120 }
   local location = statusline.section_location { trunc_width = 75 }
@@ -13,7 +14,7 @@ local function active()
 
   return statusline.combine_groups {
     { hl = mode_hl, strings = { mode } },
-    { hl = 'MiniStatuslineDevinfo', strings = { git, diff, diagnostics, lsp } },
+    { hl = 'MiniStatuslineDevinfo', strings = { git, diff, diagnostics, lsp, todos } },
     '%<',
     { hl = 'MiniStatuslineFilename', strings = { filename } },
     '%=',

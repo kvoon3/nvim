@@ -5,13 +5,13 @@ return {
   opts = {},
   config = function(_, opts)
     require('todo-comments').setup(opts)
+    local project_todos = require 'project-todos'
+    project_todos.setup()
 
     require('cmdr').add {
       {
-        desc = 'Search TODO comments',
-        cmd = function()
-          Snacks.picker.todo_comments()
-        end,
+        desc = 'Search TODO comments with Telescope',
+        cmd = project_todos.open,
         cat = 'search',
       },
       {
