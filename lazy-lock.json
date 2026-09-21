@@ -25,6 +25,7 @@
   "mini.statusline": { "branch": "main", "commit": "127997ebef7ef632161203b960c5ef9d158f4810" },
   "mini.test": { "branch": "main", "commit": "3cc4c29be99531b3fc4fb99f3fa964b492166728" },
   "moonfly": { "branch": "master", "commit": "2c883835f5b7b380a0a9e80695c420f7efebdfe4" },
+  "nice-mermaid.nvim": { "branch": "main", "commit": "d74408c6a9d6c2681abe19ee5e3e8874e60333e5" },
   "nvim-cmp": { "branch": "main", "commit": "2ffe79f1f021def8dd1fcd81deb16f1bb0d989f3" },
   "nvim-lspconfig": { "branch": "master", "commit": "19576de1c1b6d1b5e231ea6ef9cba9a811c322bb" },
   "nvim-surround": { "branch": "main", "commit": "2e93e154de9ff326def6480a4358bfc149d5da2c" },
