@@ -1,5 +1,3 @@
 {
-  "packages": [
-    "git:github.com/algal/pi-openai-server-compaction"
-  ]
+  "packages": []
 }
