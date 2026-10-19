@@ -16,8 +16,15 @@ vim.api.nvim_create_autocmd('LspAttach', {
 
     -- Buffer local mappings.
     local opts = { buffer = ev.buf }
+    --[[ Markdown buffers map `gd` to link following (lua/markdown-links.lua);
+      keep that buffer-local mapping instead of clobbering it on LSP attach. ]]
+    local has_local_gd = vim.iter(vim.api.nvim_buf_get_keymap(ev.buf, 'n')):any(function(map)
+      return map.lhs == 'gd'
+    end)
+    if not has_local_gd then
+      vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
+    end
     vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, opts)
-    vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
     vim.keymap.set('n', 'gh', vim.lsp.buf.hover, opts)
     vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, opts)
     vim.keymap.set('n', '<C-k>', vim.lsp.buf.signature_help, opts)

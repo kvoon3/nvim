@@ -34,7 +34,7 @@ brew install daipeihust/tap/im-select
 
 - **Editing:** Flash jumps, Treesitter-aware comments and JSDoc highlighting, surround editing, Markdown table formatting, Mermaid diagram rendering, enclosing-bracket highlights, pnpm catalog version hints, ESLint codemod autocomplete (`///` `// @` `/* @` triggers with fixability filtering via eslint-plugin-command), folds, CJK motions, and system clipboard helpers.
 - **LSP:** Mason-managed Lua, TypeScript, Vue, web, Rust, spelling, and grammar servers; completion, snippets, formatting, linting with silent stylistic diagnostics, and ESLint fixes on save. References and friends use the built-in `grr`/`gri`/`grt`/`gra`/`grn` maps.
-- **Navigation:** Telescope TODO picker with previews and jump-to-source, Snacks file explorer, editable quickfix lists, mini.starter start screen with recent projects, and a command palette.
+- **Navigation:** `gd` follows Markdown links, wiki links, and anchors (falling back to LSP definitions), Telescope TODO picker with previews and jump-to-source, Snacks file explorer, editable quickfix lists, mini.starter start screen with recent projects, and a command palette.
 - **Git:** Gitsigns, floating LazyGit (`:lg`), GitHub links, and terminal-aware Git editing.
 - **UI:** Lazy.nvim, macOS-aware light/dark themes, notifications, keybinding clues, theme-aware mini.statusline with the project TODO count, winbar with an unsaved-change indicator, hidden-by-default line numbers with a command-palette toggle, and prose wrapping.
 
