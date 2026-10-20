@@ -29,13 +29,13 @@ function M.tsserver_path(root_dir)
   return vim.uv.fs_stat(path) and path or nil
 end
 
-function M.tsgo_path(root_dir)
-  if M.tsserver_path(root_dir) then
-    return nil
-  end
-
-  local path = root_dir and vim.fs.joinpath(root_dir, 'node_modules', '.bin', 'tsc') or nil
-  return path and vim.fn.executable(path) == 1 and path or nil
+--[[ tsrs: Rust port of the TypeScript 7 compiler and language server
+  (`mise use -g npm:tsrs`). It speaks the same `--lsp -stdio` protocol as tsgo, so it
+  needs no adapter; Vue keeps ts_ls because @vue/typescript-plugin only exists in the
+  JS tsserver and tsrs runs no content mappers. ]]
+function M.tsrs_path()
+  local path = vim.fn.exepath 'tsrs'
+  return path ~= '' and path or nil
 end
 
 local function project_root(bufnr)
@@ -71,26 +71,44 @@ local function is_vue_project(bufnr, root_dir)
   return false
 end
 
+--[[ Escape hatch from the TypeScript 7 server: tsrs rejects options TypeScript 7
+  removed (`baseUrl`, `target: ES5`, AMD/UMD modules, ...). `touch .nvim-tsserver` in such a
+  repository to go back to its pinned tsserver. ]]
+local function prefers_tsserver(bufnr)
+  local buffer_path = vim.api.nvim_buf_get_name(bufnr)
+  local start = buffer_path ~= '' and vim.fs.dirname(buffer_path) or vim.fn.getcwd()
+  return #vim.fs.find('.nvim-tsserver', { upward = true, path = start }) > 0
+end
+
+--[[ One TS/JS server per buffer, first match wins. Vue keeps ts_ls: tsrs runs no
+  content mappers, and @vue/typescript-plugin only exists in the JS tsserver. ]]
+local function ts_server(bufnr, root_dir)
+  if is_vue_project(bufnr, root_dir) or prefers_tsserver(bufnr) then
+    return 'ts_ls'
+  end
+  if M.tsrs_path() then
+    return 'tsrs'
+  end
+  return 'ts_ls'
+end
+
 function M.ts_ls_root_dir(bufnr, on_dir)
   local root_dir = project_root(bufnr)
-  if is_vue_project(bufnr, root_dir) or not M.tsgo_path(root_dir) then
+  if ts_server(bufnr, root_dir) == 'ts_ls' then
     on_dir(root_dir)
   end
 end
 
-function M.tsgo_root_dir(bufnr, on_dir)
+function M.tsrs_root_dir(bufnr, on_dir)
   local root_dir = project_root(bufnr)
-  if M.tsgo_path(root_dir) and not is_vue_project(bufnr, root_dir) then
+  if ts_server(bufnr, root_dir) == 'tsrs' then
     on_dir(root_dir)
   end
 end
 
-function M.tsgo_cmd(dispatchers, config)
-  local path = M.tsgo_path(config.root_dir)
-  return vim.lsp.rpc.start(
-    { assert(path, 'workspace TypeScript 7 executable not found'), '--lsp', '--stdio' },
-    dispatchers
-  )
+function M.tsrs_cmd(dispatchers)
+  local path = assert(M.tsrs_path(), 'tsrs executable not found (mise use -g npm:tsrs)')
+  return vim.lsp.rpc.start({ path, '--lsp', '-stdio' }, dispatchers)
 end
 
 function M.dependency_signature(root_dir)
@@ -119,7 +137,7 @@ local function restart_changed_clients()
   for _, client in ipairs(vim.lsp.get_clients()) do
     local root_dir = client.root_dir
     local key = root_dir and client.name .. ':' .. root_dir or nil
-    if (client.name == 'ts_ls' or client.name == 'tsc') and key and not seen_clients[key] then
+    if (client.name == 'ts_ls' or client.name == 'tsrs') and key and not seen_clients[key] then
       seen_clients[key] = true
       local signature = M.dependency_signature(root_dir)
       local previous = dependency_states[key]
@@ -149,7 +167,7 @@ function M.refresh()
 end
 
 function M.track(client)
-  if (client.name == 'ts_ls' or client.name == 'tsc') and client.root_dir then
+  if (client.name == 'ts_ls' or client.name == 'tsrs') and client.root_dir then
     dependency_states[client.name .. ':' .. client.root_dir] = M.dependency_signature(client.root_dir)
   end
 end
