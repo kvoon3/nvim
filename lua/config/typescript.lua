@@ -127,7 +127,7 @@ local function restart_changed_clients()
 
       if previous and previous ~= signature then
         vim.notify('TypeScript dependencies changed; restarting ' .. client.name, vim.log.levels.INFO)
-        -- ponytail: _restart is private API; if it breaks on nvim upgrade, replace with stop_client + restart.
+        -- _restart is private API; if it breaks on nvim upgrade, replace with stop_client + restart.
         client:_restart(client.exit_timeout)
       end
     end
