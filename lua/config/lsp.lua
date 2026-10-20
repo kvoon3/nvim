@@ -240,9 +240,16 @@ local servers = {
       'vue',
     },
   },
-  tsc = {
-    cmd = typescript.tsgo_cmd,
-    root_dir = typescript.tsgo_root_dir,
+  -- TypeScript 7 language server (Rust); preferred over ts_ls outside Vue projects.
+  tsrs = {
+    cmd = typescript.tsrs_cmd,
+    root_dir = typescript.tsrs_root_dir,
+    filetypes = {
+      'typescript',
+      'javascript',
+      'javascriptreact',
+      'typescriptreact',
+    },
   },
   vue_ls = {},
   eslint = {
@@ -300,7 +307,7 @@ local servers = {
 local ensure_installed = vim
   .iter(vim.tbl_keys(servers or {}))
   :filter(function(server_name)
-    return server_name ~= 'tsc'
+    return server_name ~= 'tsrs'
   end)
   :totable()
 
