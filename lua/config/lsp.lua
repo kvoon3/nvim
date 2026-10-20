@@ -43,7 +43,7 @@ vim.api.nvim_create_autocmd('LspAttach', {
       vim.lsp.buf.format { async = true }
     end, opts)
 
-    -- ponytail: format-on-save for Rust, sync so write waits for fmt
+    -- format-on-save for Rust, sync so write waits for fmt
     if vim.bo[ev.buf].filetype == 'rust' then
       vim.api.nvim_create_autocmd('BufWritePre', {
         buffer = ev.buf,
