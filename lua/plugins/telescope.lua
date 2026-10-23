@@ -3,6 +3,9 @@ return {
   -- which was removed on nvim-treesitter main (preview crashes on TS/etc).
   'nvim-telescope/telescope.nvim',
   branch = 'master',
+  --[[ Only loaded by :Telescope or the picker keymaps in lua/keymaps.lua;
+  the whole plugin (plus plenary) used to be pulled in during startup. ]]
+  cmd = 'Telescope',
   dependencies = { 'nvim-lua/plenary.nvim' },
   config = function()
     local telescope = require 'telescope'

@@ -8,10 +8,16 @@ local source_registered = false
 
 --[[ Register the cmp source once cmp is actually loaded (lazy.nvim
   loads nvim-cmp on InsertEnter, so it is absent during startup).
+  `load` forces the lazy load on demand; without it cmp must already be
+  present, otherwise `require` would drag nvim-cmp into startup.
   Returns false while cmp is still unavailable. ]]
-local function ensure_cmp_source()
+local function ensure_cmp_source(load)
   if source_registered then
     return true
+  end
+
+  if not package.loaded['cmp'] and not load then
+    return false
   end
 
   local has_cmp, cmp = pcall(require, 'cmp')
@@ -55,7 +61,7 @@ function M.complete_at(bufnr, row, col)
     return
   end
 
-  if not ensure_cmp_source() then
+  if not ensure_cmp_source(true) then
     --[[ No cmp: fall back to built-in completefunc completion. ]]
     vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<C-x><C-u>', true, false, true), 'm', false)
     return
@@ -76,6 +82,7 @@ function M.setup(opts)
   end
 
   setup_done = true
+  --[[ Registers only when cmp is already loaded; never pulls it into startup. ]]
   ensure_cmp_source()
 
   local group = vim.api.nvim_create_augroup('EslintCodemod', { clear = true })
@@ -98,6 +105,18 @@ function M.setup(opts)
       end
 
       ensure_cmp_source()
+    end,
+  })
+
+  --[[ cmp loads lazily on InsertEnter; register the source as soon as it loads,
+    before the first completion request resolves the source list. ]]
+  vim.api.nvim_create_autocmd('User', {
+    group = group,
+    pattern = 'LazyLoad',
+    callback = function(ev)
+      if ev.data == 'nvim-cmp' then
+        ensure_cmp_source()
+      end
     end,
   })
 
