@@ -48,7 +48,9 @@ If unset, the `openrouter` token in `~/.pi/agent/auth.json` is reused. Enable it
 - **Git:** Gitsigns, floating LazyGit (`:lg`), GitHub links, and terminal-aware Git editing.
 - **UI:** Lazy.nvim, macOS-aware light/dark themes, notifications, keybinding clues, theme-aware mini.statusline with the project TODO count, winbar with an unsaved-change indicator, hidden-by-default line numbers with a command-palette toggle, and prose wrapping.
 - **Reading:** lazy bilingual inline translation (OpenRouter `gemini-2.5-flash-lite`) for Markdown and prose buffers, rendered as virtual lines under the paragraphs currently on screen.
+- **Performance:** ~40ms startup; word motions use the Rust jieba segmenter only in buffers that actually contain CJK text (builtin Vim motions elsewhere, with a token cap for huge lines); buffers holding very long lines (minified/generated files) opt out of LSP, Treesitter highlighting and `virtcol()`-based statusline items, and the statusline TODO search is throttled per project and requires a project marker.
 
 ## Notes
 
 - [Vue & Treesitter](notes/vue-treesitter.md) — Vue hybrid LSP and Treesitter context.
+- [Performance](notes/performance.md) — startup budget, jieba/Rust segmentation, and the big-file guards.
