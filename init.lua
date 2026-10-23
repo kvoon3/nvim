@@ -8,6 +8,7 @@ require 'vue-config'
 require('enclosing-brackets').setup()
 require('markdown-links').setup()
 require('markdown-table').setup()
+require('inline-translate').setup()
 require('pnpm-catalog-lens').setup()
 require('eslint-codemod').setup()
 
