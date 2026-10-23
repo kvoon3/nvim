@@ -22,12 +22,12 @@
 
 | 改动 | 省 |
 |---|---|
-| `vim.fn.expand '$MASON/...'` → `vim.env.MASON` + `vim.fs.joinpath` | **30ms**（`$MASON` 未设置时这个调用在扫 `/packages`） |
+| `vim.fn.expand '$MASON/...'` → 启动期不再探测：`@vue/typescript-plugin` 的位置在 ts_ls 启动时由 `config.typescript` 解析 | **30ms**（`$MASON` 未设置时这个调用在扫 `/packages`） |
 | jieba/wordmotion 改为按键懒加载（`keys = w/b/e/ge/W/B/E/gE`，n/x 模式） | ~50ms |
-| nvim-cmp / LuaSnip / console-log snippets 延到 `InsertEnter` | ~25ms |
-| eslint-codemod 不再在 setup 里 `require('cmp')`（`pcall` 拦不住 lazy 的 require 钩子） | 含在上面 |
-| mason / mason-lspconfig 延到 `VeryLazy`；fidget 延到 `LspAttach`；lazydev 提到顶层 `ft='lua'` | ~20ms |
-| telescope 不再开机加载（去掉 `keymaps.lua` 顶层 `require 'telescope.builtin'`，spec 加 `cmd='Telescope'`，删掉 cmdr/theme 里把 telescope 当 eager 依赖的两行） | ~11ms |
+| nvim-cmp → blink.cmp（Rust matcher），LuaSnip / console-log snippets 随 `InsertEnter` 一并加载 | ~25ms |
+| eslint-codemod 改成 blink provider，不再在 setup 里 `require('cmp')`（`pcall` 拦不住 lazy 的 require 钩子） | 含在上面 |
+| mason / mason-lspconfig 整个移除（LSP server 改由 mise 全局清单提供）；fidget 延到 `LspAttach`；lazydev 提到顶层 `ft='lua'` | ~20ms |
+| telescope 整个移除，picker 换成 Snacks（`keymaps.lua` 顶层不再 `require 'telescope.builtin'`，cmdr/theme 不再把 telescope 当 eager 依赖） | ~11ms |
 
 剩余地板：`config.lazy` 约 28–32ms（lazy.nvim 自身元编程 + 30 个 spec 文件）。再往下只能换插件管理器或合并 spec，性价比不高。
 
