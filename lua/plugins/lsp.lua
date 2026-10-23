@@ -2,25 +2,6 @@ return {
   -- LSP configuration
   {
     'neovim/nvim-lspconfig',
-    dependencies = {
-      -- Install/update LSP servers, DAP servers, linters, and formatters
-      { 'williamboman/mason.nvim', config = true },
-      'williamboman/mason-lspconfig.nvim',
-
-      -- Useful status updates for LSP
-      { 'j-hui/fidget.nvim', opts = {} },
-
-      -- LuaLS library for Neovim/plugin APIs (replaces neodev)
-      {
-        'folke/lazydev.nvim',
-        ft = 'lua',
-        opts = {
-          library = {
-            { path = '${3rd}/luv/library', words = { 'vim%.uv' } },
-          },
-        },
-      },
-    },
     config = function()
       vim.api.nvim_create_user_command('ReloadLsp', function()
         vim.cmd 'lsp restart'
@@ -36,9 +17,29 @@ return {
     end,
   },
 
-  -- Autocompletion
+  -- LuaLS library for Neovim/plugin APIs (replaces neodev)
+  {
+    'folke/lazydev.nvim',
+    ft = 'lua',
+    opts = {
+      library = {
+        { path = '${3rd}/luv/library', words = { 'vim%.uv' } },
+      },
+    },
+  },
+
+  -- Useful status updates for LSP
+  { 'j-hui/fidget.nvim', event = 'LspAttach', opts = {} },
+
+  --[[ Install/update LSP servers, DAP servers, linters, and formatters.
+  Loaded by the VeryLazy hook in lua/config/lsp.lua, not during startup. ]]
+  { 'williamboman/mason.nvim', lazy = true },
+  { 'williamboman/mason-lspconfig.nvim', lazy = true },
+
+  -- Autocompletion (deferred to the first insert; pulls in LuaSnip and the sources)
   {
     'hrsh7th/nvim-cmp',
+    event = 'InsertEnter',
     dependencies = {
       -- Snippet Engine & its associated nvim-cmp source
       {
@@ -81,6 +82,8 @@ return {
         callback = configure_console_log_snippets,
       })
       require('luasnip.loaders.from_vscode').lazy_load()
+      --[[ Snippets use LuaSnip; loading them here keeps them off the startup path. ]]
+      require 'config.console-log'
       configure_console_log_snippets()
 
       cmp.setup {

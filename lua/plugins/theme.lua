@@ -1,7 +1,6 @@
 return {
   dir = vim.fn.stdpath 'config' .. '/lua/theme',
   lazy = false,
-  dependencies = { 'nvim-telescope/telescope.nvim' },
   config = function()
     local theme = require 'theme'
 
