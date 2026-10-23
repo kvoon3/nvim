@@ -31,11 +31,6 @@ return {
   -- Useful status updates for LSP
   { 'j-hui/fidget.nvim', event = 'LspAttach', opts = {} },
 
-  --[[ Install/update LSP servers, DAP servers, linters, and formatters.
-  Loaded by the VeryLazy hook in lua/config/lsp.lua, not during startup. ]]
-  { 'williamboman/mason.nvim', lazy = true },
-  { 'williamboman/mason-lspconfig.nvim', lazy = true },
-
   -- Autocompletion (deferred to the first insert; pulls in LuaSnip and the sources)
   {
     'hrsh7th/nvim-cmp',

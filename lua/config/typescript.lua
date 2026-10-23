@@ -30,6 +30,54 @@ function M.tsserver_path(root_dir)
   return vim.uv.fs_stat(path) and path or nil
 end
 
+local vue_plugin_dir_cache ---@type string|false|nil
+
+--[[ Locate the @vue/typescript-plugin package, which tsserver resolves from the `location`
+  handed to ts_ls. Walk up from the vue-language-server executable first, following symlinks
+  because node `.bin` entries are links. Fall back to mise's isolated install layout: its
+  pnpm-style store keeps the plugin inside the language-server package's own node_modules
+  instead of hoisting it, and `mise which` cannot answer outside the config project. ]]
+function M.vue_ts_plugin_dir()
+  if vue_plugin_dir_cache ~= nil then
+    return vue_plugin_dir_cache or nil
+  end
+
+  local function from_exe()
+    local exe = vim.fn.exepath 'vue-language-server'
+    if exe == '' then
+      return nil
+    end
+
+    local dir = vim.fs.dirname(vim.uv.fs_realpath(exe) or exe)
+    while dir and dir ~= '/' and dir ~= '' do
+      if vim.fs.basename(dir) == 'language-server' and vim.fs.basename(vim.fs.dirname(dir)) == '@vue' then
+        return dir
+      end
+      dir = vim.fs.dirname(dir)
+    end
+
+    return nil
+  end
+
+  local function from_mise()
+    local data = vim.env.XDG_DATA_HOME or vim.fs.joinpath(vim.fn.expand '~', '.local', 'share')
+    local pattern = vim.fs.joinpath(
+      data,
+      'mise',
+      'installs',
+      'npm-vue-language-server',
+      '*',
+      'node_modules',
+      '@vue',
+      'language-server'
+    )
+    return vim.fn.glob(pattern, false, true)[1]
+  end
+
+  vue_plugin_dir_cache = from_exe() or from_mise() or false
+  return vue_plugin_dir_cache or nil
+end
+
 --[[ tsrs: Rust port of the TypeScript 7 compiler and language server
   (`mise use -g npm:tsrs`). It speaks the same `--lsp -stdio` protocol as tsgo, so it
   needs no adapter; Vue keeps ts_ls because @vue/typescript-plugin only exists in the
@@ -180,6 +228,20 @@ function M.before_init(params, config)
   config.init_options = config.init_options or {}
   config.init_options.tsserver = config.init_options.tsserver or {}
   config.init_options.tsserver.path = M.tsserver_path(root_dir)
+
+  --[[ initializationOptions is the same table as `init_options`, so filling it in here
+    still reaches the server while keeping the lookup off the startup path. ]]
+  local vue_plugin_dir = M.vue_ts_plugin_dir()
+  if vue_plugin_dir then
+    config.init_options.plugins = {
+      {
+        name = '@vue/typescript-plugin',
+        location = vue_plugin_dir,
+        languages = { 'vue' },
+        configNamespace = 'typescript',
+      },
+    }
+  end
 end
 
 --[[ `runExternalCode` lets a tsconfig `contentMappers` entry spawn workspace code. Neovim
