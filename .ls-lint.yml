@@ -21,3 +21,5 @@ ignore:
   - lua/telescope/_extensions
   - tests/*_spec.lua
   - playground/*/node_modules
+  - lua/jieba-native/rust/target
+  - lua/jieba-native/rust/Cargo.toml

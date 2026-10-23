@@ -27,3 +27,6 @@ TODO.md
 # IDE
 .vscode/
 .idea/
+
+# Rust build artifacts (just build-native)
+lua/jieba-native/rust/target/

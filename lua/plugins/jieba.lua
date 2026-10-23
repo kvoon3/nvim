@@ -1,6 +1,18 @@
 return {
   'neo451/jieba-lua',
-  lazy = false,
+  --[[ Building the jieba dictionary and loading wordmotion costs ~50ms at startup.
+  Defer both until a word motion is pressed; lazy.nvim replays the key after the
+  plugin loads, so the motions behave exactly as when loaded eagerly. ]]
+  keys = {
+    { 'w', mode = { 'n', 'x' } },
+    { 'b', mode = { 'n', 'x' } },
+    { 'e', mode = { 'n', 'x' } },
+    { 'ge', mode = { 'n', 'x' } },
+    { 'W', mode = { 'n', 'x' } },
+    { 'B', mode = { 'n', 'x' } },
+    { 'E', mode = { 'n', 'x' } },
+    { 'gE', mode = { 'n', 'x' } },
+  },
   config = function()
     --[[
       Default HMM mode can split multi-byte non-Chinese chars (e.g. · U+00B7)
@@ -9,8 +21,11 @@ return {
       for normal Chinese text.
     ]]
     local j = require 'wordmotion.nvim.jieba'
+    --[[ Prefer the Rust segmenter (jieba-rs through FFI): cut() is ~140x faster
+      than the pure-Lua dictionary. `get` reuses the instance prewarmed at
+      startup; fall back to the Lua jieba when the library is not built. ]]
     j.jieba_motion = {
-      jieba = require('jieba.jieba').Jieba { hmm = false },
+      jieba = require('jieba-native').get { hmm = false } or require('jieba.jieba').Jieba { hmm = false },
     }
     j.motion = nil
     j.init()
