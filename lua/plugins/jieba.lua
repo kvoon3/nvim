@@ -23,9 +23,13 @@ return {
     local j = require 'wordmotion.nvim.jieba'
     --[[ Prefer the Rust segmenter (jieba-rs through FFI): cut() is ~140x faster
       than the pure-Lua dictionary. `get` reuses the instance prewarmed at
-      startup; fall back to the Lua jieba when the library is not built. ]]
+      startup; fall back to the Lua jieba when the library is not built.
+      `jieba-tokens` bounds the token count so single-line minified files do not
+      re-tokenize ~700KB into 400k tokens on every w/b/e press. ]]
     j.jieba_motion = {
-      jieba = require('jieba-native').get { hmm = false } or require('jieba.jieba').Jieba { hmm = false },
+      jieba = require('jieba-tokens').wrap(
+        require('jieba-native').get { hmm = false } or require('jieba.jieba').Jieba { hmm = false }
+      ),
     }
     j.motion = nil
     j.init()
