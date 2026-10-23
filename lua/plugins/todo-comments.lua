@@ -10,7 +10,7 @@ return {
 
     require('cmdr').add {
       {
-        desc = 'Search TODO comments with Telescope',
+        desc = 'Search project TODO comments',
         cmd = project_todos.open,
         cat = 'search',
       },

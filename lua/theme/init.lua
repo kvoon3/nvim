@@ -95,39 +95,25 @@ function M.set_dark(name)
   write_settings(settings)
 end
 
---[[ Open a telescope colorscheme picker for the given mode and save the choice on confirm.
-Telescope handles live preview and restoration on cancel; we only persist the choice. ]]
+--[[ Open a Snacks colorscheme picker for the given mode and save the choice on confirm.
+Snacks previews each entry live and restores the previous scheme on close; we only persist the choice. ]]
 local function pick(mode, title)
   local set = mode == 'light' and M.set_light or M.set_dark
-  local selected = nil
 
-  require('telescope.builtin').colorscheme {
-    prompt_title = title,
-    enable_preview = true,
-    attach_mappings = function(prompt_bufnr, map)
-      local actions = require 'telescope.actions'
-      local action_state = require 'telescope.actions.state'
-
-      local function on_confirm()
-        local entry = action_state.get_selected_entry()
-        if entry then
-          selected = entry.value
-        end
-        actions.select_default(prompt_bufnr)
+  Snacks.picker.colorschemes {
+    title = title,
+    confirm = function(picker, item)
+      picker:close()
+      if not item then
+        return
       end
 
-      map('i', '<CR>', on_confirm)
-      map('n', '<CR>', on_confirm)
-
-      return true
+      --[[ Drop the preview snapshot so WinClosed does not revert to the previous scheme. ]]
+      picker.preview.state.colorscheme = nil
+      --[[ Preview normally applies the scheme; re-apply so an immediate confirm still lands. ]]
+      pcall(vim.cmd.colorscheme, item.text)
+      set(item.text)
     end,
-    on_complete = {
-      function()
-        if selected then
-          set(selected)
-        end
-      end,
-    },
   }
 end
 

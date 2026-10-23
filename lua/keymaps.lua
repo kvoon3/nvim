@@ -43,17 +43,18 @@ end, { desc = 'Toggle file explorer' })
 vim.keymap.set('n', "<c-'>", ':q<CR>')
 
 vim.keymap.set('n', '<c-s>', ':w<CR>')
---[[ Telescope is lazy-loaded; resolving the picker on first use keeps the plugin
-(and plenary) off the startup path. ]]
-local function telescope(picker)
-  return function()
-    require('telescope.builtin')[picker]()
-  end
-end
-vim.keymap.set('n', '<D-p>', telescope 'find_files', { desc = 'Telescope find files' })
-vim.keymap.set('n', '<leader>ff', telescope 'live_grep', { desc = 'Telescope live grep' })
-vim.keymap.set('n', '<leader>fb', telescope 'buffers', { desc = 'Telescope buffers' })
-vim.keymap.set('n', '<leader>fh', telescope 'help_tags', { desc = 'Telescope help tags' })
+vim.keymap.set('n', '<D-p>', function()
+  Snacks.picker.files()
+end, { desc = 'Find files' })
+vim.keymap.set('n', '<leader>ff', function()
+  Snacks.picker.grep()
+end, { desc = 'Live grep' })
+vim.keymap.set('n', '<leader>fb', function()
+  Snacks.picker.buffers()
+end, { desc = 'Buffers' })
+vim.keymap.set('n', '<leader>fh', function()
+  Snacks.picker.help()
+end, { desc = 'Help tags' })
 
 vim.api.nvim_create_user_command('Lazygit', function()
   Snacks.lazygit()

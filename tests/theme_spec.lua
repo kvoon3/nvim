@@ -35,61 +35,51 @@ describe('theme', function()
   end)
 
   describe('picker', function()
+    local picker_opts
+
     before_each(function()
       -- Reset to defaults before each picker test.
       theme.set_light 'vitesse-light-soft'
       theme.set_dark 'vitesse-black'
+      picker_opts = nil
 
-      package.loaded['telescope.actions'] = {
-        select_default = function(_) end,
-      }
-      package.loaded['telescope.actions.state'] = {
-        get_selected_entry = function()
-          return nil
-        end,
-      }
-      package.loaded['telescope.builtin'] = {
-        colorscheme = function(opts)
-          local prompt_bufnr = 0
-          local mappings = {}
-
-          local function map(mode, key, fn)
-            mappings[mode .. key] = fn
-          end
-
-          local ok, ret = pcall(opts.attach_mappings, prompt_bufnr, map)
-          expect.equality(true, ok)
-          expect.equality(true, ret)
-
-          local action_state = require 'telescope.actions.state'
-          local orig_get_selected = action_state.get_selected_entry
-          action_state.get_selected_entry = function()
-            return { value = 'everforest' }
-          end
-
-          local on_confirm = mappings['i<CR>'] or mappings['n<CR>']
-          expect.equality('function', type(on_confirm))
-          on_confirm()
-
-          action_state.get_selected_entry = orig_get_selected
-
-          for _, cb in ipairs(opts.on_complete or {}) do
-            cb()
-          end
-        end,
+      Snacks = {
+        picker = {
+          colorschemes = function(opts)
+            picker_opts = opts
+          end,
+        },
       }
     end)
 
+    after_each(function()
+      Snacks = nil
+    end)
+
+    local function confirm(name)
+      expect.equality('table', type(picker_opts))
+      picker_opts.confirm({ close = function() end, preview = { state = {} } }, { text = name })
+    end
+
     it('saves the selected light theme', function()
       theme.pick_light()
+      confirm 'everforest'
       expect.equality('everforest', theme.get_light())
       expect.equality('vitesse-black', theme.get_dark())
     end)
 
     it('saves the selected dark theme', function()
       theme.pick_dark()
+      confirm 'everforest'
       expect.equality('vitesse-light-soft', theme.get_light())
       expect.equality('everforest', theme.get_dark())
+    end)
+
+    it('keeps settings when the picker is cancelled', function()
+      theme.pick_dark()
+      expect.equality('table', type(picker_opts))
+      picker_opts.confirm({ close = function() end, preview = { state = {} } }, nil)
+      expect.equality('vitesse-black', theme.get_dark())
     end)
   end)
 end)

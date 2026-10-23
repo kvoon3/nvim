@@ -90,7 +90,7 @@ describe('project-todos', function()
       expect.equality({ project }, searched)
     end)
 
-    it('warns instead of opening Telescope outside a project', function()
+    it('warns instead of opening a picker outside a project', function()
       stub_search()
       vim.cmd('cd ' .. vim.fn.fnameescape(vim.fn.expand '~'))
       local notified = {}
