@@ -2,15 +2,21 @@ local M = {}
 
 local cache = {}
 local running = {}
+local last_search = {}
 local setup_done = false
 
 local MAX_SHOWN = 5000
+local MIN_INTERVAL = 30 -- seconds between searches for the same root
+local MARKERS = { '.git', 'package.json', 'pnpm-workspace.yaml', 'Cargo.toml', 'go.mod', 'pyproject.toml' }
 
---[[ $HOME has no .git and holds ~/Library, so a cwd-wide rg walk there takes minutes and floods the notifier; treat it as "no project" instead. ]]
+--[[ Only treat a directory as a project when it holds a marker. Opening a file in
+/tmp used to fall back to the cwd, so rg walked all of /tmp, failed on unreadable
+files (exit code 2) and was respawned on every statusline refresh.
+$HOME stays excluded: it holds ~/Library and would take minutes to walk. ]]
 local function project_root(bufnr)
   local path = vim.api.nvim_buf_get_name(bufnr)
   path = path ~= '' and path or vim.fn.getcwd()
-  local root = vim.fs.root(path, '.git') or vim.fn.getcwd()
+  local root = vim.fs.root(path, MARKERS) or vim.fs.root(vim.fn.getcwd(), MARKERS)
   return root ~= vim.fn.expand '~' and root or nil
 end
 
@@ -26,10 +32,18 @@ function M.refresh(bufnr)
     return
   end
 
+  --[[ Throttle per root: the statusline calls this on every render, so a slow or
+  failing search (rg exit code 2) must not be respawned continuously. ]]
+  local now = os.time()
+  if last_search[root] and now - last_search[root] < MIN_INTERVAL then
+    return
+  end
+  last_search[root] = now
+
   running[root] = true
   require('todo-comments.search').search(function(results)
     running[root] = nil
-    cache[root] = #results
+    cache[root] = #(results or {})
     vim.cmd 'redrawstatus'
   end, { cwd = root, disable_not_found_warnings = true })
 end
@@ -90,6 +104,7 @@ function M.setup()
       local root = project_root(ev.buf)
       if root then
         cache[root] = nil
+        last_search[root] = nil
       end
       M.refresh(ev.buf)
     end,
