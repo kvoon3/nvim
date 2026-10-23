@@ -1,5 +1,4 @@
 -- Native LSP configuration (replaces coc.nvim)
--- Add servers you install via Mason to the `ensure_installed` list below.
 
 local typescript = require 'config.typescript'
 
@@ -127,30 +126,16 @@ vim.keymap.set('n', '<leader>hn', jump_diagnostic(1, vim.diagnostic.severity.HIN
 vim.keymap.set('n', '<leader>df', vim.diagnostic.open_float, { desc = 'Open diagnostic float' })
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostics list' })
 
--- Configure servers here.
--- Servers listed in `ensure_installed` will be installed automatically by Mason.
+-- Servers come from the global mise manifest (~/.config/mise/config.toml), not a Neovim plugin
+-- manager: they run in the edited project's cwd, where a project-local mise.toml would not apply.
 --
 -- Vue hybrid mode (vue_ls v3+):
 --   vue_ls owns HTML/CSS in .vue files;
 --   ts_ls (+ @vue/typescript-plugin) owns <script> TS/JS and must attach to vue ft.
+--   typescript.before_init injects the plugin location once ts_ls starts.
 -- See: https://github.com/vuejs/language-tools/wiki/Neovim
---[[ `vim.fn.expand` here costs ~30ms at startup (Vimscript glob machinery: it
-scans /packages when $MASON is unset), so build the path with vim.env/vim.fs. ]]
-local vue_language_server_path = vim.fs.joinpath(
-  vim.env.MASON or vim.fs.joinpath(vim.fn.stdpath 'data', 'mason'),
-  'packages/vue-language-server/node_modules/@vue/language-server'
-)
-if vim.fn.isdirectory(vue_language_server_path) == 0 then
-  vue_language_server_path =
-    vim.fs.joinpath(vim.fn.stdpath 'data', 'mason/packages/vue-language-server/node_modules/@vue/language-server')
-end
-
-local vue_plugin = {
-  name = '@vue/typescript-plugin',
-  location = vue_language_server_path,
-  languages = { 'vue' },
-  configNamespace = 'typescript',
-}
+--[[ The @vue/typescript-plugin location is resolved in config.typescript, once ts_ls starts,
+  so there is no path probing at startup. ]]
 
 local ts_filetypes = { 'typescript', 'javascript', 'javascriptreact', 'typescriptreact' }
 
@@ -260,9 +245,7 @@ local servers = {
     before_init = typescript.before_init,
     root_dir = typescript.ts_ls_root_dir,
     init_options = {
-      plugins = {
-        vue_plugin,
-      },
+      plugins = {},
     },
     filetypes = {
       'typescript',
@@ -342,28 +325,6 @@ local servers = {
   rust_analyzer = {},
 }
 
-local managed_externally = { tsrs = true, tsc = true }
-local ensure_installed = vim
-  .iter(vim.tbl_keys(servers or {}))
-  :filter(function(server_name)
-    return not managed_externally[server_name]
-  end)
-  :totable()
-
---[[ Mason only installs/updates servers; the LSP clients below do not need it, so
-both Mason and its lspconfig bridge load after the UI is up. ]]
-vim.api.nvim_create_autocmd('User', {
-  pattern = 'VeryLazy',
-  once = true,
-  callback = function()
-    require('mason').setup()
-    require('mason-lspconfig').setup {
-      ensure_installed = ensure_installed,
-      automatic_enable = false, -- we enable servers manually below
-    }
-  end,
-})
-
 typescript.setup()
 
 local capabilities = require('cmp_nvim_lsp').default_capabilities()
@@ -374,7 +335,7 @@ for server_name, server in pairs(servers) do
   vim.lsp.enable(server_name)
 end
 
--- UnoCSS language server (installed via npm, not Mason)
+-- UnoCSS language server (installed via npm)
 vim.lsp.config('unocss', {
   capabilities = capabilities,
 })
