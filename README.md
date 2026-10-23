@@ -30,6 +30,16 @@ The eslint-codemod plugin has an extra integration suite backed by a real ESLint
 brew install daipeihust/tap/im-select
 ```
 
+### Optional: inline translation
+
+Inline translation calls OpenRouter, so it needs an API key:
+
+```sh
+export OPENROUTER_API_KEY=sk-or-v1-...
+```
+
+If unset, the `openrouter` token in `~/.pi/agent/auth.json` is reused. Enable it from the command palette (`Translate: toggle inline translation`): paragraphs in the visible part of the buffer get a Chinese translation as virtual lines underneath, and the rest is translated lazily while scrolling. Translations are cached in `stdpath('cache')/inline-translate`; `Translate: clear translation cache` drops them. Override the model with `INLINE_TRANSLATE_MODEL`.
+
 ## Features
 
 - **Editing:** Flash jumps, Treesitter-aware comments and JSDoc highlighting, surround editing, Markdown table formatting, Mermaid diagram rendering, enclosing-bracket highlights, pnpm catalog version hints, ESLint codemod autocomplete (`///` `// @` `/* @` triggers with fixability filtering via eslint-plugin-command), folds, CJK motions, and system clipboard helpers.
@@ -37,6 +47,7 @@ brew install daipeihust/tap/im-select
 - **Navigation:** `gd` follows Markdown links, wiki links, and anchors (falling back to LSP definitions), Telescope TODO picker with previews and jump-to-source, Snacks file explorer, editable quickfix lists, mini.starter start screen with recent projects, and a command palette.
 - **Git:** Gitsigns, floating LazyGit (`:lg`), GitHub links, and terminal-aware Git editing.
 - **UI:** Lazy.nvim, macOS-aware light/dark themes, notifications, keybinding clues, theme-aware mini.statusline with the project TODO count, winbar with an unsaved-change indicator, hidden-by-default line numbers with a command-palette toggle, and prose wrapping.
+- **Reading:** lazy bilingual inline translation (OpenRouter `gemini-2.5-flash-lite`) for Markdown and prose buffers, rendered as virtual lines under the paragraphs currently on screen.
 
 ## Notes
 
