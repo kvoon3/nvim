@@ -99,9 +99,6 @@ vim.keymap.set('n', '<leader>hn', jump_diagnostic(1, vim.diagnostic.severity.HIN
 vim.keymap.set('n', '<leader>df', vim.diagnostic.open_float, { desc = 'Open diagnostic float' })
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostics list' })
 
--- Mason setup
-require('mason').setup()
-
 -- Configure servers here.
 -- Servers listed in `ensure_installed` will be installed automatically by Mason.
 --
@@ -109,10 +106,15 @@ require('mason').setup()
 --   vue_ls owns HTML/CSS in .vue files;
 --   ts_ls (+ @vue/typescript-plugin) owns <script> TS/JS and must attach to vue ft.
 -- See: https://github.com/vuejs/language-tools/wiki/Neovim
-local vue_language_server_path = vim.fn.expand '$MASON/packages/vue-language-server/node_modules/@vue/language-server'
+--[[ `vim.fn.expand` here costs ~30ms at startup (Vimscript glob machinery: it
+scans /packages when $MASON is unset), so build the path with vim.env/vim.fs. ]]
+local vue_language_server_path = vim.fs.joinpath(
+  vim.env.MASON or vim.fs.joinpath(vim.fn.stdpath 'data', 'mason'),
+  'packages/vue-language-server/node_modules/@vue/language-server'
+)
 if vim.fn.isdirectory(vue_language_server_path) == 0 then
-  vue_language_server_path = vim.fn.stdpath 'data'
-    .. '/mason/packages/vue-language-server/node_modules/@vue/language-server'
+  vue_language_server_path =
+    vim.fs.joinpath(vim.fn.stdpath 'data', 'mason/packages/vue-language-server/node_modules/@vue/language-server')
 end
 
 local vue_plugin = {
@@ -121,6 +123,8 @@ local vue_plugin = {
   languages = { 'vue' },
   configNamespace = 'typescript',
 }
+
+local ts_filetypes = { 'typescript', 'javascript', 'javascriptreact', 'typescriptreact' }
 
 local eslint_on_attach = vim.lsp.config.eslint.on_attach
 local silent_lint_rules = {
@@ -244,12 +248,16 @@ local servers = {
   tsrs = {
     cmd = typescript.tsrs_cmd,
     root_dir = typescript.tsrs_root_dir,
-    filetypes = {
-      'typescript',
-      'javascript',
-      'javascriptreact',
-      'typescriptreact',
-    },
+    filetypes = ts_filetypes,
+  },
+  --[[ TypeScript 7.1+ native server shipped by the workspace (lspconfig owns the
+    server definition and its settings). Content mappers stay behind `.nvim-content-mappers`
+    in typescript.tsc_before_init. ]]
+  tsc = {
+    cmd = typescript.tsc_cmd,
+    root_dir = typescript.tsc_root_dir,
+    before_init = typescript.tsc_before_init,
+    filetypes = ts_filetypes,
   },
   vue_ls = {},
   eslint = {
@@ -304,17 +312,27 @@ local servers = {
   rust_analyzer = {},
 }
 
+local managed_externally = { tsrs = true, tsc = true }
 local ensure_installed = vim
   .iter(vim.tbl_keys(servers or {}))
   :filter(function(server_name)
-    return server_name ~= 'tsrs'
+    return not managed_externally[server_name]
   end)
   :totable()
 
-require('mason-lspconfig').setup {
-  ensure_installed = ensure_installed,
-  automatic_enable = false, -- we enable servers manually below
-}
+--[[ Mason only installs/updates servers; the LSP clients below do not need it, so
+both Mason and its lspconfig bridge load after the UI is up. ]]
+vim.api.nvim_create_autocmd('User', {
+  pattern = 'VeryLazy',
+  once = true,
+  callback = function()
+    require('mason').setup()
+    require('mason-lspconfig').setup {
+      ensure_installed = ensure_installed,
+      automatic_enable = false, -- we enable servers manually below
+    }
+  end,
+})
 
 typescript.setup()
 
