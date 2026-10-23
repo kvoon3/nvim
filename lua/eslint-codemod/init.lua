@@ -4,31 +4,6 @@ local trigger = require 'eslint-codemod.trigger'
 local M = {}
 
 local setup_done = false
-local source_registered = false
-
---[[ Register the cmp source once cmp is actually loaded (lazy.nvim
-  loads nvim-cmp on InsertEnter, so it is absent during startup).
-  `load` forces the lazy load on demand; without it cmp must already be
-  present, otherwise `require` would drag nvim-cmp into startup.
-  Returns false while cmp is still unavailable. ]]
-local function ensure_cmp_source(load)
-  if source_registered then
-    return true
-  end
-
-  if not package.loaded['cmp'] and not load then
-    return false
-  end
-
-  local has_cmp, cmp = pcall(require, 'cmp')
-  if not has_cmp then
-    return false
-  end
-
-  cmp.register_source('eslint_codemod', require('eslint-codemod.cmp-source').new())
-  source_registered = true
-  return true
-end
 
 --[[ InsertCharPre fires before the char lands; the scheduled check runs
   after insertion so the cursor sits right after the trigger char. ]]
@@ -61,17 +36,16 @@ function M.complete_at(bufnr, row, col)
     return
   end
 
-  if not ensure_cmp_source(true) then
-    --[[ No cmp: fall back to built-in completefunc completion. ]]
+  local has_blink, blink = pcall(require, 'blink.cmp')
+  if not has_blink then
+    --[[ No blink.cmp: fall back to built-in completefunc completion. ]]
     vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<C-x><C-u>', true, false, true), 'm', false)
     return
   end
 
   --[[ Restrict the menu to codemod commands, mirroring VSCode's
     provider-scoped trigger behavior. ]]
-  require('cmp').complete {
-    config = { sources = { { name = 'eslint_codemod' } } },
-  }
+  blink.show { providers = { 'eslint_codemod' } }
 end
 
 function M.setup(opts)
@@ -82,8 +56,6 @@ function M.setup(opts)
   end
 
   setup_done = true
-  --[[ Registers only when cmp is already loaded; never pulls it into startup. ]]
-  ensure_cmp_source()
 
   local group = vim.api.nvim_create_augroup('EslintCodemod', { clear = true })
 
@@ -95,32 +67,7 @@ function M.setup(opts)
     end,
   })
 
-  --[[ cmp loads lazily on InsertEnter; retry source registration until
-    it exists. Also keeps the global sources entry usable. ]]
-  vim.api.nvim_create_autocmd({ 'InsertEnter', 'FileType' }, {
-    group = group,
-    callback = function(ev)
-      if not config_mod.is_language_enabled(ev.match ~= '' and ev.match or vim.bo.filetype) then
-        return
-      end
-
-      ensure_cmp_source()
-    end,
-  })
-
-  --[[ cmp loads lazily on InsertEnter; register the source as soon as it loads,
-    before the first completion request resolves the source list. ]]
-  vim.api.nvim_create_autocmd('User', {
-    group = group,
-    pattern = 'LazyLoad',
-    callback = function(ev)
-      if ev.data == 'nvim-cmp' then
-        ensure_cmp_source()
-      end
-    end,
-  })
-
-  --[[ Fallback omnifunc path for users without cmp:
+  --[[ Fallback omnifunc path for users without blink.cmp:
 
     `completefunc` is wired but only active inside codemod comment
     regions so it does not pollute normal editing.
@@ -250,7 +197,6 @@ end
 
 function M.reset()
   setup_done = false
-  source_registered = false
   config_mod.reset()
 end
 

@@ -13,10 +13,10 @@ function source:get_trigger_characters()
   return trigger.trigger_chars()
 end
 
---[[ No custom keyword_pattern: nvim-cmp default keyword handles
-  the typed prefix; filterText does the rest. ]]
+--[[ No custom keyword_pattern: blink's keyword bounds handle the typed
+  prefix; filterText does the rest. ]]
 
-function source:is_available()
+function source:enabled()
   local cfg = config_mod.get()
   if not cfg.enable then
     return false
@@ -26,25 +26,32 @@ function source:is_available()
   return config_mod.is_language_enabled(ft)
 end
 
---[[ nvim-cmp entry point.
+---@param callback fun(response: blink.cmp.CompletionResponse)
+---@param items lsp.CompletionItem[]
+local function respond(callback, items)
+  callback {
+    items = items,
+    is_incomplete_forward = false,
+    is_incomplete_backward = false,
+  }
+end
 
-  params.context.cursor_before_line
-  params.context.cursor.col (1-indexed? cmp docs say byte col)
-  params.completion_context.triggerCharacter
+--[[ blink.cmp entry point.
+
+  ctx.cursor is { row (1-indexed), col (0-indexed byte) }
+  ctx.trigger.character is set when the user typed a trigger character
 ]]
-function source:complete(params, callback)
+function source:get_completions(ctx, callback)
   local cfg = config_mod.get()
   if not cfg.enable then
-    callback { items = {}, isIncomplete = false }
+    respond(callback, {})
     return
   end
 
-  local bufnr = vim.api.nvim_get_current_buf()
-  local cursor = vim.api.nvim_win_get_cursor(0)
-  local row = cursor[1] - 1
-  local col = cursor[2]
-  local trigger_char = params.completion_context and params.completion_context.triggerCharacter
-    or trigger.infer_trigger_char(bufnr, row, col)
+  local bufnr = ctx.bufnr
+  local row = ctx.cursor[1] - 1
+  local col = ctx.cursor[2]
+  local trigger_char = (ctx.trigger and ctx.trigger.character) or trigger.infer_trigger_char(bufnr, row, col)
 
   local opts = {
     bufnr = bufnr,
@@ -61,12 +68,12 @@ function source:complete(params, callback)
   }))
 
   if #base_items == 0 then
-    callback { items = {}, isIncomplete = false }
+    respond(callback, {})
     return
   end
 
   if not cfg.autocomplete.onlyFixable then
-    callback { items = base_items, isIncomplete = false }
+    respond(callback, base_items)
     return
   end
 
@@ -90,7 +97,7 @@ function source:complete(params, callback)
         kept[#kept + 1] = item
       end
     end
-    callback { items = kept, isIncomplete = false }
+    respond(callback, kept)
   end)
 end
 
@@ -182,7 +189,7 @@ function source:resolve(completion_item, callback)
   end
 end
 
-function source:execute(completion_item, callback)
+function source:execute(_ctx, completion_item, callback)
   local cfg = config_mod.get()
   if not cfg.autocomplete.autoFix then
     if callback then

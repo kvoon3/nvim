@@ -340,9 +340,8 @@ describe('eslint-codemod', function()
   describe('auto-trigger on trigger chars', function()
     local codemod
     local bufnr
-    local cmp_calls
-    local registered_sources
-    local fake_cmp
+    local blink_calls
+    local fake_blink
 
     before_each(function()
       package.loaded['eslint-codemod'] = nil
@@ -354,23 +353,19 @@ describe('eslint-codemod', function()
       vim.bo[bufnr].filetype = 'typescript'
       vim.api.nvim_set_current_buf(bufnr)
 
-      cmp_calls = {}
-      registered_sources = {}
-      fake_cmp = {
-        register_source = function(name)
-          table.insert(registered_sources, name)
-        end,
-        complete = function(request)
-          --[[ Module calls cmp.complete{...} (dot call, single arg). ]]
-          local sources = type(request) == 'table' and request.config and request.config.sources or {}
-          table.insert(cmp_calls, sources)
+      blink_calls = {}
+      fake_blink = {
+        show = function(request)
+          --[[ Module calls blink.show{...} (dot call, single arg). ]]
+          local providers = type(request) == 'table' and request.providers or {}
+          table.insert(blink_calls, providers)
         end,
       }
-      package.loaded.cmp = fake_cmp
+      package.loaded['blink.cmp'] = fake_blink
     end)
 
     after_each(function()
-      package.loaded.cmp = nil
+      package.loaded['blink.cmp'] = nil
       if vim.api.nvim_buf_is_valid(bufnr) then
         vim.api.nvim_buf_delete(bufnr, { force = true })
       end
@@ -385,11 +380,11 @@ describe('eslint-codemod', function()
         so drive complete_at with the explicit post-insert position. ]]
       codemod.complete_at(bufnr, 0, 3)
       vim.wait(200, function()
-        return #cmp_calls > 0
+        return #blink_calls > 0
       end)
 
-      expect.equality(1, #cmp_calls)
-      expect.equality({ { name = 'eslint_codemod' } }, cmp_calls[1])
+      expect.equality(1, #blink_calls)
+      expect.equality({ 'eslint_codemod' }, blink_calls[1])
     end)
 
     it('does not complete for non-trigger chars', function()
@@ -397,7 +392,7 @@ describe('eslint-codemod', function()
       vim.api.nvim_win_set_cursor(0, { 1, 7 })
       codemod.handle_insert_char 'x'
       vim.wait(50)
-      expect.equality(0, #cmp_calls)
+      expect.equality(0, #blink_calls)
     end)
 
     it('does not complete for / outside a comment', function()
@@ -405,12 +400,12 @@ describe('eslint-codemod', function()
       vim.api.nvim_win_set_cursor(0, { 1, 9 })
       codemod.handle_insert_char '/'
       vim.wait(50)
-      expect.equality(0, #cmp_calls)
+      expect.equality(0, #blink_calls)
     end)
 
-    it('registers the source once cmp is available', function()
+    it('registers no completion source at startup', function()
       codemod.setup {}
-      expect.equality({ 'eslint_codemod' }, registered_sources)
+      expect.equality(0, #blink_calls)
     end)
   end)
 

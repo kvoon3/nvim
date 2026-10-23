@@ -31,12 +31,13 @@ return {
   -- Useful status updates for LSP
   { 'j-hui/fidget.nvim', event = 'LspAttach', opts = {} },
 
-  -- Autocompletion (deferred to the first insert; pulls in LuaSnip and the sources)
+  -- Autocompletion: Rust fuzzy matcher in-process via blink.cmp
   {
-    'hrsh7th/nvim-cmp',
+    'saghen/blink.cmp',
+    version = '1.*',
     event = 'InsertEnter',
     dependencies = {
-      -- Snippet Engine & its associated nvim-cmp source
+      -- Snippet engine and its bundled snippet collection
       {
         'L3MON4D3/LuaSnip',
         build = (function()
@@ -46,96 +47,72 @@ return {
           return 'make install_jsregexp'
         end)(),
         dependencies = { 'rafamadriz/friendly-snippets' },
-      },
-      'saadparwaiz1/cmp_luasnip',
+        config = function()
+          local luasnip = require 'luasnip'
+          luasnip.config.setup {}
+          require('luasnip.loaders.from_vscode').lazy_load()
+          --[[ Snippets use LuaSnip; loading them here keeps them off the startup path. ]]
+          require 'config.console-log'
 
-      -- Adds other completion capabilities.
-      'hrsh7th/cmp-nvim-lsp',
-      'hrsh7th/cmp-path',
-      'hrsh7th/cmp-buffer',
-    },
-    config = function()
-      local cmp = require 'cmp'
-      local luasnip = require 'luasnip'
-      luasnip.config.setup {}
-      local function configure_console_log_snippets()
-        --[[ Hide generic console.log snippets that overlap local expression snippets. ]]
-        for _, ft in ipairs { 'javascript', 'javascriptreact', 'vue', 'svelte' } do
-          for _, snippet in ipairs(luasnip.get_snippets(ft)) do
-            if snippet.name == 'console.log' and snippet.trigger == 'cl' then
-              snippet.hidden = true
-            elseif snippet.name == 'console.log with log' and snippet.trigger == 'log' then
-              snippet.show_condition = function(line)
-                return not line:match '%.%w*$'
+          --[[ Hide generic console.log snippets that overlap local expression snippets. ]]
+          local function configure_console_log_snippets()
+            for _, ft in ipairs { 'javascript', 'javascriptreact', 'vue', 'svelte' } do
+              for _, snippet in ipairs(luasnip.get_snippets(ft)) do
+                if snippet.name == 'console.log' and snippet.trigger == 'cl' then
+                  snippet.hidden = true
+                elseif snippet.name == 'console.log with log' and snippet.trigger == 'log' then
+                  snippet.show_condition = function(line)
+                    return not line:match '%.%w*$'
+                  end
+                end
               end
             end
           end
-        end
-      end
-      vim.api.nvim_create_autocmd('User', {
-        pattern = 'LuasnipSnippetsAdded',
-        callback = configure_console_log_snippets,
-      })
-      require('luasnip.loaders.from_vscode').lazy_load()
-      --[[ Snippets use LuaSnip; loading them here keeps them off the startup path. ]]
-      require 'config.console-log'
-      configure_console_log_snippets()
 
-      cmp.setup {
-        snippet = {
-          expand = function(args)
-            luasnip.lsp_expand(args.body)
-          end,
+          vim.api.nvim_create_autocmd('User', {
+            pattern = 'LuasnipSnippetsAdded',
+            callback = configure_console_log_snippets,
+          })
+          configure_console_log_snippets()
+        end,
+      },
+    },
+    opts = {
+      keymap = {
+        preset = 'none',
+        ['<C-n>'] = { 'select_next', 'fallback' },
+        ['<C-p>'] = { 'select_prev', 'fallback' },
+        ['<C-b>'] = { 'scroll_documentation_up', 'fallback' },
+        ['<C-f>'] = { 'scroll_documentation_down', 'fallback' },
+        ['<C-Space>'] = { 'show', 'fallback' },
+        --[[ Expand or jump a snippet first, then accept the selection. ]]
+        ['<Tab>'] = { 'snippet_forward', 'select_and_accept', 'fallback' },
+        --[[ No fallback: Ctrl-L only jumps snippets and is otherwise swallowed, as before. ]]
+        ['<C-l>'] = { 'snippet_forward' },
+        ['<C-h>'] = { 'snippet_backward', 'fallback' },
+      },
+      appearance = { nerd_font_variant = 'mono' },
+      completion = {
+        documentation = { auto_show = true, auto_show_delay_ms = 200 },
+        ghost_text = { enabled = false },
+      },
+      snippets = { preset = 'luasnip' },
+      --[[ Rust matcher; falls back to Lua only when the prebuilt binary is missing. ]]
+      fuzzy = { implementation = 'prefer_rust' },
+      sources = {
+        default = { 'lazydev', 'eslint_codemod', 'lsp', 'path', 'snippets', 'buffer' },
+        providers = {
+          lazydev = {
+            name = 'LazyDev',
+            module = 'lazydev.integrations.blink',
+            score_offset = 100,
+          },
+          eslint_codemod = {
+            name = 'ESLint Codemod',
+            module = 'eslint-codemod.blink-source',
+          },
         },
-        completion = { completeopt = 'menu,menuone,noinsert' },
-        formatting = {
-          format = function(entry, vim_item)
-            if entry.source.name == 'luasnip' and entry.completion_item and entry.completion_item.data then
-              local ok, snip = pcall(require('luasnip').get_id_snippet, entry.completion_item.data.snip_id)
-              if ok and snip and snip.name then
-                vim_item.abbr = snip.name
-              end
-            end
-            return vim_item
-          end,
-        },
-        mapping = cmp.mapping.preset.insert {
-          ['<C-n>'] = cmp.mapping.select_next_item(),
-          ['<C-p>'] = cmp.mapping.select_prev_item(),
-          ['<C-b>'] = cmp.mapping.scroll_docs(-4),
-          ['<C-f>'] = cmp.mapping.scroll_docs(4),
-          ['<C-Space>'] = cmp.mapping.complete {},
-          ['<Tab>'] = cmp.mapping(function(fallback)
-            if luasnip.expandable() then
-              luasnip.expand()
-            elseif cmp.visible() then
-              cmp.confirm { select = true }
-            else
-              fallback()
-            end
-          end, { 'i', 's' }),
-          ['<C-l>'] = cmp.mapping(function()
-            if luasnip.expand_or_locally_jumpable() then
-              luasnip.expand_or_jump()
-            end
-          end, { 'i', 's' }),
-          ['<C-h>'] = cmp.mapping(function()
-            if luasnip.locally_jumpable(-1) then
-              luasnip.jump(-1)
-            end
-          end, { 'i', 's' }),
-        },
-        sources = {
-          { name = 'lazydev', group_index = 0 },
-          --[[ eslint-codemod registers itself lazily; auto-trigger is
-            handled by its own InsertCharPre autocmd. ]]
-          { name = 'eslint_codemod' },
-          { name = 'nvim_lsp' },
-          { name = 'luasnip' },
-          { name = 'path' },
-          { name = 'buffer' },
-        },
-      }
-    end,
+      },
+    },
   },
 }
