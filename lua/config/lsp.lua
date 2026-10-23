@@ -55,6 +55,34 @@ vim.api.nvim_create_autocmd('LspAttach', {
   end,
 })
 
+--[[ Neovim enables LSP semantic tokens by default, and language servers parse the
+whole file on didOpen. Both are pathological on buffers with very long lines
+(a 700KB single-line JS file: ~200k token extmarks and ~550ms per redraw, plus a
+TS server burning seconds of CPU). Back off from such buffers entirely. ]]
+local bigfile = require 'bigfile'
+
+-- Semantic tokens for buffers that still get a client (e.g. one attached before
+-- the buffer was classified), and to clear any tokens already applied.
+vim.api.nvim_create_autocmd('LspAttach', {
+  group = vim.api.nvim_create_augroup('UserSemanticTokens', {}),
+  callback = function(ev)
+    if bigfile.is_bigfile(ev.buf) then
+      vim.lsp.semantic_tokens.enable(false, { bufnr = ev.buf })
+    end
+  end,
+})
+
+--[[ `vim.lsp.config` has no per-buffer opt-out and `vim.lsp.enable()` is global,
+so the start hook is the only place that can refuse before the server process is
+spawned (returning nil just skips that buffer; other buffers are unaffected). ]]
+local start = vim.lsp.start
+vim.lsp.start = function(config, opts)
+  if opts and opts.bufnr and bigfile.is_bigfile(opts.bufnr) then
+    return nil
+  end
+  return start(config, opts)
+end
+
 -- Diagnostic navigation (goto_next/goto_prev are deprecated; use jump)
 vim.diagnostic.config {
   virtual_text = true,
@@ -302,7 +330,9 @@ local servers = {
 
   -- Spelling / grammar
   typos_lsp = {},
-  harper_ls = {},
+  --[[ harper is a prose/grammar linter; lspconfig's defaults also attach it to
+    c/cpp/cs/go/js/ts, where it only burns CPU. ]]
+  harper_ls = { filetypes = { 'markdown', 'text', 'gitcommit', 'asciidoc' } },
 
   -- CSS / HTML
   cssls = {},
