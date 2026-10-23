@@ -1,5 +1,6 @@
 local M = {}
 
+local managed_servers = { ts_ls = true, tsrs = true, tsc = true }
 local dependency_states = {}
 local refresh_pending = false
 local last_refresh_ts = 0
@@ -36,6 +37,39 @@ end
 function M.tsrs_path()
   local path = vim.fn.exepath 'tsrs'
   return path ~= '' and path or nil
+end
+
+--[[ Workspace TypeScript 7.1+ native compiler. `bin/tsc` is the package's documented
+  entry point, so it survives the platform-package reshuffle between 7.0
+  (`@typescript/native-preview`) and 7.1 (`@typescript/typescript-<os>-<arch>`).
+  Source phase imports, the es2026 libs and content mappers all landed in 7.1; a 7.0
+  binary would lose features tsrs already has, so only 7.1+ outranks tsrs. ]]
+local tsc_versions = {}
+
+local function tsc_supports_71(path)
+  local signature = stat_signature(path)
+  local cached = tsc_versions[path]
+  if cached and cached.signature == signature then
+    return cached.ok
+  end
+
+  local result = vim.system({ path, '--version' }, { text = true }):wait()
+  local version = result.code == 0 and vim.version.parse(result.stdout or '') or nil
+  local ok = version ~= nil and version.major >= 7 and (version.major > 7 or version.minor >= 1)
+  tsc_versions[path] = { signature = signature, ok = ok }
+  return ok
+end
+
+function M.tsc_bin(root_dir)
+  if not root_dir then
+    return nil
+  end
+
+  local path = vim.fs.joinpath(root_dir, 'node_modules', '.bin', 'tsc')
+  if vim.fn.executable(path) ~= 1 or not tsc_supports_71(path) then
+    return nil
+  end
+  return path
 end
 
 local function project_root(bufnr)
@@ -80,11 +114,15 @@ local function prefers_tsserver(bufnr)
   return #vim.fs.find('.nvim-tsserver', { upward = true, path = start }) > 0
 end
 
---[[ One TS/JS server per buffer, first match wins. Vue keeps ts_ls: tsrs runs no
-  content mappers, and @vue/typescript-plugin only exists in the JS tsserver. ]]
+--[[ One TS/JS server per buffer, first match wins. Vue keeps ts_ls: the Vue plugin only
+  exists in the JS tsserver and needs the virtual-file protocol. A workspace 7.1+ compiler
+  outranks tsrs so projects that pin the beta get the features tsrs does not port yet. ]]
 local function ts_server(bufnr, root_dir)
   if is_vue_project(bufnr, root_dir) or prefers_tsserver(bufnr) then
     return 'ts_ls'
+  end
+  if M.tsc_bin(root_dir) then
+    return 'tsc'
   end
   if M.tsrs_path() then
     return 'tsrs'
@@ -111,12 +149,25 @@ function M.tsrs_cmd(dispatchers)
   return vim.lsp.rpc.start({ path, '--lsp', '-stdio' }, dispatchers)
 end
 
+function M.tsc_root_dir(bufnr, on_dir)
+  local root_dir = project_root(bufnr)
+  if ts_server(bufnr, root_dir) == 'tsc' then
+    on_dir(root_dir)
+  end
+end
+
+function M.tsc_cmd(dispatchers, config)
+  local path = assert(M.tsc_bin(config.root_dir), 'workspace TypeScript 7.1 executable not found')
+  return vim.lsp.rpc.start({ path, '--lsp', '--stdio' }, dispatchers)
+end
+
 function M.dependency_signature(root_dir)
   local node_modules = vim.fs.joinpath(root_dir, 'node_modules')
   return table.concat({
     stat_signature(node_modules, true),
     stat_signature(vim.fs.joinpath(node_modules, '.modules.yaml')),
     stat_signature(vim.fs.joinpath(node_modules, 'typescript'), true),
+    stat_signature(vim.fs.joinpath(node_modules, '.bin', 'tsc')),
   }, '|')
 end
 
@@ -131,13 +182,30 @@ function M.before_init(params, config)
   config.init_options.tsserver.path = M.tsserver_path(root_dir)
 end
 
+--[[ `runExternalCode` lets a tsconfig `contentMappers` entry spawn workspace code. Neovim
+  has no workspace-trust prompt, so require an explicit marker instead of trusting every
+  project that pins TypeScript 7.1. ]]
+local function runs_content_mappers(root_dir)
+  return root_dir ~= nil and #vim.fs.find('.nvim-content-mappers', { upward = true, path = root_dir }) > 0
+end
+
+function M.tsc_before_init(params, config)
+  local root_dir = config.root_dir
+  if params.rootUri then
+    root_dir = vim.uri_to_fname(params.rootUri)
+  end
+
+  config.init_options = config.init_options or {}
+  config.init_options.runExternalCode = runs_content_mappers(root_dir)
+end
+
 local function restart_changed_clients()
   local seen_clients = {}
 
   for _, client in ipairs(vim.lsp.get_clients()) do
     local root_dir = client.root_dir
     local key = root_dir and client.name .. ':' .. root_dir or nil
-    if (client.name == 'ts_ls' or client.name == 'tsrs') and key and not seen_clients[key] then
+    if managed_servers[client.name] and key and not seen_clients[key] then
       seen_clients[key] = true
       local signature = M.dependency_signature(root_dir)
       local previous = dependency_states[key]
@@ -167,7 +235,7 @@ function M.refresh()
 end
 
 function M.track(client)
-  if (client.name == 'ts_ls' or client.name == 'tsrs') and client.root_dir then
+  if managed_servers[client.name] and client.root_dir then
     dependency_states[client.name .. ':' .. client.root_dir] = M.dependency_signature(client.root_dir)
   end
 end
