@@ -327,7 +327,7 @@ local servers = {
 
 typescript.setup()
 
-local capabilities = require('cmp_nvim_lsp').default_capabilities()
+local capabilities = require('blink.cmp').get_lsp_capabilities()
 
 for server_name, server in pairs(servers) do
   server.capabilities = capabilities
