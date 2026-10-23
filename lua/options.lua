@@ -28,6 +28,13 @@ vim.opt.confirm = true -- ask for confirmation when quitting with unsaved change
 -- Buffer management: auto-delete unchanged buffers when hidden
 vim.opt.bufhidden = 'wipe' -- automatically delete buffer when abandoned if unmodified
 
+-- 24-bit color: Neovim auto-detects it from terminfo only, so terminals that keep TERM=xterm-256color
+-- (herdr panes over kitty) would silently drop to 256 colors and disable image icons.
+local colorterm = (vim.env.COLORTERM or ''):lower()
+if colorterm:find('truecolor', 1, true) or colorterm:find('24bit', 1, true) then
+  vim.opt.termguicolors = true
+end
+
 -- Background / colorscheme is managed by auto-dark-mode.nvim; vitesse.nvim is active, everforest-nvim and olive-crt.nvim are kept as alternatives
 
 vim.opt.wrap = false
