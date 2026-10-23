@@ -141,10 +141,11 @@ function M.open_plugin_in_github()
 
   local plugins = {}
   for name, plugin in pairs(lazy_config.plugins) do
-    local url = plugin.url or plugin_spec_to_url(plugin[1])
+    --[[ Local `dir` specs (cmdr, theme) have neither a url nor a first spec field. ]]
+    local url = plugin.url or (plugin[1] and plugin_spec_to_url(plugin[1]))
     if url then
       local github_url = parse_github_url(url) or url
-      table.insert(plugins, { name = name, url = github_url })
+      table.insert(plugins, { name = name, url = github_url, text = name })
     end
   end
 
@@ -161,61 +162,21 @@ function M.open_plugin_in_github()
     open_url(plugin.url)
   end
 
-  local telescope_ok, telescope = pcall(function()
-    return {
-      pickers = require 'telescope.pickers',
-      finders = require 'telescope.finders',
-      conf = require('telescope.config').values,
-      actions = require 'telescope.actions',
-      action_state = require 'telescope.actions.state',
-    }
-  end)
-
-  if telescope_ok then
-    telescope.pickers
-      .new({}, {
-        prompt_title = 'Select plugin to open in GitHub',
-        finder = telescope.finders.new_table {
-          results = plugins,
-          entry_maker = function(plugin)
-            return {
-              value = plugin,
-              display = plugin.name,
-              ordinal = plugin.name,
-            }
-          end,
-        },
-        sorter = telescope.conf.generic_sorter {},
-        attach_mappings = function(prompt_bufnr)
-          telescope.actions.select_default:replace(function()
-            local selection = telescope.action_state.get_selected_entry()
-            telescope.actions.close(prompt_bufnr)
-            if selection then
-              open_plugin(selection.value)
-            end
-          end)
-          return true
-        end,
-      })
-      :find()
-    return
-  end
-
-  local items = vim.tbl_map(function(plugin)
-    return plugin.name
-  end, plugins)
-
-  vim.ui.select(items, { prompt = 'Select plugin:' }, function(choice)
-    if not choice then
-      return
-    end
-    for _, plugin in ipairs(plugins) do
-      if plugin.name == choice then
+  Snacks.picker.pick {
+    source = 'github_plugins',
+    title = 'Select plugin to open in GitHub',
+    items = plugins,
+    layout = { preset = 'dropdown', preview = false },
+    format = function(plugin)
+      return { { plugin.name } }
+    end,
+    confirm = function(picker, plugin)
+      picker:close()
+      if plugin then
         open_plugin(plugin)
-        return
       end
-    end
-  end)
+    end,
+  }
 end
 
 --[[ Open the GitHub repository of the lazy.nvim plugin that owns the current buffer. ]]

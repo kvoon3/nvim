@@ -9,8 +9,6 @@ vim.opt.packpath:prepend(root)
 local lazy_root = vim.env.NVIM_TEST_PLUGIN_DATA or vim.fn.stdpath 'data'
 lazy_root = lazy_root .. '/lazy'
 vim.opt.runtimepath:append(lazy_root .. '/mini.test')
-vim.opt.runtimepath:append(lazy_root .. '/telescope.nvim')
-vim.opt.runtimepath:append(lazy_root .. '/plenary.nvim') -- Telescope dependency
 vim.opt.runtimepath:append(lazy_root .. '/LuaSnip')
 
 require('mini.test').setup {

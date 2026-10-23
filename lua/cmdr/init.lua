@@ -78,6 +78,8 @@ function M.add(items)
       end
       cmd.keys_str = table.concat(keymap_strs, ' ')
 
+      --[[ Snacks matches on `text`; without it every keystroke filters the list to nothing. ]]
+      cmd.text = cmd.desc
       table.insert(commands, cmd)
     else
       vim.notify('cmdr: missing cmd in ' .. vim.inspect(item), vim.log.levels.WARN)
@@ -98,19 +100,53 @@ local function sorted_commands()
   return sorted
 end
 
+local function show(items)
+  local widths = { desc = 0, keys = 0 }
+  for _, cmd in ipairs(items) do
+    widths.desc = math.max(widths.desc, #cmd.desc)
+    widths.keys = math.max(widths.keys, #(cmd.keys_str or ''))
+  end
+
+  local function pad(text, width)
+    return text .. string.rep(' ', math.max(width - #text, 0))
+  end
+
+  Snacks.picker.pick {
+    source = 'cmdr',
+    title = 'Cmdr',
+    items = items,
+    --[[ Dropdown without the preset's preview pane: commands have no previewable content. ]]
+    layout = { preset = 'dropdown', preview = false },
+    format = function(item)
+      return {
+        { pad(item.desc, widths.desc) .. '  ' },
+        { pad(item.keys_str or '', widths.keys) .. '  ', 'Comment' },
+        { item.cat, 'Special' },
+      }
+    end,
+    confirm = function(picker, item)
+      picker:close()
+      if not item then
+        return
+      end
+      M.mark_used(item)
+      if type(item.cmd) == 'function' then
+        item.cmd()
+      else
+        local keys = vim.api.nvim_replace_termcodes(item.cmd, true, false, true)
+        vim.api.nvim_feedkeys(keys, 't', true)
+      end
+    end,
+  }
+end
+
 function M.show()
   if #commands == 0 then
     vim.notify('cmdr: no commands registered', vim.log.levels.INFO)
     return
   end
 
-  local ok = pcall(require('telescope').load_extension, 'cmdr')
-  if not ok then
-    vim.notify('cmdr: telescope is required', vim.log.levels.ERROR)
-    return
-  end
-
-  require('telescope').extensions.cmdr.show(sorted_commands())
+  show(sorted_commands())
 end
 
 function M.mark_used(cmd)

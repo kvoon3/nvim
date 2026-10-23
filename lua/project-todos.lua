@@ -72,16 +72,14 @@ function M.section(bufnr)
   return 'TODO:' .. (count > MAX_SHOWN and MAX_SHOWN .. '+' or count)
 end
 
---[[ Open the project's recognized TODO comments in Telescope so its normal preview and jump mappings apply. ]]
+--[[ Open the project's recognized TODO comments in the Snacks picker so its preview and jump mappings apply. ]]
 function M.open(bufnr)
   local root = project_root(bufnr or vim.api.nvim_get_current_buf())
   if not root then
     vim.notify('project-todos: no project root above the current file, skipping $HOME-wide search', vim.log.levels.WARN)
     return
   end
-  local telescope = require 'telescope'
-  telescope.load_extension 'todo-comments'
-  telescope.extensions['todo-comments'].todo { cwd = root }
+  Snacks.picker.todo_comments { cwd = root }
 end
 
 --[[ Refresh on entering a project and after writes so the cached footer count follows saved changes. ]]
