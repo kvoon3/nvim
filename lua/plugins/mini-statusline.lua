@@ -9,7 +9,17 @@ local function active()
   local todos = require('project-todos').section()
   local filename = statusline.section_filename { trunc_width = 140 }
   local fileinfo = statusline.section_fileinfo { trunc_width = 120 }
-  local location = statusline.section_location { trunc_width = 75 }
+  --[[ MiniStatusline.section_location appends `virtcol("$")`, which scans the
+  whole line on every render (~13ms per keystroke on a 700KB single line). For
+  pathological buffers show byte columns instead: %c is O(1), %v is not. ]]
+  local winid = tonumber(vim.g.statusline_winid)
+  local bufnr = winid and vim.api.nvim_win_is_valid(winid) and vim.api.nvim_win_get_buf(winid) or 0
+  local location
+  if require('bigfile').is_bigfile(bufnr) then
+    location = '%l|%L│%2c'
+  else
+    location = statusline.section_location { trunc_width = 75 }
+  end
   local search = statusline.section_searchcount { trunc_width = 75 }
 
   return statusline.combine_groups {

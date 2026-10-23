@@ -39,6 +39,14 @@ return {
     vim.api.nvim_create_autocmd('FileType', {
       group = vim.api.nvim_create_augroup('TreesitterHighlight', { clear = true }),
       callback = function(ev)
+        --[[ Pathological buffers (very long lines) stay on regex syntax: while a
+        treesitter parse is in flight every redraw re-evaluates the highlight
+        query predicates over all nodes, which pegs a core for a 700KB single
+        line (~500ms per frame). `synmaxcol` bounds the regex cost instead. ]]
+        if require('bigfile').is_bigfile(ev.buf) then
+          return
+        end
+
         local ok = pcall(vim.treesitter.start, ev.buf)
         if not ok then
           return
