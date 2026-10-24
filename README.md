@@ -29,15 +29,28 @@ The eslint-codemod plugin has an extra integration suite backed by a real ESLint
 ### Optional: full-color file icons
 
 Icons come from the [Catppuccin Icons](https://github.com/catppuccin/vscode-icons) VS Code
-extension, rendered by [real-icons.nvim](https://github.com/Mirsmog/real-icons.nvim) through the
-Kitty Graphics Protocol. Install the extension in VS Code, then let real-icons convert it:
+extension. Install it in VS Code, VSCodium, Cursor, or Windsurf and real-icons finds it on its own:
+it already discovers any installed VS Code icon theme, so there is no adapter to maintain and no
+build step. The plugin spec only adds the light/dark pairing (Latte for `background = light`, Mocha
+for `dark`).
 
-```sh
-brew install librsvg   # rsvg-convert; ImageMagick's own SVG renderer cannot draw these icons
-:lua require('catppuccin-icons').build { force = true }
-```
+Icons render at 48px rather than the source 16px SVG's native scale. Catppuccin draws 1.5px strokes
+at 16x16, so every pixel of downsampling error eats a whole segment. A 2-cell icon paints into
+roughly 38 device pixels at `font_size 16` on a retina display, and the terminal scales the image
+with its GPU bilinear filter; feeding it 128px collapses 3.4 source pixels into each output pixel
+and frays the strokes, while 48 keeps retina headroom without that penalty. Change `pixels` in
+`lua/plugins/real-icons.lua` if you change the font size.
 
-Without both pieces, or outside Kitty/Ghostty, icons fall back to mini.icons glyphs.
+Our real-icons fork resizes a source larger than `pixels` instead of handing it to the terminal
+untouched; upstream passes any PNG straight through, which is what caused the frayed strokes. It also
+renders SVG sources with `rsvg-convert` straight to the target size rather than rasterising and
+downsampling afterwards, so ImageMagick is not needed for this setup — `librsvg` alone is enough.
+Without either piece, or outside Kitty/Ghostty, icons fall back to mini.icons glyphs.
+
+Inside Herdr the backend is forced to `kitty`: every Herdr pane drops `KITTY_WINDOW_ID` and reports
+`TERM_PROGRAM=herdr`, so real-icons' auto-detection cannot recognize the host terminal. Herdr parses
+the Kitty Graphics Protocol itself and forwards it to the outer terminal (it needs
+`[terminal] kitty_graphics = true`, the default).
 
 ### Optional: macOS input-method switching
 

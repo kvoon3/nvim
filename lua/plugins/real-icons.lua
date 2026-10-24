@@ -1,41 +1,67 @@
-local icons = require 'catppuccin-icons'
+--[[ Catppuccin Icons, loaded straight from the VS Code extension.
 
-local function pack_for(background)
-  local packs, ready = icons.packs()
-  if not ready then
-    -- Pack specs exist but the build step has not produced PNGs yet: glyph fallback until then.
-    return 'builtin', packs
+real-icons discovers any installed VS Code icon theme, so the Catppuccin
+extension needs no adapter: its four flavours show up as packs named
+"Catppuccin <Flavour>". All we add is the light/dark pairing.
+
+Icons render through the Kitty Graphics Protocol. Herdr wipes the outer
+terminal identity from every pane (TERM_PROGRAM=herdr, no KITTY_WINDOW_ID), so
+real-icons cannot auto-detect images there and would fall back to glyphs. ]]
+local herdr = vim.env.HERDR_ENV == '1' or vim.env.TERM_PROGRAM == 'herdr'
+
+local function backend()
+  return herdr and 'kitty' or 'auto'
+end
+
+--[[ Icons paint into ~2 cells. Catppuccin draws 1.5px strokes at 16x16, so a
+source larger than the space it is drawn into gets downsampled by the
+terminal's GPU filter and the strokes fray. 48px covers 2 cells at font_size 16
+on a retina display with headroom. ]]
+local pixels = 48
+
+local flavour = { light = 'Catppuccin Latte', dark = 'Catppuccin Mocha' }
+
+--[[ Pack spec for the flavour matching `background`, or nil when the VS Code
+extension is not installed. discover_packs() registers what it returns, so the
+name is usable by use_pack() straight away. ]]
+local function catppuccin_pack(background)
+  local wanted = flavour[background] or flavour.dark
+  for _, candidate in ipairs(require('real-icons').discover_packs()) do
+    if candidate.label == wanted then
+      return candidate.name
+    end
   end
-  return 'catppuccin_' .. (background == 'light' and 'latte' or 'mocha'), packs
 end
 
 return {
-  'Mirsmog/real-icons.nvim',
+  'kvoon3/real-icons.nvim',
+  branch = 'fix/png-resize',
   lazy = false,
   dependencies = { 'nvim-mini/mini.icons' },
-  build = function()
-    icons.build { notify = true }
-  end,
   opts = {
+    backend = backend(),
+    size = { pixels = pixels },
     integrations = {
       snacks_picker = true,
       mini_statusline = true,
     },
   },
   config = function(_, opts)
-    local pack, packs = pack_for(vim.o.background)
-    opts.packs = vim.tbl_extend('force', opts.packs or {}, packs or {})
-    opts.pack = pack
+    local icons = require 'real-icons'
+    icons.setup(opts)
 
-    require('real-icons').setup(opts)
+    local function apply(background)
+      local pack = catppuccin_pack(background)
+      if pack and icons.pack() ~= pack then
+        icons.use_pack(pack, { notify = false })
+      end
+    end
 
+    apply(vim.o.background)
     vim.api.nvim_create_autocmd('OptionSet', {
       pattern = 'background',
       callback = function()
-        local next_pack = pack_for(vim.o.background)
-        if require('real-icons').pack() ~= next_pack then
-          require('real-icons').use_pack(next_pack, { notify = false })
-        end
+        apply(vim.o.background)
       end,
     })
 
@@ -43,21 +69,14 @@ return {
       {
         desc = 'Choose icon pack',
         cmd = function()
-          require('real-icons').select_pack()
+          icons.select_pack()
         end,
         cat = 'icons',
       },
       {
         desc = 'Preview icons',
         cmd = function()
-          require('real-icons').demo()
-        end,
-        cat = 'icons',
-      },
-      {
-        desc = 'Rebuild icon files',
-        cmd = function()
-          icons.build { force = true, notify = true }
+          icons.demo()
         end,
         cat = 'icons',
       },
