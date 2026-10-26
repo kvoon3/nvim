@@ -94,7 +94,7 @@ nvim 0.11+ **默认开启 LSP semantic tokens**，压缩文件的那一行被塞
 - 逐帧 Lua 回调都很便宜：`snacks.statuscolumn` 0.0068ms/行、`winbar`+`statusline` 0.05ms/帧。
 - FFI 调用 4ns、msgpack-RPC 往返 19µs —— 都远低于感知阈值。
 
-## 5. 单行大文件：LSP 全部退让（bigfile guard）
+## 5. 大文件 / 单行文件：LSP 全部退让（bigfile guard）
 
 修复 semantic tokens 之后，`min.js` 仍然会吃掉一个核：LSP server 在 `didOpen` 时解析整个文件。
 
@@ -108,9 +108,24 @@ nvim 0.11+ **默认开启 LSP semantic tokens**，压缩文件的那一行被塞
 
 做法：
 
-- `lua/bigfile.lua`：按 buffer 缓存（`changedtick` 变化才重算）的「超长行」判定（>2000 字符）。1.3MB / 29k 行的 `.d.ts` 首次扫描 1.2ms、命中缓存 0ms
+- `lua/bigfile.lua`：按 buffer 缓存（`changedtick` 变化才重算）的 bigfile 判定，两条判据：**总字节 > 256KB**，或**存在超长行（>2000 字符）**。字节数用 `nvim_buf_get_offset(buf, line_count)` 取（O(1)，不用扫内容；1.3MB / 29k 行的 `.d.ts` 命中缓存 0ms），只有体积过关才退回分块扫描长行（1.3MB / 29k 行 1.2ms）
 - `lua/config/lsp.lua` 包住 `vim.lsp.start`：bigfile buffer 直接返回 nil，**服务进程不会 spawn**（nvim 0.12 的 `vim.lsp.config` 没有 per-buffer 开关、`vim.lsp.enable()` 是全局的，这是唯一能在 spawn 前拦住的点）
 - 同时把 `harper_ls` 收窄到 `markdown/text/gitcommit/asciidoc`（lspconfig 默认还把它挂到 c/cpp/cs/go/js/ts，而它是文案检查器）
+
+为什么加体积判据：`tsrs` 对**重复同名声明**的内存占用是超线性的（约 O(n²)），跟行长无关：
+
+| 文件 | 大小 | tsrs 峰值 footprint |
+|---|---|---|
+| `min.js`（重复压缩代码） | 684KB | **1589MB** |
+| 同上内容改成 5834 行 | 689KB | **1638MB**（单行不是原因） |
+| `function f(){}` × 32k 行 | 875KB | **2026MB** |
+| 重复 `var a=1` × 16k 行 | 141KB | 532MB |
+| 重复 `var v{i}=1`（唯一名）× 16k 行 | 208KB | 45MB（不爆） |
+| `weilapb.js`（1.4MB 生成代码） | 1474KB | 71MB（不爆） |
+
+即「小文件也可能爆、大文件也可能没事」。256KB 这条线是按实测定的：128KB 重复声明 → 84MB、256KB → 216MB、512KB → 731MB；而本机所有超过 256KB 的 `.ts/.js/.d.ts` 都是生成物（`weilapb.js` 1.4MB、`weilapb.d.ts` 1.3MB、storybook/raycast 打包产物），本来就不需要语言服务。
+
+`--maxMemory` / `TSRS_MAX_MEMORY` / `initializationOptions.maxMemory` 三条缓解路径实测全部无效（`tsrs --lsp` 的 flag 只有 `-clientProcessId/-pipe/-socket/-stdio/-pprofDir`，传 `--maxMemory` 直接被拒）。唯一有效的是 `didClose`：打开后 1582MB，关闭文件 3 秒后回落到 30MB —— 所以内存被「当前打开的病态文件」钉住，不是泄漏。
 
 同一类 buffer 还要关掉 treesitter：parse 进行中时，**每一次重绘都会重新求值整棵树的 highlight query predicate**（`highlighter.lua:402` → `query:iter` → `get_node_text`），70 万字符单行上约 500ms/帧，表现就是"打开后卡死几分钟"。`lua/plugins/treesitter.lua` 现在对 bigfile buffer 直接跳过 `vim.treesitter.start`，退回 regex syntax（`synmaxcol=3000` 兜住成本）。
 
@@ -134,7 +149,7 @@ nvim 0.11+ **默认开启 LSP semantic tokens**，压缩文件的那一行被塞
 
 注意 `%v`（`virtcol('.')`）同样是 O(光标所在列)，所以 bigfile buffer 里也没用它，而是 `%c`（字节列，O(1)）。
 
-代价：这类 buffer 没有跳转/诊断/补全、没有 treesitter 高亮（只有 regex 语法色）、状态栏显示字节列而不是虚拟列；没有 marker 的目录里也不再有 TODO 计数（见下一节）。
+代价：这类 buffer（>256KB 或含超长行）没有跳转/诊断/补全、没有 treesitter 高亮（只有 regex 语法色）、状态栏显示字节列而不是虚拟列；没有 marker 的目录里也不再有 TODO 计数（见下一节）。256KB 这条线上的文件都是生成物或打包产物，真实手写代码不会踩到；真要在这个大小里编辑，`:set syntax=off` 之外的行为和普通 buffer 一致。
 
 ## 6. 状态栏 TODO 计数在 `/tmp` 暴走
 
