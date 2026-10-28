@@ -31,7 +31,6 @@
   "promise-async": { "branch": "main", "commit": "119e8961014c9bfaf1487bf3c2a393d254f337e2" },
   "quicker.nvim": { "branch": "master", "commit": "4a6883cb13fe097a20a046eb55f6dffd239276e3" },
   "real-icons.nvim": { "branch": "fix/png-resize", "commit": "fad1cbf80943264bb5bf98214ec103d075c19c44" },
-  "smudge.nvim": { "branch": "main", "commit": "749f8ddc022def0aade98dee01dd42739a24d765" },
   "snacks.nvim": { "branch": "main", "commit": "882c996cf28183f4d63640de0b4c02ec886d01f2" },
   "targets.vim": { "branch": "master", "commit": "6325416da8f89992b005db3e4517aaef0242602e" },
   "tiny-inline-diagnostic.nvim": { "branch": "main", "commit": "46ae9b3c8f3039e96ff4497d190ad0aee091f30d" },

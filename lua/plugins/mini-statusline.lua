@@ -1,12 +1,42 @@
+local product = require 'product-icons'
+
+--[[ Diagnostics keep their severity colour while the count next to them stays
+in the devinfo colour, so each sign restores the group the section was opened
+with. ]]
+local function severity(name)
+  return product.statusline(name, { restore = 'MiniStatuslineDevinfo' }) .. ' '
+end
+
+--[[ Prefix the project TODO count with its product icon; the count alone still
+reads fine when the icon has no glyph on an image-less terminal. ]]
+local function todo_section()
+  local section = require('project-todos').section()
+  if section == '' then
+    return ''
+  end
+  local icon = product.statusline 'todo'
+  return icon == '' and section or (icon .. ' ' .. section)
+end
+
 local function active()
-  --[[ Keep mini.statusline's default layout and add the existing clickable shortcuts. ]]
+  --[[ Keep mini.statusline's default layout, swap its Nerd Font glyphs for
+product icons, and add the existing clickable shortcuts. ]]
   local statusline = require 'mini.statusline'
   local mode, mode_hl = statusline.section_mode { trunc_width = 120 }
-  local git = statusline.section_git { trunc_width = 40 }
-  local diff = statusline.section_diff { trunc_width = 75 }
-  local diagnostics = statusline.section_diagnostics { trunc_width = 75 }
-  local lsp = statusline.section_lsp { trunc_width = 75 }
-  local todos = require('project-todos').section()
+  local git = statusline.section_git { trunc_width = 40, icon = product.statusline 'branch' }
+  local diff = statusline.section_diff { trunc_width = 75, icon = product.statusline 'diff' }
+  local diagnostics = statusline.section_diagnostics {
+    trunc_width = 75,
+    icon = '',
+    signs = {
+      ERROR = severity 'error',
+      WARN = severity 'warning',
+      INFO = severity 'info',
+      HINT = severity 'hint',
+    },
+  }
+  local lsp = statusline.section_lsp { trunc_width = 75, icon = product.statusline 'lsp' }
+  local todos = todo_section()
   local filename = statusline.section_filename { trunc_width = 140 }
   local fileinfo = statusline.section_fileinfo { trunc_width = 120 }
   --[[ MiniStatusline.section_location appends `virtcol("$")`, which scans the

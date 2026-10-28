@@ -1,19 +1,10 @@
 local M = {}
 
-local icons = {
-  branch = '󰘬',
-  ahead = '󰁝',
-  behind = '󰁅',
-  dirty = '•',
-  explorer = '󰉋',
-  terminal = '󰆍',
-  finder = '󰀶',
-  github = '󰊤',
-  error = '󰅚',
-  warning = '󰀪',
-  info = '󰋽',
-  hint = '󰌶',
-}
+local product = require 'product-icons'
+
+--[[ The winbar marks a modified buffer with punctuation rather than a product
+icon: it sits in running text and must not claim a cell pair. ]]
+local DIRTY = '•'
 
 local function segment(group, text)
   return '%#' .. group .. '#' .. text .. '%*'
@@ -22,16 +13,10 @@ end
 local function setup_highlights()
   vim.api.nvim_set_hl(0, 'StatusLineGit', { link = 'String' })
   vim.api.nvim_set_hl(0, 'StatusLineFile', { link = 'Directory' })
-  vim.api.nvim_set_hl(0, 'StatusLineError', { link = 'DiagnosticError' })
-  vim.api.nvim_set_hl(0, 'StatusLineWarning', { link = 'DiagnosticWarn' })
-  vim.api.nvim_set_hl(0, 'StatusLineInfo', { link = 'DiagnosticInfo' })
-  vim.api.nvim_set_hl(0, 'StatusLineHint', { link = 'DiagnosticHint' })
 end
 
 setup_highlights()
 vim.api.nvim_create_autocmd('ColorScheme', { callback = setup_highlights })
-
--- test
 
 --[[ Snacks explorer sidebar windows get a blank statusline and winbar.
 With laststatus=2 the row itself cannot be removed per-window, only emptied. ]]
@@ -120,18 +105,6 @@ M.click_terminal = on_left_click(function()
   vim.cmd 'ToggleTerm'
 end)
 
-M.click_branch = on_left_click(function()
-  focus_clicked_win()
-  Snacks.lazygit()
-  -- The click is processed in normal mode, which cancels snacks' own startinsert;
-  -- re-enter terminal mode after click handling completes.
-  vim.schedule(function()
-    if vim.bo.buftype == 'terminal' then
-      vim.cmd 'startinsert'
-    end
-  end)
-end)
-
 M.click_finder = on_left_click(function()
   focus_clicked_win()
   reveal_in_finder()
@@ -142,98 +115,25 @@ M.click_github = on_left_click(function()
   require('open-in-github').open_in_github()
 end)
 
-M.click_push = on_left_click(function()
-  focus_clicked_win()
-  require('git-status').push()
-end)
-
-M.click_pull = on_left_click(function()
-  focus_clicked_win()
-  require('git-status').pull()
-end)
-
-M.click_pull_rebase_push = on_left_click(function()
-  focus_clicked_win()
-  require('git-status').pull_rebase_push()
-end)
-
---[[ Git branch and sync arrows for the left side of the footer.
-Clicking the branch opens lazygit. Arrows: ahead = push, behind = pull, both = one rebase+push button. ]]
-local function git_section(buf)
-  local status = require('git-status').get(buf)
-  if not status then
-    return nil
-  end
-  local branch_label = status.branch and (icons.branch .. ' ' .. status.branch) or icons.branch
-  local parts = { clickable('click_branch', branch_label) }
-  if status.dirty then
-    parts[#parts + 1] = icons.dirty
-  end
-  if status.upstream and status.ahead > 0 and status.behind > 0 then
-    local diverged = icons.ahead .. status.ahead .. ' ' .. icons.behind .. status.behind
-    parts[#parts + 1] = clickable('click_pull_rebase_push', diverged)
-  elseif status.upstream and status.ahead > 0 then
-    parts[#parts + 1] = clickable('click_push', icons.ahead .. status.ahead)
-  elseif status.upstream and status.behind > 0 then
-    parts[#parts + 1] = clickable('click_pull', icons.behind .. status.behind)
-  end
-  return segment('StatusLineGit', ' ' .. table.concat(parts, ' ') .. ' ')
-end
-
-local function diagnostics_section(buf)
-  local counts = vim.diagnostic.count(buf)
-  local parts = {}
-  for _, item in ipairs {
-    { vim.diagnostic.severity.ERROR, 'StatusLineError', icons.error },
-    { vim.diagnostic.severity.WARN, 'StatusLineWarning', icons.warning },
-    { vim.diagnostic.severity.INFO, 'StatusLineInfo', icons.info },
-    { vim.diagnostic.severity.HINT, 'StatusLineHint', icons.hint },
-  } do
-    local count = counts[item[1]] or 0
-    if count > 0 then
-      parts[#parts + 1] = segment(item[2], ' ' .. item[3] .. count .. ' ')
-    end
-  end
-  return table.concat(parts)
-end
-
 --[[ Render the winbar header: file path and flags centered. Blank for explorer windows and non-file buffers. ]]
 function M.render_header()
   local buf = vim.api.nvim_win_get_buf(render_winid())
   if disabled_filetypes[vim.bo[buf].filetype] or vim.bo[buf].buftype ~= '' then
     return ''
   end
-  local modified = vim.bo[buf].modified and segment('StatusLineGit', ' ' .. icons.dirty) or ''
+  local modified = vim.bo[buf].modified and segment('StatusLineGit', ' ' .. DIRTY) or ''
   return '%=' .. segment('StatusLineFile', '  %f') .. modified .. ' %r%h%w%='
 end
 
---[[ Return clickable shortcuts for the custom actions retained in mini.statusline. ]]
+--[[ Return clickable shortcuts for the custom actions retained in mini.statusline.
+The icons are product icons, so they follow the fileinfo group's foreground. ]]
 function M.actions()
   return table.concat({
-    clickable('click_explorer', icons.explorer),
-    clickable('click_terminal', icons.terminal),
-    clickable('click_finder', icons.finder),
-    clickable('click_github', icons.github),
+    clickable('click_explorer', product.statusline 'explorer'),
+    clickable('click_terminal', product.statusline 'terminal'),
+    clickable('click_finder', product.statusline 'finder'),
+    clickable('click_github', product.statusline 'github'),
   }, '  ')
-end
-
---[[ Render the footer as compact, colored sections for editing state, Git, diagnostics, and actions. ]]
-function M.render()
-  local buf = vim.api.nvim_win_get_buf(render_winid())
-  if disabled_filetypes[vim.bo[buf].filetype] or vim.bo[buf].buftype == 'terminal' then
-    return ''
-  end
-  return table.concat({
-    git_section(buf) or '',
-    '%=',
-    diagnostics_section(buf),
-    segment('StatusLineFile', ' ' .. (vim.bo[buf].filetype ~= '' and vim.bo[buf].filetype or 'text') .. ' '),
-    ' %l:%c  %p%% ',
-    clickable('click_explorer', ' ' .. icons.explorer .. ' '),
-    clickable('click_terminal', ' ' .. icons.terminal .. ' '),
-    clickable('click_finder', ' ' .. icons.finder .. ' '),
-    clickable('click_github', ' ' .. icons.github .. ' '),
-  }, ' ')
 end
 
 require('cmdr').add {

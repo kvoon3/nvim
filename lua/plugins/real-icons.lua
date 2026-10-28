@@ -67,14 +67,14 @@ return {
 
     require('cmdr').add {
       {
-        desc = 'Choose icon pack',
+        desc = 'Choose file icon pack',
         cmd = function()
           icons.select_pack()
         end,
         cat = 'icons',
       },
       {
-        desc = 'Preview icons',
+        desc = 'Preview file icons',
         cmd = function()
           icons.demo()
         end,

@@ -26,9 +26,40 @@ Tests run with `mini.test` in an isolated Neovim data directory. The pre-commit 
 
 The eslint-codemod plugin has an extra integration suite backed by a real ESLint project in [`playground/eslint-codemod/`](playground/eslint-codemod). Run `pnpm install` once there; without it the suite stays green via a placeholder.
 
-### Optional: full-color file icons
+### Icons
 
-Icons come from the [Catppuccin Icons](https://github.com/catppuccin/vscode-icons) VS Code
+The icon set has two halves, and real-icons paints both the same way: a Kitty graphics image behind a
+placeholder cell pair, so an icon is not limited to what the Nerd Font covers.
+
+- **File icons** answer "what is this buffer?" and come from a VS Code *file* icon theme.
+- **Product icons** answer "what does this button do?" and come from a VS Code *product* icon theme.
+  This is the footer's chrome: explorer, terminal, Finder, GitHub, branch, diff, LSP, TODO, and the
+  four diagnostic severities.
+
+Inside Herdr the backend is forced to `kitty`: every Herdr pane drops `KITTY_WINDOW_ID` and reports
+`TERM_PROGRAM=herdr`, so real-icons' auto-detection cannot recognize the host terminal. Herdr parses
+the Kitty Graphics Protocol itself and forwards it to the outer terminal (it needs
+`[terminal] kitty_graphics = true`, the default).
+
+#### Product icons
+
+They are [Carbon](https://github.com/antfu/vscode-icons-carbon) (IBM
+[Carbon](https://carbondesignsystem.com/elements/icons/library/) ported to VS Code's product icon
+API). Only the roles this configuration uses are vendored, as SVG under
+[`assets/product-icons/`](assets/product-icons/README.md), because a product icon theme ships a WOFF
+font that Neovim cannot load; `lua/product-icons.lua` rasterises the SVG instead.
+
+Each icon is tinted with the foreground of the highlight group it belongs to — `MiniStatuslineDevinfo`
+for git and LSP, `DiagnosticError` and friends for the severities — and cached in
+`stdpath('cache')/product-icons`, one file per role and colour. Conversions run in the background with
+`rsvg-convert` (ImageMagick works too) and only for the roles the footer actually paints, and the glyph
+stands in until the raster exists, so a new colorscheme never blocks a redraw. The pixel box is
+real-icons' `pixels`, so changing the font size moves both icon families at once. `Preview product
+icons` in the command palette lists the whole set against the current theme.
+
+#### File icons
+
+File icons come from the [Catppuccin Icons](https://github.com/catppuccin/vscode-icons) VS Code
 extension. Install it in VS Code, VSCodium, Cursor, or Windsurf and real-icons finds it on its own:
 it already discovers any installed VS Code icon theme, so there is no adapter to maintain and no
 build step. The plugin spec only adds the light/dark pairing (Latte for `background = light`, Mocha
@@ -45,12 +76,8 @@ Our real-icons fork resizes a source larger than `pixels` instead of handing it 
 untouched; upstream passes any PNG straight through, which is what caused the frayed strokes. It also
 renders SVG sources with `rsvg-convert` straight to the target size rather than rasterising and
 downsampling afterwards, so ImageMagick is not needed for this setup — `librsvg` alone is enough.
-Without either piece, or outside Kitty/Ghostty, icons fall back to mini.icons glyphs.
-
-Inside Herdr the backend is forced to `kitty`: every Herdr pane drops `KITTY_WINDOW_ID` and reports
-`TERM_PROGRAM=herdr`, so real-icons' auto-detection cannot recognize the host terminal. Herdr parses
-the Kitty Graphics Protocol itself and forwards it to the outer terminal (it needs
-`[terminal] kitty_graphics = true`, the default).
+Without either piece, or outside Kitty/Ghostty, file icons fall back to mini.icons glyphs and product
+icons to their Nerd Font stand-ins.
 
 ### Optional: macOS input-method switching
 
@@ -74,7 +101,7 @@ If unset, the `openrouter` token in `~/.pi/agent/auth.json` is reused. Enable it
 - **LSP:** mise-managed Lua, TypeScript, Vue, web, Rust, spelling, and grammar servers; TS/JS runs on `tsrs` (TypeScript 7 in Rust), projects that pin TypeScript 7.1+ in `node_modules` use that native `tsc` instead (content mappers only behind a `.nvim-content-mappers` marker), and the fallback is the project's `tsserver` (`touch .nvim-tsserver` forces it), Vue keeps `ts_ls` + `@vue/typescript-plugin`; completion via blink.cmp with its Rust fuzzy matcher, LuaSnip snippets, formatting, linting with silent stylistic diagnostics, and ESLint fixes on save. References and friends use the built-in `grr`/`gri`/`grt`/`gra`/`grn` maps, and eagle.nvim pops a float with diagnostics plus LSP hover info when the mouse rests on a symbol (or on `:EagleWin`).
 - **Navigation:** `gd` follows Markdown links, wiki links, and anchors (falling back to LSP definitions), Snacks pickers for files, grep, buffers, help, TODOs, and colorschemes (with previews and jump-to-source), Snacks file explorer, editable quickfix lists, mini.starter start screen with recent projects, and a command palette.
 - **Git:** Gitsigns, floating LazyGit (`:lg`), GitHub links, and terminal-aware Git editing.
-- **UI:** Lazy.nvim, macOS-aware light/dark themes, theme-tinted undo-glow feedback for undo, redo, paste, search, yanks, and comments, notifications, keybinding clues, theme-aware mini.statusline with the project TODO count, winbar with an unsaved-change indicator, hidden-by-default line numbers with a command-palette toggle, cursor smear animation with a command-palette toggle, tiny-inline-diagnostic.nvim for inline diagnostic messages, full-color Catppuccin file icons in pickers, the explorer, and the statusline, and prose wrapping.
+- **UI:** Lazy.nvim, macOS-aware light/dark themes, theme-tinted undo-glow feedback for undo, redo, paste, search, yanks, and comments, notifications, keybinding clues, theme-aware mini.statusline with the project TODO count, winbar with an unsaved-change indicator, hidden-by-default line numbers with a command-palette toggle, cursor smear animation with a command-palette toggle, tiny-inline-diagnostic.nvim for inline diagnostic messages, full-color Catppuccin file icons in pickers, the explorer, and the statusline, Carbon product icons for the statusline's git, diagnostic, TODO, and action segments, and prose wrapping.
 - **Reading:** lazy bilingual inline translation (OpenRouter `gemini-2.5-flash-lite`) for Markdown and prose buffers, rendered as virtual lines under the paragraphs currently on screen.
 - **Performance:** ~40ms startup; word motions use the Rust jieba segmenter only in buffers that actually contain CJK text (builtin Vim motions elsewhere, with a token cap for huge lines); buffers over 256KB or holding very long lines (minified/generated files) opt out of LSP, Treesitter highlighting and `virtcol()`-based statusline items, and the statusline TODO search is throttled per project and requires a project marker.
 
