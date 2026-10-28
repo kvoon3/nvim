@@ -19,8 +19,8 @@ local function todo_section()
 end
 
 local function active()
-  --[[ Keep mini.statusline's default layout, swap its Nerd Font glyphs for
-product icons, and add the existing clickable shortcuts. ]]
+  --[[ Keep mini.statusline's default layout minus the filename, swap its Nerd Font
+  glyphs for product icons, and add the existing clickable shortcuts. ]]
   local statusline = require 'mini.statusline'
   local mode, mode_hl = statusline.section_mode { trunc_width = 120 }
   local git = statusline.section_git { trunc_width = 40, icon = product.statusline 'branch' }
@@ -37,7 +37,6 @@ product icons, and add the existing clickable shortcuts. ]]
   }
   local lsp = statusline.section_lsp { trunc_width = 75, icon = product.statusline 'lsp' }
   local todos = todo_section()
-  local filename = statusline.section_filename { trunc_width = 140 }
   local fileinfo = statusline.section_fileinfo { trunc_width = 120 }
   --[[ MiniStatusline.section_location appends `virtcol("$")`, which scans the
   whole line on every render (~13ms per keystroke on a 700KB single line). For
@@ -55,9 +54,9 @@ product icons, and add the existing clickable shortcuts. ]]
   return statusline.combine_groups {
     { hl = mode_hl, strings = { mode } },
     { hl = 'MiniStatuslineDevinfo', strings = { git, diff, diagnostics, lsp, todos } },
-    '%<',
-    { hl = 'MiniStatuslineFilename', strings = { filename } },
-    '%=',
+    --[[ Only the mode and devinfo sit at the left now; a narrow window cuts there
+    instead of dropping the fileinfo, actions and location. ]]
+    '%<%=',
     { hl = 'MiniStatuslineFileinfo', strings = { fileinfo, require('statusline').actions() } },
     { hl = mode_hl, strings = { search, location } },
   }
@@ -68,7 +67,10 @@ return {
   version = false,
   dependencies = { 'nvim-mini/mini.icons' },
   config = function()
+    --[[ The winbar already names the buffer and the footer stays icon-free, so
+    mini.statusline must not prepend a filetype icon to the fileinfo section. ]]
     require('mini.statusline').setup {
+      use_icons = false,
       content = { active = active },
     }
 

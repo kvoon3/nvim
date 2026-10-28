@@ -43,7 +43,6 @@ return {
     size = { pixels = pixels },
     integrations = {
       snacks_picker = true,
-      mini_statusline = true,
     },
   },
   config = function(_, opts)
