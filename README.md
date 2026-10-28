@@ -79,6 +79,11 @@ downsampling afterwards, so ImageMagick is not needed for this setup — `librsv
 Without either piece, or outside Kitty/Ghostty, file icons fall back to mini.icons glyphs and product
 icons to their Nerd Font stand-ins.
 
+File icons also cover the picker surfaces real-icons does not patch on its own: its Snacks
+integration only rewrites list rows, so `lua/picker-icons.lua` redraws the explorer preview's
+directory listing — Snacks paints that pane with its own glyph icons — through the same resolver, and
+redraws it on `User RealIconsUpdated` when a cold cache starts serving images.
+
 ### Optional: macOS input-method switching
 
 ```sh

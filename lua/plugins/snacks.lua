@@ -72,6 +72,9 @@ return {
   },
   config = function(_, opts)
     require('snacks').setup(opts)
+    --[[ The explorer preview draws directory entries with Snacks' glyph icons;
+run them through real-icons so the pane matches the file icon set. ]]
+    require('picker-icons').setup()
 
     require('cmdr').add {
       {
