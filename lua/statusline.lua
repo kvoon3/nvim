@@ -10,9 +10,32 @@ local function segment(group, text)
   return '%#' .. group .. '#' .. text .. '%*'
 end
 
+--[[ Keep the foreground the colorscheme chose for the footer and drop its
+background, so a translucent terminal window shows through the statusline
+instead of an opaque bar. The mode pills keep their own backgrounds. ]]
+local function strip_statusline_background()
+  for _, name in ipairs { 'StatusLine', 'StatusLineNC', 'StatusLineTerm', 'StatusLineTermNC' } do
+    local hl = vim.api.nvim_get_hl(0, { name = name, link = false })
+    vim.api.nvim_set_hl(0, name, {
+      fg = hl.fg,
+      bg = 'NONE',
+      sp = hl.sp,
+      ctermfg = hl.ctermfg,
+      ctermbg = hl.ctermbg,
+      bold = hl.bold,
+      italic = hl.italic,
+      underline = hl.underline,
+      undercurl = hl.undercurl,
+      strikethrough = hl.strikethrough,
+      blend = hl.blend,
+    })
+  end
+end
+
 local function setup_highlights()
   vim.api.nvim_set_hl(0, 'StatusLineGit', { link = 'String' })
   vim.api.nvim_set_hl(0, 'StatusLineFile', { link = 'Directory' })
+  strip_statusline_background()
 end
 
 setup_highlights()
