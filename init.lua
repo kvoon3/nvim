@@ -1,6 +1,7 @@
 require 'config.lazy'
 require 'options'
 require 'keymaps'
+require('glow').setup()
 require 'config.lsp'
 require 'config.prose'
 require('config.run-on-save').setup()
