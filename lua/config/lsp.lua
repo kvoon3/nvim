@@ -83,10 +83,8 @@ vim.lsp.start = function(config, opts)
 end
 
 -- Diagnostic navigation (goto_next/goto_prev are deprecated; use jump)
---[[ virtual_text stays off: tiny-inline-diagnostic.nvim draws the inline messages instead, and
-  letting Neovim render its own too would duplicate every diagnostic. ]]
 vim.diagnostic.config {
-  virtual_text = false,
+  virtual_text = true,
   signs = true,
   underline = true,
   update_in_insert = false,
@@ -96,6 +94,21 @@ vim.diagnostic.config {
     end,
   },
 }
+
+local function clear_diag_virtual_text_bg()
+  --[[ Preserve linked foreground colors while making diagnostic virtual text transparent. ]]
+  for _, severity in ipairs { 'Error', 'Warn', 'Info', 'Hint' } do
+    local group = 'DiagnosticVirtualText' .. severity
+    local link_to = 'Diagnostic' .. severity
+    local fg = vim.api.nvim_get_hl(0, { name = link_to, link = false }).fg
+    vim.api.nvim_set_hl(0, group, { fg = fg, bg = 'NONE' })
+  end
+end
+clear_diag_virtual_text_bg()
+vim.api.nvim_create_autocmd('ColorScheme', {
+  group = vim.api.nvim_create_augroup('DiagVirtualTextBg', {}),
+  callback = clear_diag_virtual_text_bg,
+})
 
 local function jump_diagnostic(count, severity)
   return function()
@@ -110,11 +123,7 @@ vim.keymap.set('n', '[d', jump_diagnostic(-1, w_e), { desc = 'Go to previous dia
 vim.keymap.set('n', ']d', jump_diagnostic(1, w_e), { desc = 'Go to next diagnostic' })
 vim.keymap.set('n', '<leader>en', jump_diagnostic(1, w_e), { desc = 'Go to next diagnostic' })
 vim.keymap.set('n', '<leader>hn', jump_diagnostic(1, vim.diagnostic.severity.HINT), { desc = 'Go to next hint' })
---[[ Resolve open_float at call time: tiny-inline-diagnostic.nvim wraps it to hide inline messages
-  while the float is open, which a captured function reference would bypass. ]]
-vim.keymap.set('n', '<leader>df', function()
-  vim.diagnostic.open_float()
-end, { desc = 'Open diagnostic float' })
+vim.keymap.set('n', '<leader>df', vim.diagnostic.open_float, { desc = 'Open diagnostic float' })
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostics list' })
 
 -- Servers come from the global mise manifest (~/.config/mise/config.toml), not a Neovim plugin
