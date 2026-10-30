@@ -9,13 +9,14 @@ edits and reloads free as long as the paragraph text is unchanged.
 ]]
 local M = {}
 
+local wrap = require('text-wrap').wrap
+
 local NS = vim.api.nvim_create_namespace 'inline-translate'
 local AUGROUP = vim.api.nvim_create_augroup('InlineTranslate', { clear = true })
 
 local PROMPT_VERSION = 'v1'
 local PREFIX = '  ▍ '
 local PREFIX_WIDTH = vim.fn.strdisplaywidth(PREFIX)
-local UTF8_CHAR = '[%z\1-\127\194-\244][\128-\191]*'
 local CACHE_DIR = 'inline-translate'
 
 local DEFAULT_MODEL = 'google/gemini-2.5-flash-lite'
@@ -55,14 +56,6 @@ local cached_key = nil
 
 local refresh
 local pump
-
-local function utf8_chars(text)
-  local chars = {}
-  for char in text:gmatch(UTF8_CHAR) do
-    chars[#chars + 1] = char
-  end
-  return chars
-end
 
 local function is_blank(line)
   return line:match '^%s*$' ~= nil
@@ -243,60 +236,6 @@ function M.translatable(text)
     return false
   end
   return not looks_like_identifier(text)
-end
-
----Wrap text on word boundaries using display width (CJK counts as two cells).
----@param text string
----@param width integer
----@return string[]
-function M.wrap(text, width)
-  width = math.max(10, width)
-
-  local lines = {}
-  local line, line_w = '', 0
-
-  local function flush()
-    if line_w > 0 then
-      lines[#lines + 1] = line
-      line, line_w = '', 0
-    end
-  end
-
-  local function add_word(word)
-    local word_w = vim.fn.strdisplaywidth(word)
-    if word_w > width then
-      for _, char in ipairs(utf8_chars(word)) do
-        local char_w = vim.fn.strdisplaywidth(char)
-        if line_w + char_w > width then
-          flush()
-        end
-        line = line .. char
-        line_w = line_w + char_w
-      end
-      return
-    end
-
-    local sep = line_w > 0 and 1 or 0
-    if line_w + sep + word_w > width then
-      flush()
-      sep = 0
-    end
-    if sep == 1 then
-      line = line .. ' '
-    end
-    line = line .. word
-    line_w = line_w + sep + word_w
-  end
-
-  for word in text:gmatch '%S+' do
-    add_word(word)
-  end
-  flush()
-
-  if #lines == 0 then
-    lines[1] = text
-  end
-  return lines
 end
 
 ---Extract the assistant message from an OpenAI-compatible chat completion body.
@@ -535,7 +474,7 @@ end
 
 local function virt_lines(text, width)
   local lines = {}
-  for _, line in ipairs(M.wrap(text, width)) do
+  for _, line in ipairs(wrap(text, width)) do
     lines[#lines + 1] = {
       { PREFIX, 'InlineTranslateMarker' },
       { line, 'InlineTranslateText' },
