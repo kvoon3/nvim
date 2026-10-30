@@ -86,6 +86,10 @@ end
 vim.keymap.set('n', '<D-S-p>', command_palette, { desc = 'Command palette' })
 vim.keymap.set('n', '<leader>cc', command_palette, { desc = 'Command palette' })
 
+-- cmdr items do not accept a range, so leave visual mode before opening the picker.
+vim.keymap.set('x', '<D-S-p>', '<Esc><Cmd>lua require("cmdr").show()<CR>', { desc = 'Command palette' })
+vim.keymap.set('x', '<leader>cc', '<Esc><Cmd>lua require("cmdr").show()<CR>', { desc = 'Command palette' })
+
 vim.keymap.set({ 'n', 'x' }, '<leader>y', '"+y', { desc = 'Yank to system clipboard' })
 vim.keymap.set('n', '<leader>p', '"+p', { desc = 'Paste from system clipboard' })
 vim.keymap.set('n', '<leader>a', 'ggVG', { desc = 'Select all' })
